@@ -5,7 +5,13 @@ JSON Structure
 {
     "name": "name",
     "width": "width",
-    "height": "height"
+    "height": "height",
+    "assets": [
+        {
+            "type": "image, sprite, music, effect",
+            "path": "file path"
+        }
+    ]
 }
 '''
 
