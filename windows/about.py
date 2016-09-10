@@ -10,3 +10,4 @@ class AboutWindow:
         center(self._toplevel)
         self._toplevel.focus_force()
         self._toplevel.bind('<Escape>', lambda *args: self._toplevel.destroy(), '+')
+        self._toplevel.bind('<FocusOut>', lambda *args: self._toplevel.destroy(), '+')

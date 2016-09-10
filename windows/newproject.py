@@ -3,6 +3,7 @@ import ttk
 from . import *
 
 class NewProjectWindow:
+    __metaclass__ = Singleton
     '''
     args:
         + master: a Tk instance
@@ -36,7 +37,7 @@ class NewProjectWindow:
         ttk.Button(self._toplevel, text="cancel", command=self.__cancel_callback).grid(row=3, column=3, **default_pad)
 
         center(self._toplevel)
-        self._toplevel.bind('<Escape>', lambda *args : self._toplevel.destroy(), '+')
+        self._toplevel.bind('<Escape>', lambda *args : self._toplevel.withdraw(), '+')
     
     def __ok_callback(self):
         '''
@@ -53,7 +54,7 @@ class NewProjectWindow:
         self.phaserproject.height = height
         self.phaserproject.name = self.name_entry.get()
 
-        self._toplevel.destroy()
+        self._toplevel.withdraw()
         if self.do_on_end:
             self.do_on_end(self.phaserproject)
     
@@ -61,4 +62,11 @@ class NewProjectWindow:
         '''
         called when cancel button is pressed
         '''
-        self._toplevel.destroy()
+        self._toplevel.withdraw()
+
+    def focus(self):
+        '''
+        needed for Singleton meta class
+        '''
+        self._toplevel.state('normal')
+        self._toplevel.focus_force()
