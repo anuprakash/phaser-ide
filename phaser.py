@@ -1,11 +1,16 @@
 import core
 import ttk
 import tkFileDialog
+import tkMessageBox
 from Tkinter import *
 from windows import *
 
+CURRENT_PROJECT = None
+
 def new_project(*args):
-    NewProjectWindow(top, core.PhaserProject())
+    global CURRENT_PROJECT
+    CURRENT_PROJECT = core.PhaserProject()
+    NewProjectWindow(top, CURRENT_PROJECT)
 
 def open_project(*args):
     filename = tkFileDialog.askopenfilename()
@@ -17,6 +22,12 @@ def show_about_window():
 
 def show_create_manager():
     pass
+
+def show_assets_manager():
+    if CURRENT_PROJECT:
+        AssetsManagerWindow(top, CURRENT_PROJECT)
+    else:
+        tkMessageBox.showwarning(title='No project found', message='No project found')
 
 top = Tk()
 ttk.Style().theme_use('clam')
@@ -39,9 +50,10 @@ projectmenu.add_separator()
 projectmenu.add_command(label="Quit", command=top.destroy)
 
 # assets menu
+# fixme: add tile options etc
 assetsmenu = Menu(menubar, tearoff=0)
 menubar.add_cascade(label="Assets", menu=assetsmenu)
-assetsmenu.add_command(label="Assets manager")
+assetsmenu.add_command(label="Assets manager", command=show_assets_manager)
 
 # about menu
 helpmenu = Menu(menubar, tearoff=0)
