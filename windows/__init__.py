@@ -52,7 +52,11 @@ class DefaultWindow:
     def centralize(self):
         self._toplevel.update_idletasks()
         center(self._toplevel)
+    
+    def dialog(self):
+        self._toplevel.bind('<FocusOut>', lambda *args : self._toplevel.focus_force(), '+')
 
 from newproject import NewProjectWindow
 from about import AboutWindow
 from assetsmanager import AssetsManagerWindow
+from settings import SettingsWindow

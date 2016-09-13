@@ -3,7 +3,7 @@ from . import DefaultWindow, default_attrs, default_pad
 
 class NewProjectWindow(DefaultWindow):
     def __init__(self, master, phaserproject, do_on_end=None):
-        DefaultWindow.__init__(self, master, phaserproject, do_on_end=None)
+        DefaultWindow.__init__(self, master, phaserproject, do_on_end)
         ttk.Label(self._toplevel, text="Project name", **default_attrs).grid(sticky='W', row=0, column=0, columnspan=4, **default_pad)
         self.name_entry = ttk.Entry(self._toplevel, width=45)
         self.name_entry.grid(row=1, column=0, columnspan=4, **default_pad)
@@ -26,6 +26,7 @@ class NewProjectWindow(DefaultWindow):
         ttk.Button(self._toplevel, text="cancel", command=self.__cancel_callback).grid(row=3, column=3, **default_pad)
 
         self.centralize()
+        self.dialog()
     
     def __ok_callback(self):
         '''

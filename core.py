@@ -9,7 +9,7 @@ JSON Structure
     "assets": [
         {
             "type": "image, sprite, music, effect",
-            "path": "file path"
+            "value": "file path"
         }
     ]
 }

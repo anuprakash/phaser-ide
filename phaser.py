@@ -55,6 +55,11 @@ assetsmenu = Menu(menubar, tearoff=0)
 menubar.add_cascade(label="Assets", menu=assetsmenu)
 assetsmenu.add_command(label="Assets manager", command=show_assets_manager)
 
+# settings menu
+settingsmenu = Menu(menubar, tearoff=0)
+menubar.add_cascade(label="Settings", menu=settingsmenu)
+settingsmenu.add_command(label="Editor Settings", command=lambda *args: SettingsWindow(top))
+
 # about menu
 helpmenu = Menu(menubar, tearoff=0)
 menubar.add_cascade(label="Help", menu=helpmenu)
