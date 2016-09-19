@@ -25,8 +25,8 @@ class PhaserProject:
     def __init__(self, json=None):
         self.json = json
         self.name = ''
-        self.width = 0
-        self.height = 0
+        self.width = 640
+        self.height = 480
         self.scenes = []
 
         if json:

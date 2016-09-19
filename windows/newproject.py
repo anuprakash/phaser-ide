@@ -1,5 +1,6 @@
 import Tkinter
 import tkSimpleDialog
+import tkMessageBox
 from . import default_attrs, default_pad
 
 class NewProjectWindow(tkSimpleDialog.Dialog):
@@ -49,3 +50,16 @@ class NewProjectWindow(tkSimpleDialog.Dialog):
 
         if self.do_on_end:
             self.do_on_end(self.phaserproject)
+    
+    def validate(self):
+        width, height = 0, 0
+        try:
+            width = int(self.width.get())
+            height = int(self.height.get())
+        except:
+            tkMessageBox.showwarning(title='Wrong data', message='Invalid width/height')
+            return False
+        if not self.name_entry.get():
+            tkMessageBox.showwarning(title='Project title', message='Invalid project name')
+            return False
+        return True
