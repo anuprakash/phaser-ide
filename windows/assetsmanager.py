@@ -1,16 +1,32 @@
 import tkSimpleDialog
 from . import DefaultWindow, default_attrs
-from Tkinter import Listbox, Label, Entry, Frame, Button
+from Tkinter import *
 
 class AddAssetWindow(tkSimpleDialog.Dialog):
     def body(self, master):
-        Label(master, text="Name", **default_attrs).grid(row=0)
+        # row 1
+        Label(master, text="Name", **default_attrs).grid(row=0, column=0)
         self.asset_name = Entry(master)
         self.asset_name.grid(row=0, column=1)
+
+        # row 2
+        self.assettype = StringVar(master)
+        self.assettype.set("image")
+        Label(master, text="Type", **default_attrs).grid(row=1, column=0)
+        self.optmenu = OptionMenu(master, self.assettype,
+            "image", "music")
+        self.optmenu.grid(sticky='nw', row=1, column=1)
+
+        # row 3
+        Label(master, text="Path", **default_attrs).grid(row=2, column=0)
+        self.path = Entry(master)
+        self.path.grid(row=2, column=1)
+        Button(master, text="...", command=self.search_path).grid(row=2, column=2)
         return self.asset_name # initial focus
     
-    def apply(self):
-        first = int(self.asset_name.get())
+    def search_path(self):
+        # fixme
+        pass
 
 class AssetsManagerWindow(DefaultWindow):
     def __init__(self, master, phaserproject, do_on_end=None):
