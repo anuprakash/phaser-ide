@@ -1,12 +1,11 @@
-import ttk
 import tkSimpleDialog
 from . import DefaultWindow, default_attrs
-from Tkinter import Listbox
+from Tkinter import Listbox, Label, Entry, Frame, Button
 
 class AddAssetWindow(tkSimpleDialog.Dialog):
     def body(self, master):
-        ttk.Label(master, text="Name", **default_attrs).grid(row=0)
-        self.asset_name = ttk.Entry(master)
+        Label(master, text="Name", **default_attrs).grid(row=0)
+        self.asset_name = Entry(master)
         self.asset_name.grid(row=0, column=1)
         return self.asset_name # initial focus
     
@@ -16,13 +15,13 @@ class AddAssetWindow(tkSimpleDialog.Dialog):
 class AssetsManagerWindow(DefaultWindow):
     def __init__(self, master, phaserproject, do_on_end=None):
         DefaultWindow.__init__(self, master, phaserproject, do_on_end)
-        self._top_frame = ttk.Frame(self._toplevel)
+        self._top_frame = Frame(self._toplevel)
         self._top_frame.grid(row=0, column=0, sticky='e')
 
-        self._remove_asset = ttk.Button(self._top_frame, text='-', width=2)
+        self._remove_asset = Button(self._top_frame, text='-', width=2)
         self._remove_asset.grid(sticky='e', row=0, column=1)
 
-        ttk.Button(self._top_frame,
+        Button(self._top_frame,
             text='+',
             width=2,
             command=self._add_asset_callback).grid(sticky='e', row=0, column=0)

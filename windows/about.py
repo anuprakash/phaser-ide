@@ -1,13 +1,15 @@
-from Tkinter import Toplevel
-import ttk
+from Tkinter import *
 from . import *
+import tkSimpleDialog
 
-class AboutWindow:
-    def __init__(self, master):
-        self._toplevel = Toplevel()
-        ttk.Label(self._toplevel, text='Phaser Editor').grid(pady=45, padx=45)
-
-        center(self._toplevel)
-        self._toplevel.focus_force()
-        self._toplevel.bind('<Escape>', lambda *args: self._toplevel.destroy(), '+')
-        self._toplevel.bind('<FocusOut>', lambda *args: self._toplevel.destroy(), '+')
+class AboutWindow(tkSimpleDialog.Dialog ):
+    def body(self, master):
+        Label(master, text='Phaser Editor').grid(pady=45, padx=45)
+    
+    def buttonbox(self):
+        box = Frame(self)
+        w = Button(box, text="OK", width=10, command=self.ok, default=ACTIVE)
+        w.pack(side=LEFT, padx=5, pady=5)
+        self.bind("<Return>", self.ok)
+        self.bind("<Escape>", self.ok)
+        box.pack()

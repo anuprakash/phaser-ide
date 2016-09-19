@@ -1,5 +1,4 @@
 import core
-import ttk
 import tkFileDialog
 import tkMessageBox
 from Tkinter import *
@@ -30,7 +29,6 @@ def show_assets_manager():
         tkMessageBox.showwarning(title='No project found', message='No project found')
 
 top = Tk()
-ttk.Style().theme_use('clam')
 top.title('Phaser')
 try:
 	top.state('zoomed')
