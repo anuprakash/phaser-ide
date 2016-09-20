@@ -9,7 +9,8 @@ JSON Structure
     "assets": [
         {
             "type": "image, sprite, music, effect",
-            "value": "file path"
+            "path": "file path",
+            "name": "key value"
         }
     ]
 }
@@ -28,6 +29,7 @@ class PhaserProject:
         self.width = 640
         self.height = 480
         self.scenes = []
+        self.assets = []
 
         if json:
             self.fill_from_json(json)
