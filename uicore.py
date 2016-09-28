@@ -118,15 +118,26 @@ class Oval(Rectangle):
 		self.width = value*2
 		self.height = value*2
 
-def drag(control, callback):
-	control.bind('<B1-Motion>')
+def __drag_callback(control, event, endfunc):
+	# fixme: verificar se o control esta ativo e
+	# dar um lock soh em x ou soh em y
+	control.x = event.x
+	control.y = event.y
+	if endfunc:
+		endfunc()
+
+def drag_control(control, callback=None):
+	control.bind('<B1-Motion>', lambda evt: __drag_callback(control, evt, callback), '+' )
 
 if __name__ == '__main__':
+	def _in_drag(*args):
+		pass
 	from Tkinter import *
 	top = Tk()
 	ca = Canvas(top, highlightthickness=0, bg='white')
 	ca.grid()
-	rec = Rectangle(ca, 0,0, width=100, height=100)
+	rec = Rectangle(ca, 0,0, width=100, height=100, fill="black")
 	rec.x = 10
-	rec.width = 10
+	rec.width = 100
+	drag_control(rec, _in_drag)
 	top.mainloop()
