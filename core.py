@@ -29,9 +29,14 @@ import json
 }
 '''
 
+class DuplicatedSceneNameException(Exception):
+    pass
+
 class Asset:
     def __init__(self, json=None):
         self.name = ''
+        self.path = ''
+        self.type = ''
         if json:
             self.fill_from_json(json)
 
@@ -40,7 +45,9 @@ class Asset:
         returns the json representation of scene
         '''
         _dict = {
-            'name': self.name
+            'name': self.name,
+            'path': self.path,
+            'type': self.type
         }
         return json.dumps(_dict)
 
@@ -53,6 +60,8 @@ class Asset:
         '''
         _dict = json.loads(jsonstring)
         self.name = _dict['name']
+        self.type = _dict['type']
+        self.path = _dict['path']
 
 # only allow edits the events of scene: onframe, onstart
 class PhaserScene:
@@ -99,8 +108,11 @@ class PhaserProject:
     def get_assets_json(self):
         return json.dumps([i.get_json() for i in self.assets])
 
-    def load_assets_from_json(self, json):
-        print json
+    def get_scenes_json(self):
+        return json.dumps([i.get_json() for i in self.scenes])
+
+    def load_assets_from_json(self, _json):
+        self.assets = [Asset(i) for i in json.loads(_json)]
     
     def fill_from_json(self, jsonstring):
         '''
@@ -113,19 +125,30 @@ class PhaserProject:
         self.name = _dict['name']
         self.width = _dict['width']
         self.height = _dict['height']
-        self.assets = self.load_assets_from_json(_dict['assets'])
-        self.scenes = [PhaserScene(i) for i in _dict['scenes']]
+        self.load_assets_from_json(_dict['assets'])
+        self.scenes = [PhaserScene(i) for i in json.loads(_dict['scenes'])]
+
+    def add_scene_from_json(self, json_scene):
+        scene = PhaserScene(json_scene)
+        for i in self.scenes:
+            if i.name == scene.name:
+                raise DuplicatedSceneNameException()
+        self.scenes.append( PhaserScene(json_scene) )
+
+    def remove_scene_from_name(self, name):
+        for i in self.scenes:
+            if i.name == name:
+                self.scenes.remove(i)
 
     def get_json(self):
         '''
         returns the json representation of project
         '''
-        print self.assets
         _dict = {
             'name': self.name,
             'width': self.width,
             'height': self.height,
-            'scenes': [i.get_json() for i in self.scenes],
+            'scenes': self.get_scenes_json(),
             'assets': self.get_assets_json()
         }
         return json.dumps(_dict)

@@ -1,9 +1,10 @@
 from . import *
+import json
 
 class NewProjectWindow(DefaultDialog):
-    def __init__(self, master, phaserproject, do_on_end=None):
-        self.phaserproject = phaserproject
-        self.do_on_end = do_on_end
+    def __init__(self, master, _json=None):
+        self.json = _json
+        self.output = None
         DefaultDialog.__init__(self, master, title="New project")
     
     def body(self, master):
@@ -11,20 +12,26 @@ class NewProjectWindow(DefaultDialog):
         self.name_entry = Entry(master, width=45)
         self.name_entry.grid(row=1, column=0, columnspan=4)
         self.name_entry.focus_force()
-        self.name_entry.insert(0, self.phaserproject.name)
 
         Label(master, text='Width: ').grid(row=2, column=0, sticky='W')
 
         self.width = Entry(master, width=4)
         self.width.grid(row=2, column=1, sticky='W')
-        self.width.insert(0, str(self.phaserproject.width))
 
         Label(master, text='Height: ').grid(row=2, column=2, sticky='W')
 
         self.height = Entry(master, width=4)
         self.height.grid(row=2, column=3, sticky='W')
-        self.height.insert(0, str(self.phaserproject.height))
 
+        if self.json:
+            data = json.loads(self.json)
+            self.name_entry.insert(0, data.get('name', ''))
+            self.width.insert(0, str(data.get('width', '640')))
+            self.height.insert(0, str(data.get('height', '480')))
+        else:
+            self.name_entry.insert(0, '')
+            self.width.insert(0, '640')
+            self.height.insert(0, '480')
         return self.name_entry
     
     def apply(self):
@@ -38,12 +45,13 @@ class NewProjectWindow(DefaultDialog):
         except:
             print 'Invalid width or height'
 
-        self.phaserproject.width = width
-        self.phaserproject.height = height
-        self.phaserproject.name = self.name_entry.get()
-
-        if self.do_on_end:
-            self.do_on_end(self.phaserproject)
+        self.output = json.dumps({
+            'name': self.name_entry.get(),
+            'width': width,
+            'height': height,
+            'scenes': '[]',
+            'assets': '[]'
+        })
     
     def validate(self):
         width, height = 0, 0

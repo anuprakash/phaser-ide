@@ -60,11 +60,10 @@ class AddAssetWindow(DefaultDialog):
 
 class AssetsManagerWindow(DefaultDialog):
     def __init__(self, master, _json):
-        self.json = _json
         self.__assets = []
         self.output = None
-        if self.json:
-            self.__assets = json.loads(self.json)
+        if _json:
+            self.__assets = json.loads(_json)
         DefaultDialog.__init__(self, master)
 
     def body(self, master):
