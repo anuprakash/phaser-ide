@@ -1,14 +1,12 @@
 import tkFileDialog
-import tkSimpleDialog
-import tkMessageBox
-from . import DefaultWindow, default_attrs
-from Tkinter import *
+from Tkinter import StringVar
 import posixpath
+from . import *
 
-class AddAssetWindow(tkSimpleDialog.Dialog):
+class AddAssetWindow(DefaultDialog):
     def body(self, master):
         # row 1
-        Label(master, text="Name", **default_attrs).grid(row=0, column=0)
+        Label(master, text="Name").grid(row=0)
         self.asset_name = Entry(master)
         self.asset_name.grid(row=0, column=1)
 
@@ -20,13 +18,13 @@ class AddAssetWindow(tkSimpleDialog.Dialog):
         ]
         self.assettype = StringVar(master)
         self.assettype.set(_path_types[0])
-        Label(master, text="Type", **default_attrs).grid(row=1, column=0)
+        Label(master, text="Type").grid(row=1, column=0)
         self.optmenu = OptionMenu(master, self.assettype,
             *_path_types)
         self.optmenu.grid(sticky='nw', row=1, column=1)
 
         # row 3
-        Label(master, text="Path", **default_attrs).grid(row=2, column=0)
+        Label(master, text="Path").grid(row=2, column=0)
         self.path = Entry(master)
         self.path.grid(row=2, column=1)
         Button(master, text="...", command=self.search_path).grid(row=2, column=2)
@@ -45,10 +43,10 @@ class AddAssetWindow(tkSimpleDialog.Dialog):
     
     def validate(self):
         if not posixpath.isfile(self.path.get()):
-            tkMessageBox.showwarning(title='Invalid path', message='Enter a valid path')
+            MessageBox.warning(title='Invalid path', message='Enter a valid path')
             return False
         if not self.asset_name.get():
-            tkMessageBox.showwarning(title='Invalid name', message='Enter a name')
+            MessageBox.warning(title='Invalid name', message='Enter a name')
             return False
         return True
     
@@ -59,10 +57,10 @@ class AddAssetWindow(tkSimpleDialog.Dialog):
             "name": self.asset_name.get()
         }
 
-class AssetsManagerWindow(tkSimpleDialog.Dialog):
+class AssetsManagerWindow(DefaultDialog):
     def __init__(self, master, phaserproject):
         self.phaserproject = phaserproject
-        tkSimpleDialog.Dialog.__init__(self, master)
+        DefaultDialog.__init__(self, master)
 
     def body(self, master):
         self._top_frame = Frame(master)
