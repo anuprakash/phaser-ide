@@ -1,6 +1,5 @@
 import core
 import tkFileDialog
-import tkMessageBox
 from Tkinter import *
 from windows import *
 
@@ -26,7 +25,7 @@ def show_assets_manager():
     if CURRENT_PROJECT:
         AssetsManagerWindow(top, CURRENT_PROJECT)
     else:
-        tkMessageBox.showwarning(title='No project found', message='No project found')
+        MessageBox.warning(title='No project found', message='No project found')
 
 top = Tk()
 top.title('Phaser')
