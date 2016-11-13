@@ -2,6 +2,7 @@ import tkFileDialog
 from Tkinter import StringVar
 import posixpath
 from . import *
+import json
 
 class AddAssetWindow(DefaultDialog):
     def body(self, master):
@@ -27,7 +28,7 @@ class AddAssetWindow(DefaultDialog):
         Label(master, text="Path").grid(row=2, column=0)
         self.path = Entry(master)
         self.path.grid(row=2, column=1)
-        Button(master, text="...", command=self.search_path).grid(row=2, column=2)
+        Button(master, text="...", width=30, command=self.search_path).grid(row=2, column=2)
 
         self.output = None
         return self.asset_name # initial focus
@@ -51,15 +52,19 @@ class AddAssetWindow(DefaultDialog):
         return True
     
     def apply(self):
-        self.output = {
+        self.output = json.dumps({
             "path": self.path.get(),
             "type": self.assettype.get(),
             "name": self.asset_name.get()
-        }
+        })
 
 class AssetsManagerWindow(DefaultDialog):
-    def __init__(self, master, phaserproject):
-        self.phaserproject = phaserproject
+    def __init__(self, master, _json):
+        self.json = _json
+        self.__assets = []
+        self.output = None
+        if self.json:
+            self.__assets = json.loads(self.json)
         DefaultDialog.__init__(self, master)
 
     def body(self, master):
@@ -68,14 +73,14 @@ class AssetsManagerWindow(DefaultDialog):
 
         self._remove_asset = Button(self._top_frame,
             text='-',
-            width=2,
+            width=30,
             command=self.__remove_asset_callback).grid(sticky='e',
                 row=0,
                 column=1)
 
         Button(self._top_frame,
             text='+',
-            width=2,
+            width=30,
             command=self.__add_asset_callback).grid(sticky='e',
                 row=0,
                 column=0)
@@ -84,19 +89,20 @@ class AssetsManagerWindow(DefaultDialog):
         self._list.grid(row=1, column=0)
 
         self.__fill_list()
+
+    def apply(self):
+        self.output = json.dumps(self._list.get(0, 'end'))
     
     def __fill_list(self):
-        for i in self.phaserproject.assets:
+        for i in self.__assets:
             self._list.insert('end', str(i))
     
     def __add_asset_callback(self):
         add_asset = AddAssetWindow(self, title="Add Asset")
         if add_asset.output:
             self._list.insert('end', str(add_asset.output))
-            self.phaserproject.assets.append(add_asset.output)
     
     def __remove_asset_callback(self):
         _cur_selection = self._list.curselection()
         if _cur_selection:
             self._list.delete(_cur_selection)
-            self.phaserproject.assets.pop(_cur_selection[0])
