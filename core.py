@@ -1,7 +1,7 @@
 import json
 
 '''
-<assetStructure>
+<AssetStructure>
 {
     "type": "image, sprite, music, effect",
     "path": "file path",
@@ -33,64 +33,54 @@ class DuplicatedSceneNameException(Exception):
     pass
 
 class Asset:
-    def __init__(self, json=None):
+    def __init__(self, _dict=None):
         self.name = ''
         self.path = ''
         self.type = ''
-        if json:
-            self.fill_from_json(json)
+        if _dict:
+            self.fill_from_dict(_dict)
 
     def get_json(self):
         '''
         returns the json representation of scene
         '''
-        _dict = {
+        return json.dumps(self.get_dict())
+
+    def get_dict(self):
+        return {
             'name': self.name,
             'path': self.path,
             'type': self.type
         }
-        return json.dumps(_dict)
 
-    def fill_from_json(self, jsonstring):
-        '''
-        args:
-            + json: json string
-
-        fills the instance with data from json string
-        '''
-        _dict = json.loads(jsonstring)
+    def fill_from_dict(self, _dict):
         self.name = _dict['name']
         self.type = _dict['type']
         self.path = _dict['path']
 
 # only allow edits the events of scene: onframe, onstart
 class PhaserScene:
-    def __init__(self, json=None):
+    def __init__(self, _dict=None):
         self.name = ''
         self.sprites = []
-        if json:
-            self.fill_from_json(json)
+        if _dict:
+            self.fill_from_dict(_dict)
 
     def get_json(self):
         '''
         returns the json representation of scene
         '''
-        _dict = {
+        return json.dumps(self.get_dict())
+
+    def get_dict(self):
+        return {
             'name': self.name,
-            'sprites': [i.get_json() for i in self.sprites]
+            'sprites': [i.get_dict() for i in self.sprites]
         }
-        return json.dumps(_dict)
 
-    def fill_from_json(self, jsonstring):
-        '''
-        args:
-            + json: json string
-
-        fills the instance with data from json string
-        '''
-        _dict = json.loads(jsonstring)
+    def fill_from_dict(self, _dict):
         self.name = _dict['name']
-        self.sprites = [] # TODO
+        self.sprites = []
 
 # fixme: raise NotSavedProjectException
 class PhaserProject:
@@ -105,29 +95,26 @@ class PhaserProject:
         if json:
             self.fill_from_json(json)
 
-    def get_assets_json(self):
-        return json.dumps([i.get_json() for i in self.assets])
+    def get_assets_dict(self):
+        return [i.get_dict() for i in self.assets]
 
-    def get_scenes_json(self):
-        return json.dumps([i.get_json() for i in self.scenes])
+    def get_scenes_dict(self):
+        return [i.get_dict() for i in self.scenes]
 
-    def load_assets_from_json(self, _json):
-        self.assets = [Asset(i) for i in json.loads(_json)]
-    
-    def fill_from_json(self, jsonstring):
-        '''
-        args:
-            + json: json string
+    def load_assets_from_dict(self, _dict):
+        self.assets = [Asset(i) for i in _dict]
 
-        fills the instance with data from json string
-        '''
-        _dict = json.loads(jsonstring)
+    def load_scenes_from_dict(self, _dict):
+        self.scenes = [PhaserScene(i) for i in _dict]
+
+    def fill_from_dict(self, _dict):
         self.name = _dict['name']
         self.width = _dict['width']
         self.height = _dict['height']
-        self.load_assets_from_json(_dict['assets'])
-        self.scenes = [PhaserScene(i) for i in json.loads(_dict['scenes'])]
+        self.load_assets_from_dict(_dict['assets'])
+        self.load_scenes_from_dict(_dict['scenes'])
 
+    # TODO: remove
     def add_scene_from_json(self, json_scene):
         scene = PhaserScene(json_scene)
         for i in self.scenes:
@@ -148,7 +135,7 @@ class PhaserProject:
             'name': self.name,
             'width': self.width,
             'height': self.height,
-            'scenes': self.get_scenes_json(),
-            'assets': self.get_assets_json()
+            'scenes': self.get_scenes_dict(),
+            'assets': self.get_assets_dict()
         }
         return json.dumps(_dict)

@@ -52,18 +52,18 @@ class AddAssetWindow(DefaultDialog):
         return True
     
     def apply(self):
-        self.output = json.dumps({
+        self.output = {
             "path": self.path.get(),
             "type": self.assettype.get(),
             "name": self.asset_name.get()
-        })
+        }
 
 class AssetsManagerWindow(DefaultDialog):
-    def __init__(self, master, _json):
+    def __init__(self, master, _dict_list):
         self.__assets = []
         self.output = None
-        if _json:
-            self.__assets = json.loads(_json)
+        if _dict_list:
+            self.__assets = _dict_list
         DefaultDialog.__init__(self, master)
 
     def body(self, master):
@@ -90,18 +90,29 @@ class AssetsManagerWindow(DefaultDialog):
         self.__fill_list()
 
     def apply(self):
-        self.output = json.dumps(self._list.get(0, 'end'))
+        self.output = self.__assets
     
     def __fill_list(self):
+        '''
+        used to prefill the listbox with assets received in init
+        '''
         for i in self.__assets:
-            self._list.insert('end', str(i))
+            self._list.insert('end', i['name'])
     
     def __add_asset_callback(self):
         add_asset = AddAssetWindow(self, title="Add Asset")
         if add_asset.output:
-            self._list.insert('end', str(add_asset.output))
+            self.__assets.append(add_asset.output)
+            self._list.insert('end', add_asset.output['name'])
     
     def __remove_asset_callback(self):
         _cur_selection = self._list.curselection()
         if _cur_selection:
-            self._list.delete(_cur_selection)
+            self.__remove_asset_by_name(_cur_selection)
+
+    def __remove_asset_by_name(self, name):
+        self._list.delete(name)
+        for i in self.__assets:
+            if i['name'] == name:
+                self.__assets.remove(i)
+                break

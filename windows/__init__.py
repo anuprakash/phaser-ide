@@ -151,9 +151,18 @@ class Entry(ttk.Entry):
     pass
 
 class Listbox(Tkinter.Listbox):
-    pass
+    def __init__(self, *args, **kwargs):
+        Tkinter.Listbox.__init__(self, *args, **kwargs)
+        self['bg'] = '#d1d8e0'
+        self['relief'] = 'flat'
+        self['highlightthickness'] = 0
+        self['selectbackground'] = '#c7ccd1'
+        self['activestyle'] = 'none'
 
 class OptionMenu(Tkinter.OptionMenu):
+    pass
+
+class Canvas(Tkinter.Canvas):
     pass
 
 class MessageBox:
@@ -201,6 +210,7 @@ class DefaultDialog(Tkinter.Toplevel):
         self.protocol("WM_DELETE_WINDOW", self.cancel)
 
         center(self)
+        self.resizable(0, 0)
         self.deiconify()  # become visibile now
 
         self.initial_focus.focus_set()
@@ -242,7 +252,7 @@ class DefaultDialog(Tkinter.Toplevel):
         self.bind("<Return>", self.ok)
         self.bind("<Escape>", self.cancel)
 
-        box.pack()
+        box.pack(side='right')
 
     #
     # standard button semantics
@@ -284,6 +294,20 @@ class DefaultDialog(Tkinter.Toplevel):
         the dialog is destroyed. By default, it does nothing.
         '''
         pass  # override
+
+class OkCancel(DefaultDialog):
+    def __init__(self, parent, msg, title=None):
+        self.msg = msg
+        DefaultDialog.__init__(self, parent, title)
+
+    def body(self, parent):
+        self.output = False
+        l = Label(parent, text=self.msg)
+        l.pack()
+        return l
+
+    def apply(self):
+        self.output = True
 
 from newproject import NewProjectWindow
 from about import AboutWindow

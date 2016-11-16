@@ -5,6 +5,7 @@ class NewProjectWindow(DefaultDialog):
     def __init__(self, master, _json=None):
         self.json = _json
         self.output = None
+        # TODO: if json == edit window
         DefaultDialog.__init__(self, master, title="New project")
     
     def body(self, master):
@@ -45,13 +46,13 @@ class NewProjectWindow(DefaultDialog):
         except:
             print 'Invalid width or height'
 
-        self.output = json.dumps({
+        self.output = {
             'name': self.name_entry.get(),
             'width': width,
             'height': height,
-            'scenes': '[]',
-            'assets': '[]'
-        })
+            'scenes': [],
+            'assets': []
+        }
     
     def validate(self):
         width, height = 0, 0

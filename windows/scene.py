@@ -1,4 +1,3 @@
-import json
 from . import *
 
 class AddSceneWindow(DefaultDialog):
@@ -16,7 +15,7 @@ class AddSceneWindow(DefaultDialog):
 		return True
 
 	def apply(self):
-		self.output = json.dumps({
+		self.output = {
 			"name": self.scene_name.get(),
 			'sprites': []
-		})
+		}

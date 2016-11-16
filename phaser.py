@@ -5,22 +5,12 @@ from windows import *
 
 CURRENT_PROJECT = None
 
-def new_project(*args):
-    npw = NewProjectWindow(top)
-    if npw.output:
-        global CURRENT_PROJECT
-        CURRENT_PROJECT = core.PhaserProject()
-        CURRENT_PROJECT.fill_from_json(npw.output)
-
-def open_project(*args):
-    filename = tkFileDialog.askopenfilename()
-    if filename:
-        f = open(filename)
-        content = f.read()
-        f.close()
-        global CURRENT_PROJECT
-        CURRENT_PROJECT = core.PhaserProject()
-        CURRENT_PROJECT.fill_from_json(content)
+top = Tkinter.Tk()
+ttk.Style().theme_use('clam')
+top.title('Phaser')
+top['bg'] = BG_COLOR
+top.geometry('%dx%d' % (1200, 600))
+center(top)
 
 def save_project(*args):
     fn = tkFileDialog.asksaveasfilename()
@@ -34,59 +24,84 @@ def show_about_window():
 
 def show_assets_manager():
     if CURRENT_PROJECT:
-        amw = AssetsManagerWindow(top, CURRENT_PROJECT.get_assets_json())
+        amw = AssetsManagerWindow(top, CURRENT_PROJECT.get_assets_dict())
         if amw.output:
-            CURRENT_PROJECT.load_assets_from_json(amw.output)
+            CURRENT_PROJECT.load_assets_from_dict(amw.output)
     else:
         MessageBox.warning(title='No project found', message='No project found')
 
-top = Tkinter.Tk()
-top.title('Phaser')
-top['bg'] = BG_COLOR
-top.geometry('%dx%d' % (1200, 600))
-center(top)
+# list with all canvas of all scenes
+CANVASES = {}
+ACTUAL_CANVAS = None
 
 # parent of all menus
 menubar = Tkinter.Menu(top, relief=Tkinter.FLAT)
 
+canvas_frame = Frame(top)
+
 ## scene manager
-def _add_scene_btn_handler(*args):
-    if CURRENT_PROJECT:
-        asw = AddSceneWindow(top, title="Add Asset")
-        if asw.output:
-            CURRENT_PROJECT.scenes.append(core.PhaserScene(asw.output))
-    else:
-        MessageBox.warning(title='No project found', message='No project found')
-
-def _del_scene_btn_handler(*args):
-    if CURRENT_PROJECT:
-        pass # TODO
-    else:
-        MessageBox.warning(title='No project found', message='No project found')
-
 left_frame = Frame(top)
 left_frame_top = Frame(left_frame)
 scene_manager = Listbox(left_frame)
 
+def __on_select_scene(*args):
+    '''
+    called when the user clicks in a scene
+    in scene manager
+    '''
+    global ACTUAL_CANVAS
+    _cur_selection = scene_manager.curselection()
+    if _cur_selection:
+        scene_name = scene_manager.get(_cur_selection)
+        if (scene_name != ACTUAL_CANVAS and ACTUAL_CANVAS != None) or ACTUAL_CANVAS == None:
+            if ACTUAL_CANVAS:
+                CANVASES[ACTUAL_CANVAS].pack_forget()
+            ACTUAL_CANVAS = scene_name
+            CANVASES[ACTUAL_CANVAS].pack()
+scene_manager.bind('<<ListboxSelect>>', __on_select_scene)
+
 def _add_scene_btn_handler(*args):
+    global ACTUAL_CANVAS
     if CURRENT_PROJECT:
         asw = AddSceneWindow(top, title="Add Asset")
         if asw.output:
             try:
                 CURRENT_PROJECT.add_scene_from_json(asw.output)
                 scene_manager.insert('end', CURRENT_PROJECT.scenes[-1].name)
+                ca = Canvas(canvas_frame,
+                    width=CURRENT_PROJECT.width,
+                    height=CURRENT_PROJECT.height)
+                ca.pack(anchor='sw', side='left')
+                CANVASES[asw.output['name']] = ca
+                ca.create_text(10,10,text=asw.output['name'])
+                if ACTUAL_CANVAS:
+                    CANVASES[ACTUAL_CANVAS].pack_forget()
+                ACTUAL_CANVAS = asw.output['name']
+                # put focus in actual canvas
+                scene_manager.selection_clear(0, 'end')
+                scene_manager.select_set(len(CANVASES.keys())-1)
             except core.DuplicatedSceneNameException:
-                MessageBox.warning(title='DuplicatedSceneNameException', message='a scene in project already contains this name')
+                MessageBox.warning(
+                    title='DuplicatedSceneNameException',
+                    message='a scene in project already contains this name')
     else:
         MessageBox.warning(title='No project found', message='No project found')
 
 def _del_scene_btn_handler(*args):
+    global ACTUAL_CANVAS
     if CURRENT_PROJECT:
         _cur_selection = scene_manager.curselection()
         if _cur_selection:
             scene_name = scene_manager.get(_cur_selection)
-            CURRENT_PROJECT.remove_scene_from_name(scene_name)
-            scene_manager.delete(_cur_selection)
+            if OkCancel(top,
+                'The scene %s will be delete. Are you sure?' % (scene_name),
+                title='Are you sure?').output:
+
+                CURRENT_PROJECT.remove_scene_from_name(scene_name)
+                scene_manager.delete(_cur_selection)
+                CANVASES[scene_name].pack_forget()
+                del CANVASES[scene_name]
+                ACTUAL_CANVAS = None
     else:
         MessageBox.warning(title='No project found', message='No project found')
 
@@ -99,8 +114,9 @@ add_scene_btn.pack(side='right', anchor='ne', padx=1)
 del_scene_btn.pack(side='right', anchor='ne', padx=1)
 left_frame_top.pack(anchor='nw', padx=5, pady=5, fill='both')
 scene_manager.pack(side='left', expand='yes', fill='y', anchor='nw')
-left_frame.pack(side='left', expand='yes', fill='y', anchor='nw')
 
+left_frame.pack(side='left', fill='y')
+canvas_frame.pack(expand='yes')
 
 ## save operations
 def new_project(*args):
@@ -108,9 +124,12 @@ def new_project(*args):
     if npw.output:
         global CURRENT_PROJECT
         CURRENT_PROJECT = core.PhaserProject()
-        CURRENT_PROJECT.fill_from_json(npw.output)
+        CURRENT_PROJECT.fill_from_dict(npw.output)
+        # clearing the scene listbox
         scene_manager.delete(0, 'end')
+        top.title('Phaser - %s' % (npw.output['name']))
 
+# TODO: remove json loading
 def open_project(*args):
     filename = tkFileDialog.askopenfilename()
     if filename:
@@ -126,7 +145,7 @@ def open_project(*args):
 projectmenu = Tkinter.Menu(menubar, tearoff=0, relief=Tkinter.FLAT)
 menubar.add_cascade(label="Project", menu=projectmenu)
 projectmenu.add_command(label="New project", command=new_project)
-projectmenu.add_command(label="Open project", command=open_project)
+projectmenu.add_command(label="Open project TODO", command=open_project)
 projectmenu.add_command(label="Save project as", command=save_project)
 projectmenu.add_separator()
 projectmenu.add_command(label="Quit", command=top.destroy)
