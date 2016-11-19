@@ -251,12 +251,12 @@ class ExtendedListboxItem(object):
             self.__icon.bind(*args, **kws)
 
     def __mouse_over(self, evt):
-        self.__rec_bg.style['fill'] = '#bbb'
+        self.__rec_bg.style['fill'] = '#cdcdcd'
         self.__rec_bg.update()
 
     def __mouse_leave(self, evt):
         if self.__selected:
-            self.__rec_bg.style['fill'] = '#00bbdd'
+            self.__rec_bg.style['fill'] = '#bbb'
         else:
             self.__rec_bg.style['fill'] = self.canvas['bg']
         self.__rec_bg.update()
@@ -631,3 +631,4 @@ from about import AboutWindow
 from assetsmanager import AssetsManagerWindow
 from settings import SettingsWindow
 from scene import AddSceneWindow
+from assets import AddSoundAssetWindow, AddImageAssetWindow

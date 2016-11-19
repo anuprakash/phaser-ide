@@ -2,6 +2,7 @@ import core
 import tkFileDialog
 import Tkinter
 from windows import *
+import posixpath
 
 CURRENT_PROJECT = None
 
@@ -18,12 +19,20 @@ def must_project_loaded(func):
             MessageBox.warning(title='No project found', message='No project found')
     return _final_func
 
-top = Tkinter.Tk()
-ttk.Style().theme_use('clam')
-top.title('Phaser')
-top['bg'] = BG_COLOR
-top.geometry('%dx%d' % (1200, 600))
-center(top)
+class PhaserEditor(Tkinter.Tk):
+    def __init__(self):
+        self.current_project = None
+        self.canvases = {}
+        self.actual_canvas = None
+
+        Tkinter.Tk.__init__(self)
+        ttk.Style().theme_use('clam')
+        self.title('Phaser')
+        self['bg'] = BG_COLOR
+        self.geometry('%dx%d' % (1200, 600))
+        center(self)
+
+top = PhaserEditor()
 
 def save_project(*args):
     fn = tkFileDialog.asksaveasfilename()
@@ -60,9 +69,6 @@ scene_manager = ExtendedListbox(left_frame, width=250, bg='#d1d8e0')
 right_frame = Frame(top)
 right_frame_top = Frame(right_frame)
 assets_manager = ExtendedListbox(right_frame, width=250)
-# TODO: remove
-for i in range(5):
-    assets_manager.add_item('Title %d' % (i), 'subtitle %d' % (i), 'icons/folder.png')
 
 def __on_select_scene(*args):
     '''
@@ -133,20 +139,34 @@ left_frame_top.pack(anchor='nw', padx=5, pady=5, fill='both')
 scene_manager.pack(side='left', expand='yes', fill='y', anchor='nw')
 
 ##################################################################################
+SUPPORTED_IMAGE_TYPES = ['png', 'jpg', 'jpeg', 'gif', 'tiff']
+SUPPORTED_SOUND_FILES = ['mp3', 'ogg', 'wav']
 def get_file_name():
     '''
     opens a file dialog for file selection and returns
     the path
     '''
-    image_ext = '.png .jpg .jpeg .gif .tiff'
-    sound_ext = '.mp3 .ogg .wav'
+    image_ext = '.' + ' .'.join(SUPPORTED_IMAGE_TYPES)
+    sound_ext = '.' + ' .'.join(SUPPORTED_SOUND_FILES)
     file_opt = dict(filetypes=[('Image Files', image_ext), ('Sound Files', sound_ext)])
     return tkFileDialog.askopenfilename(parent=top, **file_opt)
 
 @must_project_loaded
 def _add_sprite_btn_handler(*args):
-    if get_file_name():
-        print 'ok'
+    file_name = get_file_name()
+    basename = posixpath.basename(file_name)
+    ext = basename.split('.')[-1].lower()
+    if file_name:
+        if ext in SUPPORTED_SOUND_FILES:
+            asaw = AddSoundAssetWindow(top, default_name=basename.split('.')[0].lower())
+            if asaw.output:
+                assets_manager.add_item(asaw.output['name'],
+                    'sound', 'icons/headphone.png')
+        elif ext in SUPPORTED_IMAGE_TYPES:
+            aiaw = AddImageAssetWindow(top, default_name=basename.split('.')[0].lower())
+            if aiaw.output:
+                assets_manager.add_item(aiaw.output['name'],
+                    'image', 'icons/image.png')
 
 @must_project_loaded
 def _del_sprite_btn_handler(*args):
@@ -177,8 +197,9 @@ def new_project(*args):
     if npw.output:
         CURRENT_PROJECT = core.PhaserProject()
         CURRENT_PROJECT.fill_from_dict(npw.output)
-        # clearing the scene listbox
-        scene_manager.delete(0, 'end')
+        # clearing the scene/assets listbox
+        scene_manager.delete_all()
+        assets_manager.delete_all()
         top.title('Phaser - %s' % (npw.output['name']))
 
 # TODO: remove json loading
