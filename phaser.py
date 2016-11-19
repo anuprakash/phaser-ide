@@ -4,21 +4,6 @@ import Tkinter
 from windows import *
 import posixpath
 
-CURRENT_PROJECT = None
-
-def must_project_loaded(func):
-    '''
-    decorator
-    if the project was not loaded still
-    shows a error message
-    '''
-    def _final_func():
-        if CURRENT_PROJECT:
-            func()
-        else:
-            MessageBox.warning(title='No project found', message='No project found')
-    return _final_func
-
 class PhaserEditor(Tkinter.Tk):
     def __init__(self):
         self.current_project = None
@@ -30,216 +15,208 @@ class PhaserEditor(Tkinter.Tk):
         self.title('Phaser')
         self['bg'] = BG_COLOR
         self.geometry('%dx%d' % (1200, 600))
+
+        # parent of all menus
+        self.menubar = Tkinter.Menu(self, relief=Tkinter.FLAT)
+        # file menu
+        self.projectmenu = Tkinter.Menu(self.menubar, tearoff=0, relief=Tkinter.FLAT)
+        self.menubar.add_cascade(label="Project", menu=self.projectmenu)
+        self.projectmenu.add_command(label="New project", command=self.new_project)
+        # TODO
+        # self.projectmenu.add_command(label="Open project TODO", command=open_project)
+        self.projectmenu.add_command(label="Save project as", command=self.save_project)
+        self.projectmenu.add_separator()
+        self.projectmenu.add_command(label="Quit", command=self.destroy)
+
+        # about menu
+        self.helpmenu = Tkinter.Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label="Help", menu=self.helpmenu)
+        self.helpmenu.add_command(label="About", command=self.show_about_window)
+
+        # add menu to window
+        self.config(menu=self.menubar)
+
+        ################ LEFT PANEL
+        self.left_frame = Frame(self)
+        self.left_frame_top = Frame(self.left_frame)
+        self.scene_manager = ExtendedListbox(self.left_frame, width=250, bg='#d1d8e0')
+        self.scene_manager.bind('<1>', self.__on_select_scene, '+')
+        self.add_scene_btn = Button(self.left_frame_top, text='+', width=20, command=self._add_scene_btn_handler)
+        self.del_scene_btn = Button(self.left_frame_top, text='-', width=20, command=self._del_scene_btn_handler)
+        Label(self.left_frame_top, text='Scenes').pack(anchor='nw', side='left')
+        self.add_scene_btn.pack(side='right', anchor='ne', padx=1)
+        self.del_scene_btn.pack(side='right', anchor='ne', padx=1)
+        self.left_frame_top.pack(anchor='nw', padx=5, pady=5, fill='both')
+        self.scene_manager.pack(side='left', expand='yes', fill='y', anchor='nw')
+        self.left_frame.pack(side='left', fill='y')
+
+        ################ RIGHT PANEL
+        self.right_frame = Frame(self)
+        self.right_frame_top = Frame(self.right_frame)
+        self.assets_manager = ExtendedListbox(self.right_frame, width=250)
+        Label(self.right_frame_top, text='Assets').pack(anchor='nw',
+            side='left')
+        self.right_frame_top.pack(anchor='nw', padx=5, pady=5, fill='both')
+
+        self.add_sprite_btn = Button(self.right_frame_top, text='+', width=20, command=self._add_sprite_btn_handler)
+        self.del_sprite_btn = Button(self.right_frame_top, text='-', width=20, command=self._del_sprite_btn_handler)
+        self.add_sprite_btn.pack(side='right', anchor='ne', padx=1)
+        self.del_sprite_btn.pack(side='right', anchor='ne', padx=1)
+        self.assets_manager.pack(side='left', expand='yes', fill='y', anchor='nw')
+        self.right_frame.pack(side='right', fill='y')
+
+        ################ RIGHT PANEL
+        self.canvas_frame = Frame(self)
+        self.canvas_frame.pack(expand='yes')
+
+        ############################
         center(self)
 
-top = PhaserEditor()
-
-def save_project(*args):
-    fn = tkFileDialog.asksaveasfilename()
-    if fn:
-        f = open(fn, 'w')
-        f.write(CURRENT_PROJECT.get_json())
-        f.close()
-
-def show_about_window():
-    AboutWindow(top)
-
-def show_assets_manager():
-    if CURRENT_PROJECT:
-        amw = AssetsManagerWindow(top, CURRENT_PROJECT.get_assets_dict())
-        if amw.output:
-            CURRENT_PROJECT.load_assets_from_dict(amw.output)
-    else:
+    def project_is_loaded(self):
+        '''
+        returns true if project is loaded, else
+        shows a message and returns false
+        '''
+        if self.current_project:
+            return True
         MessageBox.warning(title='No project found', message='No project found')
+        return False
 
-# list with all canvas of all scenes
-CANVASES = {}
-ACTUAL_CANVAS = None
+    ################ SCENES
+    def __on_select_scene(self, event):
+        '''
+        called when the user clicks in a scene
+        in scene manager
+        '''
+        selection = self.scene_manager.get_selected()
+        if selection:
+            scene_name = selection.title
+            if (scene_name != self.actual_canvas and self.actual_canvas != None) or self.actual_canvas == None:
+                if self.actual_canvas:
+                    self.canvases[self.actual_canvas].pack_forget()
+                self.actual_canvas = scene_name
+                self.canvases[self.actual_canvas].pack()
 
-# parent of all menus
-menubar = Tkinter.Menu(top, relief=Tkinter.FLAT)
+    def _add_scene_btn_handler(self):
+        '''
+        called when user clicks over add_scene_button
+        '''
+        if not self.project_is_loaded():
+            return
 
-canvas_frame = Frame(top)
-## scene manager
-left_frame = Frame(top)
-left_frame_top = Frame(left_frame)
-scene_manager = ExtendedListbox(left_frame, width=250, bg='#d1d8e0')
+        asw = AddSceneWindow(self, title='Add Scene')
+        if asw.output:
+            try:
+                self.current_project.add_scene_from_dict(asw.output)
+                self.scene_manager.add_item(asw.output['name'], 'scene', 'icons/folder.png')
+                ca = ExtendedCanvas(self.canvas_frame,
+                    width=self.current_project.width,
+                    height=self.current_project.height,
+                    bg=self.current_project.bgcolor)
+                ca.pack(anchor='sw', side='left')
+                self.canvases[asw.output['name']] = ca
+                ca.create_text(10,10,text=asw.output['name'])
+                if self.actual_canvas:
+                    self.canvases[self.actual_canvas].pack_forget()
+                self.actual_canvas = asw.output['name']
+                # put focus in actual canvas
+                self.scene_manager.desselect_all()
+                self.scene_manager.select_last()
+            except core.DuplicatedSceneNameException:
+                MessageBox.warning(
+                    title='DuplicatedSceneNameException',
+                    message='a scene in project already contains this name')
 
-# assets manager
-right_frame = Frame(top)
-right_frame_top = Frame(right_frame)
-assets_manager = ExtendedListbox(right_frame, width=250)
+    def _del_scene_btn_handler(self):
+        '''
+        called when user clicks over del_scene_button
+        '''
+        if not self.project_is_loaded():
+            return
 
-def __on_select_scene(*args):
-    '''
-    called when the user clicks in a scene
-    in scene manager
-    '''
-    global ACTUAL_CANVAS
-    selection = scene_manager.get_selected()
-    if selection:
-        scene_name = selection.title
-        if (scene_name != ACTUAL_CANVAS and ACTUAL_CANVAS != None) or ACTUAL_CANVAS == None:
-            if ACTUAL_CANVAS:
-                CANVASES[ACTUAL_CANVAS].pack_forget()
-            ACTUAL_CANVAS = scene_name
-            CANVASES[ACTUAL_CANVAS].pack()
-scene_manager.bind('<1>', __on_select_scene)
+        selection = self.scene_manager.get_selected()
+        if selection:
+            scene_name = selection.title
+            if OkCancel(self,
+                'The scene %s will be delete. Are you sure?' % (scene_name),
+                title='Are you sure?').output:
 
-@must_project_loaded
-def _add_scene_btn_handler(*args):
-    global ACTUAL_CANVAS
-    asw = AddSceneWindow(top, title='Add Scene')
-    if asw.output:
-        try:
-            CURRENT_PROJECT.add_scene_from_dict(asw.output)
-            scene_manager.add_item(asw.output['name'], 'scene', 'icons/folder.png')
-            ca = ExtendedCanvas(canvas_frame,
-                width=CURRENT_PROJECT.width,
-                height=CURRENT_PROJECT.height,
-                bg=CURRENT_PROJECT.bgcolor)
-            ca.pack(anchor='sw', side='left')
-            CANVASES[asw.output['name']] = ca
-            ca.create_text(10,10,text=asw.output['name'])
-            if ACTUAL_CANVAS:
-                CANVASES[ACTUAL_CANVAS].pack_forget()
-            ACTUAL_CANVAS = asw.output['name']
-            # put focus in actual canvas
-            scene_manager.desselect_all()
-            scene_manager.select_last()
-        except core.DuplicatedSceneNameException:
-            MessageBox.warning(
-                title='DuplicatedSceneNameException',
-                message='a scene in project already contains this name')
+                self.current_project.remove_scene_from_name(scene_name)
+                self.scene_manager.remove_by_title(scene_name)
+                self.canvases[scene_name].pack_forget()
+                del self.canvases[scene_name]
+                self.actual_canvas = None
 
-@must_project_loaded
-def _del_scene_btn_handler(*args):
-    global ACTUAL_CANVAS
-    selection = scene_manager.get_selected()
-    if selection:
-        scene_name = selection.title
-        if OkCancel(top,
-            'The scene %s will be delete. Are you sure?' % (scene_name),
-            title='Are you sure?').output:
+    ################ ASSETS
+    SUPPORTED_IMAGE_TYPES = ['png', 'jpg', 'jpeg', 'gif', 'tiff']
+    SUPPORTED_SOUND_FILES = ['mp3', 'ogg', 'wav']
+    def get_file_name(self):
+        '''
+        opens a file dialog for file selection and returns
+        the path
+        '''
+        image_ext = '.' + ' .'.join(PhaserEditor.SUPPORTED_IMAGE_TYPES)
+        sound_ext = '.' + ' .'.join(PhaserEditor.SUPPORTED_SOUND_FILES)
+        file_opt = dict(filetypes=[('Image Files', image_ext), ('Sound Files', sound_ext)])
+        return tkFileDialog.askopenfilename(parent=self, **file_opt)
 
-            CURRENT_PROJECT.remove_scene_from_name(scene_name)
-            scene_manager.remove_by_title(scene_name)
-            CANVASES[scene_name].pack_forget()
-            del CANVASES[scene_name]
-            ACTUAL_CANVAS = None
+    def _add_sprite_btn_handler(self):
+        '''
+        called when user clicks over add_sprite_btn
+        '''
+        if not self.project_is_loaded():
+            return
 
-add_scene_btn = Button(left_frame_top, text='+', width=20, command=_add_scene_btn_handler)
-del_scene_btn = Button(left_frame_top, text='-', width=20, command=_del_scene_btn_handler)
+        file_name = self.get_file_name()
+        basename = posixpath.basename(file_name)
+        ext = basename.split('.')[-1].lower()
+        if file_name:
+            if ext in PhaserEditor.SUPPORTED_SOUND_FILES:
+                asaw = AddSoundAssetWindow(self, default_name=basename.split('.')[0].lower())
+                if asaw.output:
+                    self.assets_manager.add_item(asaw.output['name'],
+                        'sound', 'icons/headphone.png')
+            elif ext in PhaserEditor.SUPPORTED_IMAGE_TYPES:
+                aiaw = AddImageAssetWindow(self, default_name=basename.split('.')[0].lower())
+                if aiaw.output:
+                    self.assets_manager.add_item(aiaw.output['name'],
+                        'image', 'icons/image.png')
 
-Label(left_frame_top, text='Scenes').pack(anchor='nw',
-    side='left')
-add_scene_btn.pack(side='right', anchor='ne', padx=1)
-del_scene_btn.pack(side='right', anchor='ne', padx=1)
-left_frame_top.pack(anchor='nw', padx=5, pady=5, fill='both')
-scene_manager.pack(side='left', expand='yes', fill='y', anchor='nw')
+    def _del_sprite_btn_handler(self):
+        '''
+        called when user clicks over del_sprite_btn
+        '''
+        if not self.project_is_loaded():
+            return
 
-##################################################################################
-SUPPORTED_IMAGE_TYPES = ['png', 'jpg', 'jpeg', 'gif', 'tiff']
-SUPPORTED_SOUND_FILES = ['mp3', 'ogg', 'wav']
-def get_file_name():
-    '''
-    opens a file dialog for file selection and returns
-    the path
-    '''
-    image_ext = '.' + ' .'.join(SUPPORTED_IMAGE_TYPES)
-    sound_ext = '.' + ' .'.join(SUPPORTED_SOUND_FILES)
-    file_opt = dict(filetypes=[('Image Files', image_ext), ('Sound Files', sound_ext)])
-    return tkFileDialog.askopenfilename(parent=top, **file_opt)
+        selection = self.assets_manager.get_selected()
+        if selection:
+            if OkCancel(self,
+                'The asset %s will be delete. Are you sure?' % (selection.title),
+                title='Are you sure?').output:
+                self.assets_manager.remove_by_title(selection.title)
 
-@must_project_loaded
-def _add_sprite_btn_handler(*args):
-    file_name = get_file_name()
-    basename = posixpath.basename(file_name)
-    ext = basename.split('.')[-1].lower()
-    if file_name:
-        if ext in SUPPORTED_SOUND_FILES:
-            asaw = AddSoundAssetWindow(top, default_name=basename.split('.')[0].lower())
-            if asaw.output:
-                assets_manager.add_item(asaw.output['name'],
-                    'sound', 'icons/headphone.png')
-        elif ext in SUPPORTED_IMAGE_TYPES:
-            aiaw = AddImageAssetWindow(top, default_name=basename.split('.')[0].lower())
-            if aiaw.output:
-                assets_manager.add_item(aiaw.output['name'],
-                    'image', 'icons/image.png')
+    ################### Menu events
+    def show_about_window(self):
+        AboutWindow(self)
 
-@must_project_loaded
-def _del_sprite_btn_handler(*args):
-    selection = assets_manager.get_selected()
-    if selection:
-        assets_manager.remove_by_title(selection.title)
+    def save_project(self):
+        fn = tkFileDialog.asksaveasfilename()
+        if fn:
+            f = open(fn, 'w')
+            f.write(self.current_project.get_json())
+            f.close()
 
-Label(right_frame_top, text='Assets').pack(anchor='nw',
-    side='left')
-right_frame_top.pack(anchor='nw', padx=5, pady=5, fill='both')
+    def new_project(self):
+        npw = NewProjectWindow(self)
+        if npw.output:
+            self.current_project = core.PhaserProject()
+            self.current_project.fill_from_dict(npw.output)
+            # clearing the scene/assets listbox
+            self.scene_manager.delete_all()
+            self.assets_manager.delete_all()
+            self.title('Phaser - %s' % (npw.output['name']))
 
-add_sprite_btn = Button(right_frame_top, text='+', width=20, command=_add_sprite_btn_handler)
-del_sprite_btn = Button(right_frame_top, text='-', width=20, command=_del_sprite_btn_handler)
-add_sprite_btn.pack(side='right', anchor='ne', padx=1)
-del_sprite_btn.pack(side='right', anchor='ne', padx=1)
-assets_manager.pack(side='left', expand='yes', fill='y', anchor='nw')
-
-##################################################################################
-
-left_frame.pack(side='left', fill='y')
-right_frame.pack(side='right', fill='y')
-canvas_frame.pack(expand='yes')
-
-## save operations
-def new_project(*args):
-    global CURRENT_PROJECT
-    npw = NewProjectWindow(top)
-    if npw.output:
-        CURRENT_PROJECT = core.PhaserProject()
-        CURRENT_PROJECT.fill_from_dict(npw.output)
-        # clearing the scene/assets listbox
-        scene_manager.delete_all()
-        assets_manager.delete_all()
-        top.title('Phaser - %s' % (npw.output['name']))
-
-# TODO: remove json loading
-def open_project(*args):
-    global CURRENT_PROJECT
-    filename = tkFileDialog.askopenfilename()
-    if filename:
-        f = open(filename)
-        content = f.read()
-        f.close()
-        CURRENT_PROJECT = core.PhaserProject()
-        CURRENT_PROJECT.fill_from_json(content)
-        scene_manager.delete(0, 'end')
-
-# file menu
-projectmenu = Tkinter.Menu(menubar, tearoff=0, relief=Tkinter.FLAT)
-menubar.add_cascade(label="Project", menu=projectmenu)
-projectmenu.add_command(label="New project", command=new_project)
-projectmenu.add_command(label="Open project TODO", command=open_project)
-projectmenu.add_command(label="Save project as", command=save_project)
-projectmenu.add_separator()
-projectmenu.add_command(label="Quit", command=top.destroy)
-
-# assets menu
-# fixme: add tile options etc
-assetsmenu = Tkinter.Menu(menubar, tearoff=0)
-menubar.add_cascade(label="Assets", menu=assetsmenu)
-assetsmenu.add_command(label="Assets manager", command=show_assets_manager)
-
-# settings menu
-settingsmenu = Tkinter.Menu(menubar, tearoff=0)
-menubar.add_cascade(label="Settings", menu=settingsmenu)
-settingsmenu.add_command(label="Editor Settings", command=lambda *args: SettingsWindow(top))
-
-# about menu
-helpmenu = Tkinter.Menu(menubar, tearoff=0)
-menubar.add_cascade(label="Help", menu=helpmenu)
-helpmenu.add_command(label="About", command=show_about_window)
-
-# add menu to window
-top.config(menu=menubar)
-center(top)
-top.mainloop()
+if __name__ == '__main__':
+    top = PhaserEditor()
+    top.mainloop()

@@ -628,7 +628,5 @@ class OkCancel(DefaultDialog):
 
 from newproject import NewProjectWindow
 from about import AboutWindow
-from assetsmanager import AssetsManagerWindow
-from settings import SettingsWindow
 from scene import AddSceneWindow
 from assets import AddSoundAssetWindow, AddImageAssetWindow

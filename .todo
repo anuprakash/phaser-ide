@@ -1,3 +1,4 @@
 1. remover opco de assets e colocar no canto direito como scenes
 2. criar um RoundedRectangleDraw
-3. encapsular tudo em classes
+3. no okcanceldialog permitir colocar textos em negrito (pensar em fazer markdown no tkinter)
+4. i18

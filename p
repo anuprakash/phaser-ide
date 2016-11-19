@@ -1,1 +1,1 @@
-{"assets": [], "bgcolor": "#5e79da", "scenes": [{"name": "rew", "sprites": []}], "height": 480, "width": 640, "name": "rew"}
+{"assets": [], "bgcolor": "#dadada", "scenes": [{"name": "dsa", "sprites": []}, {"name": "asd", "sprites": []}], "height": 480, "width": 640, "name": "asd"}
