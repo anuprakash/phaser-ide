@@ -1,1 +1,1 @@
-{"width": 640, "assets": [{"path": "/home/cptx032/phaser-ide/uicore.py", "type": "image", "name": "tre"}], "scenes": [{"name": "fdgdfg", "sprites": []}, {"name": "ergerg", "sprites": []}], "name": "tre", "height": 480}
+{"assets": [], "bgcolor": "#5e79da", "scenes": [{"name": "rew", "sprites": []}], "height": 480, "width": 640, "name": "rew"}

@@ -5,6 +5,19 @@ from windows import *
 
 CURRENT_PROJECT = None
 
+def must_project_loaded(func):
+    '''
+    decorator
+    if the project was not loaded still
+    shows a error message
+    '''
+    def _final_func():
+        if CURRENT_PROJECT:
+            func()
+        else:
+            MessageBox.warning(title='No project found', message='No project found')
+    return _final_func
+
 top = Tkinter.Tk()
 ttk.Style().theme_use('clam')
 top.title('Phaser')
@@ -38,11 +51,18 @@ ACTUAL_CANVAS = None
 menubar = Tkinter.Menu(top, relief=Tkinter.FLAT)
 
 canvas_frame = Frame(top)
-
 ## scene manager
 left_frame = Frame(top)
 left_frame_top = Frame(left_frame)
-scene_manager = Listbox(left_frame)
+scene_manager = ExtendedListbox(left_frame, width=250, bg='#d1d8e0')
+
+# assets manager
+right_frame = Frame(top)
+right_frame_top = Frame(right_frame)
+assets_manager = ExtendedListbox(right_frame, width=250)
+# TODO: remove
+for i in range(5):
+    assets_manager.add_item('Title %d' % (i), 'subtitle %d' % (i), 'icons/folder.png')
 
 def __on_select_scene(*args):
     '''
@@ -50,60 +70,57 @@ def __on_select_scene(*args):
     in scene manager
     '''
     global ACTUAL_CANVAS
-    _cur_selection = scene_manager.curselection()
-    if _cur_selection:
-        scene_name = scene_manager.get(_cur_selection)
+    selection = scene_manager.get_selected()
+    if selection:
+        scene_name = selection.title
         if (scene_name != ACTUAL_CANVAS and ACTUAL_CANVAS != None) or ACTUAL_CANVAS == None:
             if ACTUAL_CANVAS:
                 CANVASES[ACTUAL_CANVAS].pack_forget()
             ACTUAL_CANVAS = scene_name
             CANVASES[ACTUAL_CANVAS].pack()
-scene_manager.bind('<<ListboxSelect>>', __on_select_scene)
+scene_manager.bind('<1>', __on_select_scene)
 
+@must_project_loaded
 def _add_scene_btn_handler(*args):
     global ACTUAL_CANVAS
-    if CURRENT_PROJECT:
-        asw = AddSceneWindow(top, title="Add Asset")
-        if asw.output:
-            try:
-                CURRENT_PROJECT.add_scene_from_json(asw.output)
-                scene_manager.insert('end', CURRENT_PROJECT.scenes[-1].name)
-                ca = Canvas(canvas_frame,
-                    width=CURRENT_PROJECT.width,
-                    height=CURRENT_PROJECT.height)
-                ca.pack(anchor='sw', side='left')
-                CANVASES[asw.output['name']] = ca
-                ca.create_text(10,10,text=asw.output['name'])
-                if ACTUAL_CANVAS:
-                    CANVASES[ACTUAL_CANVAS].pack_forget()
-                ACTUAL_CANVAS = asw.output['name']
-                # put focus in actual canvas
-                scene_manager.selection_clear(0, 'end')
-                scene_manager.select_set(len(CANVASES.keys())-1)
-            except core.DuplicatedSceneNameException:
-                MessageBox.warning(
-                    title='DuplicatedSceneNameException',
-                    message='a scene in project already contains this name')
-    else:
-        MessageBox.warning(title='No project found', message='No project found')
+    asw = AddSceneWindow(top, title='Add Scene')
+    if asw.output:
+        try:
+            CURRENT_PROJECT.add_scene_from_dict(asw.output)
+            scene_manager.add_item(asw.output['name'], 'scene', 'icons/folder.png')
+            ca = ExtendedCanvas(canvas_frame,
+                width=CURRENT_PROJECT.width,
+                height=CURRENT_PROJECT.height,
+                bg=CURRENT_PROJECT.bgcolor)
+            ca.pack(anchor='sw', side='left')
+            CANVASES[asw.output['name']] = ca
+            ca.create_text(10,10,text=asw.output['name'])
+            if ACTUAL_CANVAS:
+                CANVASES[ACTUAL_CANVAS].pack_forget()
+            ACTUAL_CANVAS = asw.output['name']
+            # put focus in actual canvas
+            scene_manager.desselect_all()
+            scene_manager.select_last()
+        except core.DuplicatedSceneNameException:
+            MessageBox.warning(
+                title='DuplicatedSceneNameException',
+                message='a scene in project already contains this name')
 
+@must_project_loaded
 def _del_scene_btn_handler(*args):
     global ACTUAL_CANVAS
-    if CURRENT_PROJECT:
-        _cur_selection = scene_manager.curselection()
-        if _cur_selection:
-            scene_name = scene_manager.get(_cur_selection)
-            if OkCancel(top,
-                'The scene %s will be delete. Are you sure?' % (scene_name),
-                title='Are you sure?').output:
+    selection = scene_manager.get_selected()
+    if selection:
+        scene_name = selection.title
+        if OkCancel(top,
+            'The scene %s will be delete. Are you sure?' % (scene_name),
+            title='Are you sure?').output:
 
-                CURRENT_PROJECT.remove_scene_from_name(scene_name)
-                scene_manager.delete(_cur_selection)
-                CANVASES[scene_name].pack_forget()
-                del CANVASES[scene_name]
-                ACTUAL_CANVAS = None
-    else:
-        MessageBox.warning(title='No project found', message='No project found')
+            CURRENT_PROJECT.remove_scene_from_name(scene_name)
+            scene_manager.remove_by_title(scene_name)
+            CANVASES[scene_name].pack_forget()
+            del CANVASES[scene_name]
+            ACTUAL_CANVAS = None
 
 add_scene_btn = Button(left_frame_top, text='+', width=20, command=_add_scene_btn_handler)
 del_scene_btn = Button(left_frame_top, text='-', width=20, command=_del_scene_btn_handler)
@@ -115,14 +132,49 @@ del_scene_btn.pack(side='right', anchor='ne', padx=1)
 left_frame_top.pack(anchor='nw', padx=5, pady=5, fill='both')
 scene_manager.pack(side='left', expand='yes', fill='y', anchor='nw')
 
+##################################################################################
+def get_file_name():
+    '''
+    opens a file dialog for file selection and returns
+    the path
+    '''
+    image_ext = '.png .jpg .jpeg .gif .tiff'
+    sound_ext = '.mp3 .ogg .wav'
+    file_opt = dict(filetypes=[('Image Files', image_ext), ('Sound Files', sound_ext)])
+    return tkFileDialog.askopenfilename(parent=top, **file_opt)
+
+@must_project_loaded
+def _add_sprite_btn_handler(*args):
+    if get_file_name():
+        print 'ok'
+
+@must_project_loaded
+def _del_sprite_btn_handler(*args):
+    selection = assets_manager.get_selected()
+    if selection:
+        assets_manager.remove_by_title(selection.title)
+
+Label(right_frame_top, text='Assets').pack(anchor='nw',
+    side='left')
+right_frame_top.pack(anchor='nw', padx=5, pady=5, fill='both')
+
+add_sprite_btn = Button(right_frame_top, text='+', width=20, command=_add_sprite_btn_handler)
+del_sprite_btn = Button(right_frame_top, text='-', width=20, command=_del_sprite_btn_handler)
+add_sprite_btn.pack(side='right', anchor='ne', padx=1)
+del_sprite_btn.pack(side='right', anchor='ne', padx=1)
+assets_manager.pack(side='left', expand='yes', fill='y', anchor='nw')
+
+##################################################################################
+
 left_frame.pack(side='left', fill='y')
+right_frame.pack(side='right', fill='y')
 canvas_frame.pack(expand='yes')
 
 ## save operations
 def new_project(*args):
+    global CURRENT_PROJECT
     npw = NewProjectWindow(top)
     if npw.output:
-        global CURRENT_PROJECT
         CURRENT_PROJECT = core.PhaserProject()
         CURRENT_PROJECT.fill_from_dict(npw.output)
         # clearing the scene listbox
@@ -131,12 +183,12 @@ def new_project(*args):
 
 # TODO: remove json loading
 def open_project(*args):
+    global CURRENT_PROJECT
     filename = tkFileDialog.askopenfilename()
     if filename:
         f = open(filename)
         content = f.read()
         f.close()
-        global CURRENT_PROJECT
         CURRENT_PROJECT = core.PhaserProject()
         CURRENT_PROJECT.fill_from_json(content)
         scene_manager.delete(0, 'end')

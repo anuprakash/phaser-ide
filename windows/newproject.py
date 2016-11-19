@@ -2,11 +2,10 @@ from . import *
 import json
 
 class NewProjectWindow(DefaultDialog):
-    def __init__(self, master, _json=None):
-        self.json = _json
+    def __init__(self, master, _dict=None):
+        self._dict = _dict
         self.output = None
-        # TODO: if json == edit window
-        DefaultDialog.__init__(self, master, title="New project")
+        DefaultDialog.__init__(self, master, title='%s Project' % ('Edit' if _dict else 'New'))
     
     def body(self, master):
         Label(master, text="Project name").grid(sticky='W', row=0, column=0, columnspan=4)
@@ -24,15 +23,19 @@ class NewProjectWindow(DefaultDialog):
         self.height = Entry(master, width=4)
         self.height.grid(row=2, column=3, sticky='W')
 
-        if self.json:
-            data = json.loads(self.json)
-            self.name_entry.insert(0, data.get('name', ''))
-            self.width.insert(0, str(data.get('width', '640')))
-            self.height.insert(0, str(data.get('height', '480')))
+        Label(master, text='Background color').grid(row=3, column=0, sticky='NW')
+        self.bgcolor = ColorChooser(master, '#dadada', height=20)
+        self.bgcolor.grid(row=4, column=0, columnspan=4)
+
+        if self._dict:
+            self.name_entry.text = self._dict.get('name', '')
+            self.width.text = str(self._dict.get('width', '640'))
+            self.height.text = str(self._dict.get('height', '480'))
+            self.bgcolor.color = self._dict.get('bgcolor', '#dadada')
         else:
-            self.name_entry.insert(0, '')
-            self.width.insert(0, '640')
-            self.height.insert(0, '480')
+            self.name_entry.text = ''
+            self.width.text = 640
+            self.height.text = 480
         return self.name_entry
     
     def apply(self):
@@ -51,7 +54,8 @@ class NewProjectWindow(DefaultDialog):
             'width': width,
             'height': height,
             'scenes': [],
-            'assets': []
+            'assets': [],
+            'bgcolor': self.bgcolor.color
         }
     
     def validate(self):

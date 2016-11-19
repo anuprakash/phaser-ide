@@ -14,7 +14,8 @@ import json
     "width": "width",
     "height": "height",
     "assets": [<assetStructure>, ...],
-    "scenes": [<SceneStructure>, ...]
+    "scenes": [<SceneStructure>, ...],
+    "bgcolor": "background color rgb"
 }
 
 <SceneStructure>
@@ -91,6 +92,7 @@ class PhaserProject:
         self.height = 480
         self.scenes = []
         self.assets = []
+        self.bgcolor = '#dadada'
 
         if json:
             self.fill_from_json(json)
@@ -111,16 +113,16 @@ class PhaserProject:
         self.name = _dict['name']
         self.width = _dict['width']
         self.height = _dict['height']
+        self.bgcolor = _dict['bgcolor']
         self.load_assets_from_dict(_dict['assets'])
         self.load_scenes_from_dict(_dict['scenes'])
 
-    # TODO: remove
-    def add_scene_from_json(self, json_scene):
+    def add_scene_from_dict(self, json_scene):
         scene = PhaserScene(json_scene)
         for i in self.scenes:
             if i.name == scene.name:
                 raise DuplicatedSceneNameException()
-        self.scenes.append( PhaserScene(json_scene) )
+        self.scenes.append( scene )
 
     def remove_scene_from_name(self, name):
         for i in self.scenes:
@@ -136,6 +138,7 @@ class PhaserProject:
             'width': self.width,
             'height': self.height,
             'scenes': self.get_scenes_dict(),
-            'assets': self.get_assets_dict()
+            'assets': self.get_assets_dict(),
+            'bgcolor': self.bgcolor
         }
         return json.dumps(_dict)
