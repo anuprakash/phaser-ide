@@ -1,1 +1,0 @@
-{"assets": [], "bgcolor": "#dadada", "scenes": [{"name": "dsa", "sprites": []}, {"name": "asd", "sprites": []}], "height": 480, "width": 640, "name": "asd"}
