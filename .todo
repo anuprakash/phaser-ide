@@ -1,4 +1,7 @@
-1. remover opco de assets e colocar no canto direito como scenes
-2. criar um RoundedRectangleDraw
-3. no okcanceldialog permitir colocar textos em negrito (pensar em fazer markdown no tkinter)
-4. i18
++ criar um RoundedRectangleDraw
++ no okcanceldialog permitir colocar textos em negrito (pensar em fazer markdown no tkinter)
++ add suport to 'effect' type in asset loading
++ add suport to sprites
++ implements scale 'width' and 'height' attributes im ImageDraw
++ replace pill(imagetk) for pillow
++ add drag 'lock' pressing 'x' and 'y' keys

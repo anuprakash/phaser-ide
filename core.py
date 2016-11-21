@@ -33,6 +33,9 @@ import json
 class DuplicatedSceneNameException(Exception):
     pass
 
+class DuplicatedAssetNameException(Exception):
+    pass
+
 class Asset:
     def __init__(self, _dict=None):
         self.name = ''
@@ -129,6 +132,17 @@ class PhaserProject:
             if i.name == name:
                 self.scenes.remove(i)
 
+    def assets_exists_by_name(self, name):
+        for i in self.assets:
+            if i.name == name:
+                return True
+        return False
+
+    def add_asset(self, asset):
+        if self.assets_exists_by_name(asset.name):
+            raise DuplicatedAssetNameException()
+        self.assets.append(asset)
+
     def get_json(self):
         '''
         returns the json representation of project
@@ -142,3 +156,13 @@ class PhaserProject:
             'bgcolor': self.bgcolor
         }
         return json.dumps(_dict)
+
+    def get_asset_path_from_name(self, name):
+        '''
+        returns the path in physical hard drive of sprite
+        using its name
+        '''
+        for i in self.assets:
+            if i.name == name:
+                return i.path
+        return None

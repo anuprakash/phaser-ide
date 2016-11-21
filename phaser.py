@@ -7,7 +7,12 @@ import posixpath
 class PhaserEditor(Tkinter.Tk):
     def __init__(self):
         self.current_project = None
+        # stores the canvas itself
+        # the key is the scene name
         self.canvases = {}
+        # stores all sprite of each canvas
+        # the key is the scene name
+        self.sprite_canvases = {}
         self.actual_canvas = None
 
         Tkinter.Tk.__init__(self)
@@ -71,6 +76,7 @@ class PhaserEditor(Tkinter.Tk):
 
         ############################
         center(self)
+        self.bind('<Delete>', self.__delete_sprite, '+')
 
     def project_is_loaded(self):
         '''
@@ -115,7 +121,8 @@ class PhaserEditor(Tkinter.Tk):
                     bg=self.current_project.bgcolor)
                 ca.pack(anchor='sw', side='left')
                 self.canvases[asw.output['name']] = ca
-                ca.create_text(10,10,text=asw.output['name'])
+                # the list of sprites of this scene is a empty list
+                self.sprite_canvases[asw.output['name']] = []
                 if self.actual_canvas:
                     self.canvases[self.actual_canvas].pack_forget()
                 self.actual_canvas = asw.output['name']
@@ -168,19 +175,43 @@ class PhaserEditor(Tkinter.Tk):
             return
 
         file_name = self.get_file_name()
-        basename = posixpath.basename(file_name)
-        ext = basename.split('.')[-1].lower()
+        ext = posixpath.basename(file_name).split('.')[-1].lower()
         if file_name:
             if ext in PhaserEditor.SUPPORTED_SOUND_FILES:
-                asaw = AddSoundAssetWindow(self, default_name=basename.split('.')[0].lower())
-                if asaw.output:
-                    self.assets_manager.add_item(asaw.output['name'],
-                        'sound', 'icons/headphone.png')
+                self.__add_sound_asset(file_name)
             elif ext in PhaserEditor.SUPPORTED_IMAGE_TYPES:
-                aiaw = AddImageAssetWindow(self, default_name=basename.split('.')[0].lower())
-                if aiaw.output:
-                    self.assets_manager.add_item(aiaw.output['name'],
-                        'image', 'icons/image.png')
+                self.__add_image_asset(file_name)
+
+    def __add_sound_asset(self, file_name):
+        '''
+        called after select a music file
+        '''
+        asaw = AddSoundAssetWindow(self, path=file_name)
+        if asaw.output:
+            try:
+                self.current_project.add_asset( core.Asset(asaw.output) )
+                self.assets_manager.add_item(asaw.output['name'],
+                    'sound', 'icons/headphone.png')
+            except core.DuplicatedAssetNameException:
+                MessageBox.warning(
+                    title='DuplicatedAssetNameException',
+                    message='a asset in project already contains this name')
+
+    def __add_image_asset(self, file_name):
+        '''
+        called after select a image file
+        '''
+        aiaw = AddImageAssetWindow(self, path=file_name)
+        if aiaw.output:
+            try:
+                self.current_project.add_asset( core.Asset(aiaw.output) )
+                item = self.assets_manager.add_item(aiaw.output['name'],
+                    'image', 'icons/image.png')
+                item.bind('<Double-Button-1>', self.__dbl_click_image_sprite, '+')
+            except core.DuplicatedAssetNameException:
+                MessageBox.warning(
+                    title='DuplicatedAssetNameException',
+                    message='a asset in project already contains this name')
 
     def _del_sprite_btn_handler(self):
         '''
@@ -196,11 +227,69 @@ class PhaserEditor(Tkinter.Tk):
                 title='Are you sure?').output:
                 self.assets_manager.remove_by_title(selection.title)
 
+    def __dbl_click_image_sprite(self, evt):
+        '''
+        called when user double clicks in the sprite image button
+        '''
+        name = self.assets_manager.get_selected().title
+        path = self.current_project.get_asset_path_from_name(name)
+        if not self.actual_canvas:
+            MessageBox.warning(
+                    title='No scene specified',
+                    message='Select/create a scene to put sprite')
+            return
+        canvas = self.canvases[self.actual_canvas]
+        cx, cy = canvas.center
+        self.__add_sprite_to_canvas( ImageDraw(canvas, cx, cy, path, anchor='nw') )
+
+    def __add_sprite_to_canvas(self, sprite):
+        drag_control(sprite)
+        self.sprite_canvases[self.actual_canvas].append( sprite )
+        sprite.bind('<1>', lambda evt: self.__select_sprite(sprite), '+')
+
+    def desselect_all_sprites(self):
+        for i in self.sprite_canvases[self.actual_canvas]:
+            i.selected = False
+            # if has rectangle bounds
+            if i.bounds:
+                i.bounds.style['outline'] = DRAG_CONTROL_STYLE['fill']
+            i.bounds.update()
+            i.update()
+
+    def __select_sprite(self, sprite):
+        '''
+        called when the user clicks in a sprite
+        '''
+        self.desselect_all_sprites()
+        sprite.selected = True
+        sprite.bounds.style['outline'] = 'red'
+        sprite.bounds.update()
+        sprite.update()
+
+    def get_selected_sprite(self):
+        '''
+        returns the selected sprite
+        '''
+        for i in self.sprite_canvases[self.actual_canvas]:
+            if hasattr(i, 'selected') and i.selected:
+                return i
+        return None
+
+    def __delete_sprite(self, evt):
+        selected = self.get_selected_sprite()
+        if selected:
+            self.sprite_canvases[self.actual_canvas].remove(selected)
+            selected.bounds.delete()
+            selected.lower_right.delete()
+            selected.delete()
+
     ################### Menu events
     def show_about_window(self):
         AboutWindow(self)
 
     def save_project(self):
+        if not self.current_project:
+            return
         fn = tkFileDialog.asksaveasfilename()
         if fn:
             f = open(fn, 'w')
@@ -216,6 +305,19 @@ class PhaserEditor(Tkinter.Tk):
             self.scene_manager.delete_all()
             self.assets_manager.delete_all()
             self.title('Phaser - %s' % (npw.output['name']))
+
+            # clearing the canvases
+            self.__reset_all_canvas()
+
+    def __reset_all_canvas(self):
+        '''
+        remove from screen all canvas
+        '''
+        for i in self.canvases:
+            self.canvases[i].pack_forget()
+        self.canvases = {}
+        self.sprite_canvases = {}
+        self.actual_canvas = None
 
 if __name__ == '__main__':
     top = PhaserEditor()
