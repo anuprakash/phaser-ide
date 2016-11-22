@@ -558,10 +558,10 @@ class Frame(Tkinter.Frame):
 class Button(ExtendedCanvas):
     def __init__(self, *args, **kwargs):
         _wi, _he = kwargs.pop('width', 100), kwargs.pop('height', 25)
-        self.radius = [4, 4, 4, 4]
+        self.radius = [2, 2, 2, 2]
         self.level = 1
-        self.__bd_color = '#c7c7c7'
-        self.__bg_color = '#ffffff'
+        self.__bg_color = BG_COLOR
+        self.__bd_color = '#ddd'
         self.__fg_color = 'black'
 
         self.default = kwargs.pop('default', '')
@@ -569,9 +569,7 @@ class Button(ExtendedCanvas):
         self.command = kwargs.pop('command', None)
 
         if self.default == 'active':
-            self.__bg_color = '#0088ff'
-            self.__fg_color = 'white'
-            self.__bd_color = None
+            self.__bd_color = '#00aacc'
 
         kwargs.update(width=_wi, height=_he, bg=BG_COLOR)
         Tkinter.Canvas.__init__(self, *args, **kwargs)
