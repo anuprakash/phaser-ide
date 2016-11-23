@@ -3,7 +3,7 @@ import posixpath
 
 class AddSoundAssetWindow(DefaultDialog):
     def __init__(self, parent, title=None, path=''):
-    	self.__path = path
+        self.__path = path
         DefaultDialog.__init__(self, parent, title)
 
     def body(self, master):
@@ -29,7 +29,7 @@ class AddSoundAssetWindow(DefaultDialog):
 
 class AddImageAssetWindow(DefaultDialog):
     def __init__(self, parent, title=None, path=''):
-    	self.__path = path
+        self.__path = path
         DefaultDialog.__init__(self, parent, title)
 
     def body(self, master):

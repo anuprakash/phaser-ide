@@ -4,6 +4,8 @@ import Tkinter
 from windows import *
 import posixpath
 
+VErSIOn = 'alpha'
+
 class PhaserEditor(Tkinter.Tk):
     def __init__(self):
         self.current_project = None
@@ -17,7 +19,7 @@ class PhaserEditor(Tkinter.Tk):
 
         Tkinter.Tk.__init__(self)
         ttk.Style().theme_use('clam')
-        self.title('Phaser')
+        self.title('Phaser - %s' % (VErSIOn))
         self['bg'] = BG_COLOR
         self.geometry('%dx%d' % (1200, 600))
 
@@ -77,6 +79,11 @@ class PhaserEditor(Tkinter.Tk):
         ############################
         center(self)
         self.bind('<Delete>', self.__delete_sprite, '+')
+        self.bind('<Up>', self.__up_key, '+')
+        self.bind('<Down>', self.__down_key, '+')
+        self.bind('<Right>', self.__right_key, '+')
+        self.bind('<Left>', self.__left_key, '+')
+        self.focus_force()
 
     def project_is_loaded(self):
         '''
@@ -243,9 +250,49 @@ class PhaserEditor(Tkinter.Tk):
         self.__add_sprite_to_canvas( ImageDraw(canvas, cx, cy, path, anchor='nw') )
 
     def __add_sprite_to_canvas(self, sprite):
+        '''
+        called when the user double clicks in a assets in assets manager
+        '''
         drag_control(sprite)
         self.sprite_canvases[self.actual_canvas].append( sprite )
         sprite.bind('<1>', lambda evt: self.__select_sprite(sprite), '+')
+        sprite.bind('<3>', lambda evt: self.__show_sprite_menu(sprite), '+')
+        # TODO: define name
+        if type(sprite) == ImageDraw:
+            sprite.type = 'image'
+
+    def __show_sprite_menu(self, sprite):
+        '''
+        called when the user right-click the sprite in canvas
+        '''
+        pop = PopUpMenu(self, [
+            {
+                'name': 'Centralize',
+                'description': 'Centralizes the sprite in middle of canvas',
+                'command': lambda evt:self.__centralize_sprite(sprite)
+            },
+            {
+                'name': 'Properties',
+                'description': 'Show/edits the sprite properties',
+                'command': lambda evt:self.__show_sprite_properties(sprite),
+                'icon': 'icons/tools.png'
+            }
+        ])
+
+    def __show_sprite_properties(self, sprite):
+        '''
+        shows a window with the sprite properties
+        '''
+        if sprite.type == 'image':
+            SpriteImagePropertyWindow(self)
+
+    def __centralize_sprite(self, sprite):
+        '''
+        puts the sprite in the middle of canvas
+        '''
+        sprite.x = (self.canvases[self.actual_canvas].width / 2) - (sprite.width / 2)
+        sprite.y = (self.canvases[self.actual_canvas].height / 2) - (sprite.height / 2)
+        update_control_points(sprite)
 
     def desselect_all_sprites(self):
         for i in self.sprite_canvases[self.actual_canvas]:
@@ -276,12 +323,55 @@ class PhaserEditor(Tkinter.Tk):
         return None
 
     def __delete_sprite(self, evt):
+        '''
+        called when user clicks 'del' key
+        '''
         selected = self.get_selected_sprite()
         if selected:
             self.sprite_canvases[self.actual_canvas].remove(selected)
             selected.bounds.delete()
             selected.lower_right.delete()
             selected.delete()
+
+    def __right_key(self, evt):
+        '''
+        called when user clicks 'up' key
+        '''
+        selected = self.get_selected_sprite()
+        if selected:
+            selected.x += 1
+            # defined in 'windows' module
+            update_control_points(selected)
+
+    def __left_key(self, evt):
+        '''
+        called when user clicks 'up' key
+        '''
+        selected = self.get_selected_sprite()
+        if selected:
+            selected.x -= 1
+            # defined in 'windows' module
+            update_control_points(selected)
+
+    def __up_key(self, evt):
+        '''
+        called when user clicks 'up' key
+        '''
+        selected = self.get_selected_sprite()
+        if selected:
+            selected.y -= 1
+            # defined in 'windows' module
+            update_control_points(selected)
+
+    def __down_key(self, evt):
+        '''
+        called when user clicks 'up' key
+        '''
+        selected = self.get_selected_sprite()
+        if selected:
+            selected.y += 1
+            # defined in 'windows' module
+            update_control_points(selected)
 
     ################### Menu events
     def show_about_window(self):
@@ -321,4 +411,5 @@ class PhaserEditor(Tkinter.Tk):
 
 if __name__ == '__main__':
     top = PhaserEditor()
+    SpriteImagePropertyWindow(top)
     top.mainloop()

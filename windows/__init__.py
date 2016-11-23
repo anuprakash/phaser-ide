@@ -169,7 +169,7 @@ class OvalDraw(RectangleDraw):
     @property
     def radius(self):
         if self.width == self.height:
-            return self.width
+            return self.width / 2
         raise Exception('Oval is not a circle')
 
     @radius.setter
@@ -238,6 +238,16 @@ def change_control_point_color(item):
         item.style = DRAG_CONTROL_STYLE
         item.update()
     item.bind('<Leave>', __leave, '+')
+
+def update_control_points(item):
+    item.lower_right.x = item.x+item.width-item.lower_right.radius
+    item.lower_right.y = item.y+item.height-item.lower_right.radius
+
+    item.bounds.x = item.x
+    item.bounds.y = item.y
+    # put control points over every thing inside canvas
+    item.lower_right.up()
+
 def drag_control(item, radius=5):
     '''
     create dragcontrol points
@@ -250,13 +260,7 @@ def drag_control(item, radius=5):
         when the main item is dragged the control points
         follow
         '''
-        item.lower_right.x = item.x+item.width-radius
-        item.lower_right.y = item.y+item.height-radius
-
-        item.bounds.x = item.x
-        item.bounds.y = item.y
-        # put control points over every thing inside canvas
-        item.lower_right.up()
+        update_control_points(item)
 
     def drag_control_point(event):
         item.width = item.lower_right.x + radius - item.x
@@ -516,6 +520,7 @@ class ExtendedListbox(ExtendedCanvas):
                 self.desselect_all)
             self.__items.append(item)
 
+
 class ColorChooser(ExtendedCanvas, object):
     '''
     To get/set the color use 'color' property
@@ -561,7 +566,7 @@ class Button(ExtendedCanvas):
         self.radius = [2, 2, 2, 2]
         self.level = 1
         self.__bg_color = BG_COLOR
-        self.__bd_color = '#ddd'
+        self.__bd_color = '#aaa'
         self.__fg_color = 'black'
 
         self.default = kwargs.pop('default', '')
@@ -774,7 +779,51 @@ class OkCancel(DefaultDialog):
     def apply(self):
         self.output = True
 
+class PopUpMenu(Tkinter.Toplevel):
+    def __init__(self, master, items, width=500):
+        Tkinter.Toplevel.__init__(self, master)
+        self.overrideredirect(True)
+        self.canvas = ExtendedListbox(self)
+        self['width'] = width # TODO fixme
+
+        self.bind('<Escape>', lambda evt: self.destroy(), '+')
+        self.focus_force()
+        # ver alternativa pra isso:
+        # self.bind('<FocusOut>', lambda evt: self.destroy(), '+')
+
+        self.geometry('%dx%d' % (width, len(items)*40))
+        self.update_idletasks()
+        self.canvas.width = width
+        self.canvas.pack(expand='yes', fill='both')
+
+        for i in items:
+            self.add_command(i.get('name', ''),
+                subtitle=i.get('description', None),
+                icon=i.get('icon', None),
+                command=i.get('command', None))
+
+        center(self)
+
+    def add_command(self, title, subtitle=None, icon=None, command=None):
+        '''
+        binds a new command to ExtendedListboxItem, when
+        command is called and after that the popup closes
+        '''
+        item = self.canvas.add_item(title, subtitle, icon)
+        def __final_command(evt):
+            self.withdraw()
+            command(evt)
+            self.destroy()
+        item.bind('<1>', __final_command, '+')
+
+    def hide(self):
+        self.withdraw()
+
+    def show(self):
+        self.deiconify()
+
 from newproject import NewProjectWindow
 from about import AboutWindow
 from scene import AddSceneWindow
 from assets import AddSoundAssetWindow, AddImageAssetWindow
+from sprite import SpriteImagePropertyWindow

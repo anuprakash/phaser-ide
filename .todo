@@ -3,5 +3,10 @@
 + add suport to 'effect' type in asset loading
 + add suport to sprites
 + implements scale 'width' and 'height' attributes im ImageDraw
-+ replace pill(imagetk) for pillow
 + add drag 'lock' pressing 'x' and 'y' keys
++ ao remover um asset na tela direita os assets que ja foram adicionados devem ser excluidos tambem
++ add asset property window
++ add scroll to scene and assets manager
++ add support to tiles
++ prevenir abertura de multiplos popups
++ phaser exporter
