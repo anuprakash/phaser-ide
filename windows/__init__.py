@@ -666,10 +666,6 @@ class MarkDownLabel(Text):
 
         self.insert('end', line, (tag,))
         self.insert('end', '\n')
-        self.__insert_ruler()
-
-    def __insert_ruler(self):
-        self.insert('end', '_' * int(self['width']))
 
 class Entry(ttk.Entry, object):
     def __init__(self, *args, **kws):
