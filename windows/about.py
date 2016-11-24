@@ -2,7 +2,9 @@ from . import *
 
 class AboutWindow(DefaultDialog):
     def body(self, master):
-        return MarkDownLabel(master, height=20, text='# Phaser Editor\nIcons: https://www.iconfinder.com/iconsets/small-n-flat').grid(pady=45, padx=45)
+        mdl = MarkDownLabel(master, height=20, text='# Phaser Editor\nIcons: https://www.iconfinder.com/iconsets/small-n-flat')
+        mdl.grid(pady=45, padx=45)
+        return mdl
     
     def buttonbox(self):
         box = Frame(self)

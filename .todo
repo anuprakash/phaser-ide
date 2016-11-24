@@ -1,16 +1,14 @@
 + criar um RoundedRectangleDraw
 + no okcanceldialog permitir colocar textos em negrito (pensar em fazer markdown no tkinter)
-+ add suport to 'effect' type in asset loading
++ add suport to 'effect' type in sound asset loading
 + add suport to sprites
 + implements scale 'width' and 'height' attributes im ImageDraw
 + add drag 'lock' pressing 'x' and 'y' keys
 + ao remover um asset na tela direita os assets que ja foram adicionados devem ser excluidos tambem
 + add asset property window
-+ add scroll to scene and assets manager
 + add support to tiles
 + prevenir abertura de multiplos popups
 + phaser exporter
 + project properties
 + remover atributos do projeto que vão direto para a instancia de core.Project, o core project vai ser setado na mão (pensar na possibilidade de remover core.Project)
 + testar no windows
-+ ao adicionar um asset e cancelar o file explorer ocorre um erro

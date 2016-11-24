@@ -467,6 +467,7 @@ class ExtendedListbox(ExtendedCanvas):
             self.item_height, self.item_height * len(self.__items),
             self.desselect_all)
         self.__items.append(item)
+        self['scrollregion'] = (0, 0, self.width, self.item_height * len(self.__items))
         return item
 
     def remove_by_title(self, title):
@@ -691,6 +692,9 @@ class Listbox(Tkinter.Listbox):
         self['activestyle'] = 'none'
 
 class OptionMenu(Tkinter.OptionMenu):
+    pass
+
+class Scrollbar(ttk.Scrollbar):
     pass
 
 class DefaultDialog(Tkinter.Toplevel):

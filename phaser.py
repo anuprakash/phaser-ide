@@ -60,8 +60,13 @@ class PhaserEditor(Tkinter.Tk):
         self.add_scene_btn.pack(side='right', anchor='ne', padx=1)
         self.del_scene_btn.pack(side='right', anchor='ne', padx=1)
         self.left_frame_top.pack(anchor='nw', padx=5, pady=5, fill='both')
-        self.scene_manager.pack(side='left', expand='yes', fill='y', anchor='nw')
         self.left_frame.pack(side='left', fill='y')
+
+        self.scene_scroll = Scrollbar(self.left_frame, orient='vertical')
+        self.scene_scroll.pack(side='left',fill='y', expand='yes')
+        self.scene_manager.pack(expand='yes', fill='y', anchor='nw')
+        self.scene_scroll.config(command=self.scene_manager.yview)
+        self.scene_manager.config(yscrollcommand=self.scene_scroll.set)
 
         ################ RIGHT PANEL
         self.right_frame = Frame(self)
@@ -77,6 +82,11 @@ class PhaserEditor(Tkinter.Tk):
         self.del_sprite_btn.pack(side='right', anchor='ne', padx=1)
         self.assets_manager.pack(side='left', expand='yes', fill='y', anchor='nw')
         self.right_frame.pack(side='right', fill='y')
+
+        self.assets_scroll = Scrollbar(self.right_frame, orient='vertical')
+        self.assets_scroll.pack(fill='y', expand='yes')
+        self.assets_scroll.config(command=self.assets_manager.yview)
+        self.assets_manager.config(yscrollcommand=self.assets_scroll.set)
 
         ################ RIGHT PANEL
         self.canvas_frame = Frame(self)
@@ -211,6 +221,8 @@ class PhaserEditor(Tkinter.Tk):
             return
 
         file_name = self.get_file_name()
+        if not file_name:
+            return
         ext = posixpath.basename(file_name).split('.')[-1].lower()
         if file_name:
             if ext in PhaserEditor.SUPPORTED_SOUND_FILES:
