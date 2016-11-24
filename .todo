@@ -10,3 +10,5 @@
 + add support to tiles
 + prevenir abertura de multiplos popups
 + phaser exporter
++ project properties
++ remover atributos do projeto que vão direto para a instancia de core.Project, o core project vai ser setado na mão (pensar na possibilidade de remover core.Project)

@@ -2,7 +2,9 @@ import core
 import tkFileDialog
 import Tkinter
 from windows import *
+import components as comp
 import posixpath
+import importlib
 
 VErSIOn = 'alpha'
 
@@ -27,18 +29,22 @@ class PhaserEditor(Tkinter.Tk):
         self.menubar = Tkinter.Menu(self, relief=Tkinter.FLAT)
         # file menu
         self.projectmenu = Tkinter.Menu(self.menubar, tearoff=0, relief=Tkinter.FLAT)
-        self.menubar.add_cascade(label="Project", menu=self.projectmenu)
-        self.projectmenu.add_command(label="New project", command=self.new_project)
+        self.menubar.add_cascade(label='Project', menu=self.projectmenu)
+        self.projectmenu.add_command(label='New project', command=self.new_project)
         # TODO
-        # self.projectmenu.add_command(label="Open project TODO", command=open_project)
-        self.projectmenu.add_command(label="Save project as", command=self.save_project)
+        # self.projectmenu.add_command(label='Open project TODO', command=open_project)
+        self.projectmenu.add_command(label='Save project as', command=self.save_project)
         self.projectmenu.add_separator()
-        self.projectmenu.add_command(label="Quit", command=self.destroy)
+        self.projectmenu.add_command(label='Quit', command=self.destroy)
+
+        # plugins menu
+        self.pluginsmenu = Tkinter.Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label='Plugins', menu=self.pluginsmenu)
 
         # about menu
         self.helpmenu = Tkinter.Menu(self.menubar, tearoff=0)
-        self.menubar.add_cascade(label="Help", menu=self.helpmenu)
-        self.helpmenu.add_command(label="About", command=self.show_about_window)
+        self.menubar.add_cascade(label='Help', menu=self.helpmenu)
+        self.helpmenu.add_command(label='About', command=self.show_about_window)
 
         # add menu to window
         self.config(menu=self.menubar)
@@ -85,6 +91,28 @@ class PhaserEditor(Tkinter.Tk):
         self.bind('<Left>', self.__left_key, '+')
         self.focus_force()
 
+        self.__load_plugins()
+
+    def __load_plugins(self):
+        '''
+        the "plugin system" is very simple:
+        exist a file named '.plugins' where each line
+        is a name of a python module. Each module is imported
+        in start of phaser ide. The module must have 3 things:
+        1. a attribute named 'title' (this name will be putted in
+        menu)
+        2. a method 'init', called after import
+        3. a method 'execute' called in the click of menu
+        '''
+        a = open('./.plugins')
+        modules = a.readlines()
+        a.close()
+        for i in modules:
+            mod = importlib.import_module(i)
+            mod.init(self)
+            self.pluginsmenu.add_command(label=mod.title,
+                command=lambda:mod.execute(self))
+
     def project_is_loaded(self):
         '''
         returns true if project is loaded, else
@@ -108,7 +136,7 @@ class PhaserEditor(Tkinter.Tk):
                 if self.actual_canvas:
                     self.canvases[self.actual_canvas].pack_forget()
                 self.actual_canvas = scene_name
-                self.canvases[self.actual_canvas].pack()
+                self.cur_canvas().pack()
 
     def _add_scene_btn_handler(self):
         '''
@@ -131,7 +159,7 @@ class PhaserEditor(Tkinter.Tk):
                 # the list of sprites of this scene is a empty list
                 self.sprite_canvases[asw.output['name']] = []
                 if self.actual_canvas:
-                    self.canvases[self.actual_canvas].pack_forget()
+                    self.cur_canvas().pack_forget()
                 self.actual_canvas = asw.output['name']
                 # put focus in actual canvas
                 self.scene_manager.desselect_all()
@@ -245,54 +273,16 @@ class PhaserEditor(Tkinter.Tk):
                     title='No scene specified',
                     message='Select/create a scene to put sprite')
             return
-        canvas = self.canvases[self.actual_canvas]
+        canvas = self.cur_canvas()
         cx, cy = canvas.center
-        self.__add_sprite_to_canvas( ImageDraw(canvas, cx, cy, path, anchor='nw') )
+        self.__add_sprite_to_canvas( comp.ImageComponent(canvas, cx, cy, path, ide=self, anchor='nw') )
 
     def __add_sprite_to_canvas(self, sprite):
         '''
         called when the user double clicks in a assets in assets manager
         '''
-        drag_control(sprite)
         self.sprite_canvases[self.actual_canvas].append( sprite )
         sprite.bind('<1>', lambda evt: self.__select_sprite(sprite), '+')
-        sprite.bind('<3>', lambda evt: self.__show_sprite_menu(sprite), '+')
-        # TODO: define name
-        if type(sprite) == ImageDraw:
-            sprite.type = 'image'
-
-    def __show_sprite_menu(self, sprite):
-        '''
-        called when the user right-click the sprite in canvas
-        '''
-        pop = PopUpMenu(self, [
-            {
-                'name': 'Centralize',
-                'description': 'Centralizes the sprite in middle of canvas',
-                'command': lambda evt:self.__centralize_sprite(sprite)
-            },
-            {
-                'name': 'Properties',
-                'description': 'Show/edits the sprite properties',
-                'command': lambda evt:self.__show_sprite_properties(sprite),
-                'icon': 'icons/tools.png'
-            }
-        ])
-
-    def __show_sprite_properties(self, sprite):
-        '''
-        shows a window with the sprite properties
-        '''
-        if sprite.type == 'image':
-            SpriteImagePropertyWindow(self)
-
-    def __centralize_sprite(self, sprite):
-        '''
-        puts the sprite in the middle of canvas
-        '''
-        sprite.x = (self.canvases[self.actual_canvas].width / 2) - (sprite.width / 2)
-        sprite.y = (self.canvases[self.actual_canvas].height / 2) - (sprite.height / 2)
-        update_control_points(sprite)
 
     def desselect_all_sprites(self):
         for i in self.sprite_canvases[self.actual_canvas]:
@@ -302,6 +292,12 @@ class PhaserEditor(Tkinter.Tk):
                 i.bounds.style['outline'] = DRAG_CONTROL_STYLE['fill']
             i.bounds.update()
             i.update()
+
+    def cur_canvas(self):
+        '''
+        returns the actual canvas instance shown in the screen
+        '''
+        return self.canvases.get(self.actual_canvas, None)
 
     def __select_sprite(self, sprite):
         '''
@@ -340,8 +336,6 @@ class PhaserEditor(Tkinter.Tk):
         selected = self.get_selected_sprite()
         if selected:
             selected.x += 1
-            # defined in 'windows' module
-            update_control_points(selected)
 
     def __left_key(self, evt):
         '''
@@ -350,8 +344,6 @@ class PhaserEditor(Tkinter.Tk):
         selected = self.get_selected_sprite()
         if selected:
             selected.x -= 1
-            # defined in 'windows' module
-            update_control_points(selected)
 
     def __up_key(self, evt):
         '''
@@ -360,8 +352,6 @@ class PhaserEditor(Tkinter.Tk):
         selected = self.get_selected_sprite()
         if selected:
             selected.y -= 1
-            # defined in 'windows' module
-            update_control_points(selected)
 
     def __down_key(self, evt):
         '''
@@ -370,8 +360,6 @@ class PhaserEditor(Tkinter.Tk):
         selected = self.get_selected_sprite()
         if selected:
             selected.y += 1
-            # defined in 'windows' module
-            update_control_points(selected)
 
     ################### Menu events
     def show_about_window(self):
@@ -411,5 +399,4 @@ class PhaserEditor(Tkinter.Tk):
 
 if __name__ == '__main__':
     top = PhaserEditor()
-    SpriteImagePropertyWindow(top)
     top.mainloop()

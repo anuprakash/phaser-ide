@@ -618,6 +618,59 @@ class Label(Tkinter.Label):
         kwargs.update(padx=x, pady=y)
         Tkinter.Label.grid(self, *args, **kwargs)
 
+class Text(Tkinter.Text, object):
+    def __init__(self, *args, **kws):
+        Tkinter.Text.__init__(self, *args, **kws)
+
+class MarkDownLabel(Text):
+    def __init__(self, master, text='', **kws):
+        kws.update(height=kws.get('height', 1))
+        Text.__init__(self, master, **kws)
+        self['state'] = 'disabled'
+        self.text = text
+        self['highlightthickness'] = 0
+        # self['relief'] = 'flat' # TODO
+        # self['bg'] = master['bg']
+
+        self.tag_config('normal', font=('TkDefaultFont', 9))
+        self.tag_config('bold', font=('TkDefaultFont', 9, 'bold'))
+        self.tag_config('italic', font=('TkDefaultFont', 9, 'italic'))
+        self.tag_config('h1', font=('TkDefaultFont', 20))
+        # mixes
+        self.tag_config('bold.italic', font=('TkDefaultFont', 9, 'italic', 'bold'))
+        self.tag_config('h1.italic', font=('TkDefaultFont', 20, 'italic'))
+        self.tag_config('h1.bold', font=('TkDefaultFont', 20, 'bold'))
+        self.tag_config('h1.bold.italic', font=('TkDefaultFont', 20, 'italic', 'bold'))
+
+    @property
+    def text(self):
+        return self.get(0.0, 'end')
+
+    @text.setter
+    def text(self, value):
+        self['state'] = 'normal'
+        self.delete(0.0, 'end')
+
+        lines = value.split('\n')
+        for i in lines:
+            self.__write_line(i)
+
+        self['state'] = 'disabled'
+
+    def __write_line(self, line):
+        tag = 'normal'
+        if line.split()[0] == '#':
+            tag = 'h1'
+            line = ' '.join(line.split()[1:])
+        # verifying bold and italic
+
+        self.insert('end', line, (tag,))
+        self.insert('end', '\n')
+        self.__insert_ruler()
+
+    def __insert_ruler(self):
+        self.insert('end', '_' * int(self['width']))
+
 class Entry(ttk.Entry, object):
     def __init__(self, *args, **kws):
         ttk.Entry.__init__(self, *args, **kws)
