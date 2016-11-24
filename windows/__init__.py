@@ -1,7 +1,6 @@
 import Tkinter
 import ttk
 import tkSimpleDialog
-import tkMessageBox
 import math
 import tkColorChooser
 import ImageTk
@@ -381,9 +380,9 @@ class ExtendedListboxItem(object):
         self.__rec_bg = RectangleDraw(canvas, 1, 1+yoffset,
             canvas.width, 40, fill=self.canvas['bg'], outline='')
 
-        self.__title = TextDraw(canvas, 50, 10 + yoffset, title,
-            anchor='nw', font=('TkDefaultFont',10))
-        self.__subtitle = TextDraw(canvas, 50, 25 + yoffset,
+        self.__title = TextDraw(canvas, 50, 7 + yoffset, title,
+            anchor='nw', font=('TkDefaultFont', 10))
+        self.__subtitle = TextDraw(canvas, 50, 22 + yoffset,
             subtitle, anchor='nw', font=('TkDefaultFont',8), fill='#555')
         self.__icon = ImageDraw(self.canvas, 5, 6+yoffset, icon, anchor='nw') if icon else None
 
@@ -458,8 +457,6 @@ class ExtendedListboxItem(object):
     #     self.__icon.image = value
 
 class ExtendedListbox(ExtendedCanvas):
-    '''
-    '''
     def __init__(self, *args, **kws):
         self.__items = []
         self.item_height = kws.pop('item_height', 40)
@@ -622,6 +619,10 @@ class Text(Tkinter.Text, object):
     def __init__(self, *args, **kws):
         Tkinter.Text.__init__(self, *args, **kws)
 
+    def centralize_text(self):
+        self.tag_configure("center", justify='center')
+        self.tag_add("center", 1.0, "end")
+
 class MarkDownLabel(Text):
     def __init__(self, master, text='', **kws):
         kws.update(height=kws.get('height', 1))
@@ -629,8 +630,8 @@ class MarkDownLabel(Text):
         self['state'] = 'disabled'
         self.text = text
         self['highlightthickness'] = 0
-        # self['relief'] = 'flat' # TODO
-        # self['bg'] = master['bg']
+        self['relief'] = 'flat'
+        self['bg'] = master['bg']
 
         self.tag_config('normal', font=('TkDefaultFont', 9))
         self.tag_config('bold', font=('TkDefaultFont', 9, 'bold'))
@@ -691,11 +692,6 @@ class Listbox(Tkinter.Listbox):
 
 class OptionMenu(Tkinter.OptionMenu):
     pass
-
-class MessageBox:
-    @staticmethod
-    def warning(**kws):
-        tkMessageBox.showwarning(**kws)
 
 class DefaultDialog(Tkinter.Toplevel):
     '''
@@ -813,6 +809,32 @@ class DefaultDialog(Tkinter.Toplevel):
         the dialog is destroyed. By default, it does nothing.
         '''
         pass  # override
+
+class MessageDialog(DefaultDialog):
+    def __init__(self, master, title, message):
+        self.__message = message
+        DefaultDialog.__init__(self, master, title=title)
+
+    def body(self, master):
+        mdl = MarkDownLabel(master,
+            height=1, width=25,
+            text=self.__message)
+        mdl.centralize_text()
+        mdl.pack(expand='yes', fill='both')
+        return mdl
+
+    def buttonbox(self):
+        box = Frame(self)
+        w = Button(box, text="OK", command=self.ok, default='active')
+        w.pack(side='left', padx=5, pady=5)
+        self.bind("<Return>", self.ok)
+        self.bind("<Escape>", self.ok)
+        box.pack()
+
+class MessageBox:
+    @staticmethod
+    def warning(**kws):
+        MessageDialog(kws.get('parent'), kws.get('title', ''), kws.get('message'))
 
 class OkCancel(DefaultDialog):
     def __init__(self, parent, msg, title=None):

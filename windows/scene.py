@@ -10,7 +10,9 @@ class AddSceneWindow(DefaultDialog):
 
 	def validate(self):
 		if not self.scene_name.get():
-			MessageBox.warning(title='Invalid name', message='Enter a valid name')
+			MessageBox.warning(parent=self,
+				title='Invalid name',
+				message='Enter a valid name')
 			return False
 		return True
 

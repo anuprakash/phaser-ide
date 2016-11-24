@@ -120,7 +120,7 @@ class PhaserEditor(Tkinter.Tk):
         '''
         if self.current_project:
             return True
-        MessageBox.warning(title='No project found', message='No project found')
+        MessageBox.warning(parent=self, title='No project found', message='No project found')
         return False
 
     ################ SCENES
@@ -166,6 +166,7 @@ class PhaserEditor(Tkinter.Tk):
                 self.scene_manager.select_last()
             except core.DuplicatedSceneNameException:
                 MessageBox.warning(
+                    parent=self,
                     title='DuplicatedSceneNameException',
                     message='a scene in project already contains this name')
 
@@ -229,6 +230,7 @@ class PhaserEditor(Tkinter.Tk):
                     'sound', 'icons/headphone.png')
             except core.DuplicatedAssetNameException:
                 MessageBox.warning(
+                    parent=self,
                     title='DuplicatedAssetNameException',
                     message='a asset in project already contains this name')
 
@@ -245,6 +247,7 @@ class PhaserEditor(Tkinter.Tk):
                 item.bind('<Double-Button-1>', self.__dbl_click_image_sprite, '+')
             except core.DuplicatedAssetNameException:
                 MessageBox.warning(
+                    parent=self,
                     title='DuplicatedAssetNameException',
                     message='a asset in project already contains this name')
 
@@ -270,6 +273,7 @@ class PhaserEditor(Tkinter.Tk):
         path = self.current_project.get_asset_path_from_name(name)
         if not self.actual_canvas:
             MessageBox.warning(
+                    parent=self,
                     title='No scene specified',
                     message='Select/create a scene to put sprite')
             return

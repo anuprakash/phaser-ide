@@ -28,10 +28,14 @@ class SpriteImagePropertyWindow(DefaultDialog):
             int(self.x.text)
             int(self.y.text)
         except:
-            MessageBox.warning(title='Wrong data', message='Invalid x/y')
+            MessageBox.warning(parent=self,
+                title='Wrong data',
+                message='Invalid x/y')
             return False
         if self.name.text.strip() == '':
-            MessageBox.warning(title='Wrong data', message='Invalid name')
+            MessageBox.warning(parent=self,
+                title='Wrong data',
+                message='Invalid name')
             return False
         return True
 

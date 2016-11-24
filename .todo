@@ -12,3 +12,5 @@
 + phaser exporter
 + project properties
 + remover atributos do projeto que vão direto para a instancia de core.Project, o core project vai ser setado na mão (pensar na possibilidade de remover core.Project)
++ testar no windows
++ ao adicionar um asset e cancelar o file explorer ocorre um erro

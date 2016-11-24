@@ -64,9 +64,13 @@ class NewProjectWindow(DefaultDialog):
             width = int(self.width.get())
             height = int(self.height.get())
         except:
-            MessageBox.warning(title='Wrong data', message='Invalid width/height')
+            MessageBox.warning(parent=self,
+                title='Wrong data',
+                message='Invalid width/height')
             return False
         if not self.name_entry.get():
-            MessageBox.warning(title='Project title', message='Invalid project name')
+            MessageBox.warning(parent=self,
+                title='Project title',
+                message='Invalid project name')
             return False
         return True
