@@ -40,7 +40,10 @@ class SpriteEditor(DefaultDialog):
         self.canvas.height = self.__image.image.height()
         self.canvas.pack(expand='yes')
 
-        self._left_frame = Frame(master)
+        self._top_frame = Frame(master)
+        self._top_frame.pack()
+
+        self._left_frame = Frame(self._top_frame)
         self._left_frame.pack(side='left')
 
         Label(self._left_frame, text='Width').pack(anchor='nw')
@@ -49,8 +52,8 @@ class SpriteEditor(DefaultDialog):
         self.width.pack(anchor='nw')
         self.width.bind('<Any-KeyRelease>', self.__update_grid, '+')
 
-        self._right_frame = Frame(master)
-        self._right_frame.pack()
+        self._right_frame = Frame(self._top_frame)
+        self._right_frame.pack(side='left')
 
         Label(self._right_frame, text='Height').pack(anchor='nw')
         self.height = Entry(self._right_frame)
@@ -59,6 +62,13 @@ class SpriteEditor(DefaultDialog):
         self.height.bind('<Any-KeyRelease>', self.__update_grid, '+')
 
         self.__canvas_grid = CanvasGrid(self.canvas, 2, 2)
+
+        self._bottom_frame = Frame(master)
+        self._bottom_frame.pack(expand='yes', anchor='nw')
+
+        self.autoplay = SimpleCheckbox(self._bottom_frame, checked=True)
+        self.autoplay.pack(anchor='nw', pady=5, padx=5, side='left')
+        Label(self._bottom_frame, text='Autoplay animation').pack(expand='yes', anchor='nw')
 
     def __update_grid(self, event):
         try:
@@ -71,7 +81,8 @@ class SpriteEditor(DefaultDialog):
     def apply(self):
         self.output = {
             'sprite_width': int(self.width.text),
-            'sprite_height': int(self.height.text)
+            'sprite_height': int(self.height.text),
+            'autoplay': self.autoplay.checked
         }
 
     def validate(self):
@@ -121,7 +132,7 @@ class AddImageAssetWindow(DefaultDialog):
         if self.is_sprite.checked:
             se = SpriteEditor(self, self.__path)
             if se.output:
-                pass
+                self.output.update(**se.output)
+                self.output.update(type='sprite')
             else:
                 self.output = None
-                return
