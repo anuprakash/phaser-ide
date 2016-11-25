@@ -12,3 +12,4 @@
 + remover atributos do projeto que vão direto para a instancia de core.Project, o core project vai ser setado na mão (pensar na possibilidade de remover core.Project)
 + testar no windows
 + make checkbox ios like
++ in image properties window show width and height (and scale)
