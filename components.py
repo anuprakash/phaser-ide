@@ -29,9 +29,22 @@ class ImageComponent(GenericComponent, ImageDraw):
         '''
         pop = PopUpMenu(self.ide, [
             {
+                'name': 'Up',
+                'description': 'Puts the sprite in top of others',
+                'command': self.__raise_sprite,
+                'icon': 'icons/up.png'
+            },
+            {
+                'name': 'Down',
+                'description': 'Puts the sprite in bottom of others',
+                'command': self.__lower_sprite,
+                'icon': 'icons/down.png'
+            },
+            {
                 'name': 'Centralize',
                 'description': 'Centralizes the sprite in middle of canvas',
-                'command': lambda evt:self.__centralize_sprite(sprite)
+                'command': self.__centralize_sprite,
+                'icon': 'icons/center.png'
             },
             {
                 'name': 'Properties',
@@ -40,6 +53,12 @@ class ImageComponent(GenericComponent, ImageDraw):
                 'icon': 'icons/tools.png'
             }
         ])
+
+    def __raise_sprite(self, event):
+        self.up()
+
+    def __lower_sprite(self, event):
+        self.down()
 
     def __show_sprite_properties(self, event):
         '''
@@ -66,3 +85,13 @@ class ImageComponent(GenericComponent, ImageDraw):
     def update(self):
         ImageDraw.update(self)
         update_control_points(self)
+
+    def up(self):
+        ImageDraw.up(self)
+        self.bounds.up()
+        self.lower_right.up()
+
+    def down(self):
+        self.bounds.down()
+        ImageDraw.down(self)
+        self.lower_right.up()

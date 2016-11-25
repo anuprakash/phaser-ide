@@ -52,7 +52,7 @@ class PhaserEditor(Tkinter.Tk):
         ################ LEFT PANEL
         self.left_frame = Frame(self)
         self.left_frame_top = Frame(self.left_frame)
-        self.scene_manager = ExtendedListbox(self.left_frame, width=250, bg='#d1d8e0')
+        self.scene_manager = ExtendedListbox(self.left_frame, width=250)
         self.scene_manager.bind('<1>', self.__on_select_scene, '+')
         self.add_scene_btn = Button(self.left_frame_top, text='+', width=20, command=self._add_scene_btn_handler)
         self.del_scene_btn = Button(self.left_frame_top, text='-', width=20, command=self._del_scene_btn_handler)

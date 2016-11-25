@@ -156,7 +156,7 @@ class RectangleDraw(BaseCanvasDraw):
 
     @height.setter
     def height(self, value):
-        self.coords = [self.x, self.y, self.x+self.width, self.y + value]
+        self.coords = [self.x, self.y, self.x + self.width, self.y + value]
         self.update()
 
 class OvalDraw(RectangleDraw):
@@ -368,6 +368,9 @@ class ExtendedCanvas(Tkinter.Canvas):
             pts.extend([pos[2],
                 pos[1]])
         return self.create_polygon(*pts, **kwargs)
+
+class IOSCheckbox(ExtendedCanvas):
+    pass # TODO
 
 class ExtendedListboxItem(object):
     '''

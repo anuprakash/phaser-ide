@@ -5,10 +5,10 @@
 + implements scale 'width' and 'height' attributes im ImageDraw
 + add drag 'lock' pressing 'x' and 'y' keys
 + ao remover um asset na tela direita os assets que ja foram adicionados devem ser excluidos tambem
-+ add asset property window
 + add support to tiles
 + prevenir abertura de multiplos popups
 + phaser exporter
 + project properties
 + remover atributos do projeto que vão direto para a instancia de core.Project, o core project vai ser setado na mão (pensar na possibilidade de remover core.Project)
 + testar no windows
++ make checkbox ios like
