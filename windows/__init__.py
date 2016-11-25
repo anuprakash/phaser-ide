@@ -4,6 +4,7 @@ import tkSimpleDialog
 import math
 import tkColorChooser
 import ImageTk
+import tkFont
 
 BG_COLOR = '#ededed'
 
@@ -630,12 +631,16 @@ class Text(Tkinter.Text, object):
 class MarkDownLabel(Text):
     def __init__(self, master, text='', **kws):
         kws.update(height=kws.get('height', 1))
+        self.normal_font = tkFont.Font(size=9)
+        self.h1_size = 20
+        self.__tag_count = 0
         Text.__init__(self, master, **kws)
         self['state'] = 'disabled'
         self.text = text
         self['highlightthickness'] = 0
         self['relief'] = 'flat'
         self['bg'] = master['bg']
+
 
         self.tag_config('normal', font=('TkDefaultFont', 9))
         self.tag_config('bold', font=('TkDefaultFont', 9, 'bold'))
@@ -663,14 +668,26 @@ class MarkDownLabel(Text):
         self['state'] = 'disabled'
 
     def __write_line(self, line):
-        tag = 'normal'
+        # makes a copy of normal font
+        font = tkFont.Font(**self.normal_font.actual())
         if line.split()[0] == '#':
-            tag = 'h1'
+            font['size'] = self.h1_size
             line = ' '.join(line.split()[1:])
+        # if is title, cant be a list or other thing
+        self.insert_with_font(line, font)
+        self.insert('end', '\n')
+
         # verifying bold and italic
 
-        self.insert('end', line, (tag,))
-        self.insert('end', '\n')
+    def insert_with_font(self, text, font):
+        '''
+        creates a new tag with this font and
+        inserts the text with it
+        '''
+        tag = '%d' % (self.__tag_count)
+        self.tag_config(tag, font=font)
+        self.insert('end', text, (tag,))
+        self.__tag_count += 1
 
 class Entry(ttk.Entry, object):
     def __init__(self, *args, **kws):
