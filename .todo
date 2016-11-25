@@ -18,3 +18,5 @@
 	remove labels and use placeholders
 + Prevent user to write chars in entry with attr:numberonly=True
 + makes the code python3 compatible
++ criar um menu tools, ou dentro de plugins, para poder criar sprites
+	onde vc seleciona varias imgens e ele cria uma imagem só
