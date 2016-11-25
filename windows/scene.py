@@ -3,9 +3,9 @@ from . import *
 class AddSceneWindow(DefaultDialog):
 	def body(self, master):
 		self.output = None
-		Label(master, text="Name").grid(row=0, column=0)
-		self.scene_name = Entry(master)
-		self.scene_name.grid(row=0, column=1)
+		Label(master, text="Name").grid(row=0, sticky='nw')
+		self.scene_name = Entry(master, width=20)
+		self.scene_name.grid(row=1)
 		return self.scene_name
 
 	def validate(self):

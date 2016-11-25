@@ -415,5 +415,5 @@ class PhaserEditor(Tkinter.Tk):
 
 if __name__ == '__main__':
     top = PhaserEditor()
-    AboutWindow(top)
+    # AboutWindow(top)
     top.mainloop()

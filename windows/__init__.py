@@ -64,7 +64,8 @@ class TextDraw(BaseCanvasDraw):
 
     @text.setter
     def text(self, value):
-        self.style['text'] = str(value)
+        self.style['text'] = unicode(value)
+        self.update()
 
 class ImageDraw(BaseCanvasDraw):
     def __init__(self, canvas, x, y, image, **kws):
@@ -290,10 +291,74 @@ def remove_drag_control(item):
 
 # TODO
 class RoundedRectangleDraw(PolygonDraw):
-    def __init__(self, *args, **kws):
-        raise NotImplementedError
+    def __init__(self, canvas, coords, radius=[2, 2, 2, 2], **kws):
+        self.__coords = coords
+        self.radius = radius
+        PolygonDraw.__init__(self, canvas, self.__coords, **kws)
 
-class ExtendedCanvas(Tkinter.Canvas):
+    def get_circle_point(self, cx, cy, radius, angle):
+        '''
+        Returns the position of a vertex2D of a circle
+        which center is in [cx,cy] position and radius 'radius'
+        in the angle 'angle'
+        '''
+        # angle in degree
+        angle = math.radians(angle)
+        y = math.sin(angle) * radius
+        x = math.cos(angle) * radius
+        x += cx
+        y = cy - y
+        return [x, y]
+
+    @property
+    def coords(self):
+        pts = []
+        # NW
+        if self.radius[0]:
+            cx = self.__coords[0] + self.radius[0]
+            cy = self.__coords[1] + self.radius[0]
+            for i in range(90, 180):
+                pts.extend(self.get_circle_point(cx,cy,
+                    self.radius[0], i))
+        else:
+            pts.extend([self.__coords[0], self.__coords[1]])
+        # SW
+        if self.radius[1]:
+            cx = self.__coords[0] + self.radius[1]
+            cy = self.__coords[3] - self.radius[1]
+            for i in range(180, 270):
+                pts.extend(self.get_circle_point(cx, cy,
+                    self.radius[1], i))
+        else:
+            pts.extend([self.__coords[0], self.__coords[3]])
+
+        # SE
+        if self.radius[2]:
+            cx = self.__coords[2] - self.radius[2]
+            cy = self.__coords[3] - self.radius[2]
+            for i in range(270, 360):
+                pts.extend(self.get_circle_point(cx,cy,
+                    self.radius[2],i))
+        else:
+            pts.extend([self.__coords[2],
+                self.__coords[3]])
+        # NE
+        if self.radius[3]:
+            cx = self.__coords[2] - self.radius[3]
+            cy = self.__coords[1] + self.radius[3]
+            for i in range(0, 90):
+                pts.extend(self.get_circle_point(cx,cy,
+                    self.radius[3],i))
+        else:
+            pts.extend([self.__coords[2],
+                self.__coords[1]])
+        return pts
+
+    @coords.setter
+    def coords(self, value):
+        self.__coords = value
+
+class ExtendedCanvas(Tkinter.Canvas, object):
     def __init__(self, *args, **kwargs):
         Tkinter.Canvas.__init__(self, *args, **kwargs)
 
@@ -305,9 +370,17 @@ class ExtendedCanvas(Tkinter.Canvas):
     def width(self):
         return int(self['width']) - 1
 
+    @width.setter
+    def width(self, value):
+        self['width'] = value
+
     @property
     def height(self):
         return int(self['height']) - 1
+
+    @height.setter
+    def height(self, value):
+        self['height'] = value
 
     def get_circle_point(self, cx, cy, radius, angle):
         '''
@@ -372,6 +445,41 @@ class ExtendedCanvas(Tkinter.Canvas):
 
 class IOSCheckbox(ExtendedCanvas):
     pass # TODO
+
+CHECK_MARK=unichr(10003)
+class SimpleCheckbox(ExtendedCanvas):
+    def __init__(self, parent, checked=False, width=25, height=25):
+        ExtendedCanvas.__init__(self,
+            parent, width=width,
+            height=height,
+            bg=parent['bg'],
+            relief='flat', bd=0,
+            highlightthickness=0)
+
+        self.__bg = RoundedRectangleDraw(self,
+            [0, 0, width, height],
+            fill='#5cb85c')
+        self.__text = TextDraw(self,
+            self.center[0], 
+            self.center[1],
+            CHECK_MARK if checked else '',
+            fill='white',
+            font=('TkDefaultFont', 12, 'bold'))
+        self.bind('<1>', self.__check_click, '+')
+
+    @property
+    def checked(self):
+        return self.__text.text == CHECK_MARK
+
+    @checked.setter
+    def checked(self, value):
+        if bool(value):
+            self.__text.text = CHECK_MARK
+        else:
+            self.__text.text = ''
+
+    def __check_click(self, event):
+        self.checked = not self.checked
 
 class ExtendedListboxItem(object):
     '''
@@ -689,9 +797,54 @@ class MarkDownLabel(Text):
         self.insert('end', text, (tag,))
         self.__tag_count += 1
 
-class Entry(ttk.Entry, object):
+class CanvasGrid(object):
+    def __init__(self, canvas, x, y):
+        self.canvas = canvas
+        self.__x = x
+        self.__y = y
+        self.update()
+
+    @property
+    def x(self):
+        return self.__x
+
+    @x.setter
+    def x(self, value):
+        self.__x = value
+        self.update()
+
+    @property
+    def y(self):
+        return self.__y
+
+    @y.setter
+    def y(self, value):
+        self.__y = value
+        self.update()
+
+    def __draw_grid(self):
+        if (not self.x) or (not self.y):
+            return
+        for i in range(1, self.canvas.width, self.canvas.width / self.x):
+            self.canvas.create_line(i, 0, i, self.canvas.height, fill='red',
+                tag=('_-_grid-_-'), dash=(5,))
+        for i in range(1, self.canvas.height, self.canvas.height / self.y):
+            self.canvas.create_line(0, i, self.canvas.width, i, fill='red',
+                tag=('_-_grid-_-'), dash=(5,))
+
+    def update(self):
+        self.canvas.delete('_-_grid-_-')
+        self.__draw_grid()
+
+class Entry(Tkinter.Entry, object):
     def __init__(self, *args, **kws):
-        ttk.Entry.__init__(self, *args, **kws)
+        self.__placeholder = kws.pop('placeholder', '')
+        kws.update(relief='flat',
+            border=10,
+            insertwidth=1,
+            highlightcolor='#aaa',
+            highlightthickness=1)
+        Tkinter.Entry.__init__(self, *args, **kws)
 
     @property
     def text(self):

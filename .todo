@@ -1,5 +1,6 @@
-+ criar um RoundedRectangleDraw
 + no okcanceldialog permitir colocar textos em negrito (pensar em fazer markdown no tkinter)
+	isso porque na hora da remoção de cena, ele pergutna: 'deseja remover a cena <nome>?'
+	o nome da cena poderia ficar em negrito
 + add suport to 'effect' type in sound asset loading
 + add suport to sprites
 + implements scale 'width' and 'height' attributes im ImageDraw
@@ -14,3 +15,6 @@
 + make checkbox ios like
 + in image properties window show width and height (and scale)
 + Entry placeholder http://www.designrazor.net/wp-content/uploads/2015/01/html5-css3-contact-form21.jpg
+	remove labels and use placeholders
++ Prevent user to write chars in entry with attr:numberonly=True
++ makes the code python3 compatible

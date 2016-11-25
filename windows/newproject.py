@@ -10,7 +10,7 @@ class NewProjectWindow(DefaultDialog):
     def body(self, master):
         Label(master, text="Project name").grid(sticky='W', row=0, column=0, columnspan=4)
         self.name_entry = Entry(master, width=45)
-        self.name_entry.grid(row=1, column=0, columnspan=4)
+        self.name_entry.grid(row=1, column=0, columnspan=4, pady=2, padx=2)
         self.name_entry.focus_force()
 
         Label(master, text='Width: ').grid(row=2, column=0, sticky='W')
