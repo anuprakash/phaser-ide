@@ -1,7 +1,7 @@
 from windows import *
 import random
 import string
-import Image
+from PIL import Image
 import ImageTk
 
 class GenericComponent(object):

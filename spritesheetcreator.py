@@ -1,6 +1,6 @@
 from windows import *
 import tkFileDialog
-import Image
+from PIL import Image
 import ImageTk
 
 title = 'Sprite Sheet Creator'
