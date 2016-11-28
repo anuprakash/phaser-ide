@@ -21,6 +21,7 @@ class SpriteComponent(GenericComponent, ImageDraw):
         self.__frames = []
         self.__origin_image = Image.open(path)
 
+        self.framerate = kws.pop('framerate')
         # size of each frame in pixels
         self.sprite_width = self.__origin_image.size[0] / kws.pop('sprite_width')
         self.sprite_height = self.__origin_image.size[1] / kws.pop('sprite_height')
@@ -46,7 +47,7 @@ class SpriteComponent(GenericComponent, ImageDraw):
         self.__frame_index += 1
         if self.__frame_index >= len(self.__frames):
             self.__frame_index = 0
-        self.ide.after(500, self.__start_animation)
+        self.ide.after(1000 / self.framerate, self.__start_animation)
 
     def __gen_frames(self):
         self.__frames = []

@@ -51,11 +51,17 @@ class Asset:
         return json.dumps(self.get_dict())
 
     def get_dict(self):
-        return {
+        _dict = {
             'name': self.name,
             'path': self.path,
             'type': self.type
         }
+        if self.type == 'sprite':
+            _dict.update(sprite_width=self.sprite_width,
+                sprite_height=self.sprite_height,
+                autoplay=self.autoplay,
+                framerate=self.framerate)
+        return _dict
 
     def fill_from_dict(self, _dict):
         self.name = _dict['name']
@@ -66,6 +72,7 @@ class Asset:
             self.sprite_width = _dict['sprite_width']
             self.sprite_height = _dict['sprite_height']
             self.autoplay = _dict['autoplay']
+            self.framerate = _dict['framerate']
 
 # only allow edits the events of scene: onframe, onstart
 class PhaserScene:

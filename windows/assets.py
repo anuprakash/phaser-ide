@@ -63,14 +63,20 @@ class SpriteEditor(DefaultDialog):
 
         self.__canvas_grid = CanvasGrid(self.canvas, 2, 2)
 
-        self._bottom_frame = Frame(master)
-        self._bottom_frame.pack(expand='yes', anchor='nw')
+        self._check_frame = Frame(master)
+        self._check_frame.pack(expand='yes', anchor='nw')
 
-        self.autoplay = SimpleCheckbox(self._bottom_frame, checked=True)
+        self.autoplay = SimpleCheckbox(self._check_frame, checked=True)
         self.autoplay.pack(anchor='nw', pady=5, padx=5, side='left')
-        Label(self._bottom_frame, text='Autoplay animation').pack(expand='yes', anchor='nw')
+        Label(self._check_frame, text='Autoplay animation').pack(expand='yes', anchor='w')
 
-        # TODO: frames per second
+        self._fr_frame = Frame(master)
+        self._fr_frame.pack(expand='yes', anchor='nw')
+
+        self.framerate = Entry(self._fr_frame, width=4)
+        self.framerate.text = 1
+        self.framerate.pack(anchor='nw', pady=5, padx=5, side='left')
+        Label(self._fr_frame, text='Frame rate').pack(expand='yes', anchor='w')
 
     def __update_grid(self, event):
         try:
@@ -84,7 +90,8 @@ class SpriteEditor(DefaultDialog):
         self.output = {
             'sprite_width': int(self.width.text),
             'sprite_height': int(self.height.text),
-            'autoplay': self.autoplay.checked
+            'autoplay': self.autoplay.checked,
+            'framerate': int(self.framerate.text)
         }
 
     def validate(self):

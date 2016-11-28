@@ -118,7 +118,7 @@ class PhaserEditor(Tkinter.Tk):
         modules = a.readlines()
         a.close()
         for i in modules:
-            mod = importlib.import_module(i)
+            mod = importlib.import_module(i.replace('\n', ''))
             mod.init(self)
             self.pluginsmenu.add_command(label=mod.title,
                 command=lambda:mod.execute(self))
@@ -298,7 +298,8 @@ class PhaserEditor(Tkinter.Tk):
             component = comp.SpriteComponent(canvas, cx, cy, asset.path,
                 ide=self, anchor='nw', sprite_width=asset.sprite_width,
                 name=asset.name,
-                sprite_height=asset.sprite_height, autoplay=asset.autoplay)
+                sprite_height=asset.sprite_height,
+                autoplay=asset.autoplay, framerate=asset.framerate)
         if component:
             self.__add_sprite_to_canvas( component )
 
