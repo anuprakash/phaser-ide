@@ -5,6 +5,8 @@ import math
 import tkColorChooser
 import ImageTk
 import tkFont
+import random
+import string
 
 BG_COLOR = '#ededed'
 
@@ -246,6 +248,8 @@ def update_control_points(item):
 
     item.bounds.x = item.x
     item.bounds.y = item.y
+    item.bounds.width = item.image.width()
+    item.bounds.height = item.image.height()
     # put control points over every thing inside canvas
     item.lower_right.up()
 
@@ -787,12 +791,18 @@ class MarkDownLabel(Text):
 
         # verifying bold and italic
 
+    def __gen_sprite_name(self):
+        '''
+        generates a random name
+        '''
+        return ''.join( [random.choice(string.letters) for i in xrange(15)] )
+
     def insert_with_font(self, text, font):
         '''
         creates a new tag with this font and
         inserts the text with it
         '''
-        tag = '%d' % (self.__tag_count)
+        tag = self.__gen_sprite_name()
         self.tag_config(tag, font=font)
         self.insert('end', text, (tag,))
         self.__tag_count += 1
@@ -825,11 +835,11 @@ class CanvasGrid(object):
     def __draw_grid(self):
         if (not self.x) or (not self.y):
             return
-        for i in range(1, self.canvas.width, self.canvas.width / self.x):
-            self.canvas.create_line(i, 0, i, self.canvas.height, fill='red',
+        for i in range(0, self.canvas.width, self.canvas.width / self.x):
+            self.canvas.create_line(i, 0, i, self.canvas.height-1, fill='red',
                 tag=('_-_grid-_-'), dash=(5,))
-        for i in range(1, self.canvas.height, self.canvas.height / self.y):
-            self.canvas.create_line(0, i, self.canvas.width, i, fill='red',
+        for i in range(0, self.canvas.height, self.canvas.height / self.y):
+            self.canvas.create_line(0, i, self.canvas.width-1, i, fill='red',
                 tag=('_-_grid-_-'), dash=(5,))
 
     def update(self):

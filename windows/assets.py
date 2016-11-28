@@ -70,6 +70,8 @@ class SpriteEditor(DefaultDialog):
         self.autoplay.pack(anchor='nw', pady=5, padx=5, side='left')
         Label(self._bottom_frame, text='Autoplay animation').pack(expand='yes', anchor='nw')
 
+        # TODO: frames per second
+
     def __update_grid(self, event):
         try:
             self.__canvas_grid.x = int(self.width.text)

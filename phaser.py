@@ -281,8 +281,6 @@ class PhaserEditor(Tkinter.Tk):
         '''
         called when user double clicks in the sprite image button
         '''
-        name = self.assets_manager.get_selected().title
-        path = self.current_project.get_asset_path_from_name(name)
         if not self.actual_canvas:
             MessageBox.warning(
                     parent=self,
@@ -291,7 +289,18 @@ class PhaserEditor(Tkinter.Tk):
             return
         canvas = self.cur_canvas()
         cx, cy = canvas.center
-        self.__add_sprite_to_canvas( comp.ImageComponent(canvas, cx, cy, path, ide=self, anchor='nw') )
+        asset = self.current_project.get_asset_from_name( self.assets_manager.get_selected().title )
+        component = None
+        if asset.type == 'image':
+            component = comp.ImageComponent(canvas, cx, cy, asset.path,
+                ide=self, anchor='nw', name=asset.name)
+        elif asset.type == 'sprite':
+            component = comp.SpriteComponent(canvas, cx, cy, asset.path,
+                ide=self, anchor='nw', sprite_width=asset.sprite_width,
+                name=asset.name,
+                sprite_height=asset.sprite_height, autoplay=asset.autoplay)
+        if component:
+            self.__add_sprite_to_canvas( component )
 
     def __add_sprite_to_canvas(self, sprite):
         '''

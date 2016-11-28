@@ -62,6 +62,11 @@ class Asset:
         self.type = _dict['type']
         self.path = _dict['path']
 
+        if self.type == 'sprite':
+            self.sprite_width = _dict['sprite_width']
+            self.sprite_height = _dict['sprite_height']
+            self.autoplay = _dict['autoplay']
+
 # only allow edits the events of scene: onframe, onstart
 class PhaserScene:
     def __init__(self, _dict=None):
@@ -157,12 +162,12 @@ class PhaserProject:
         }
         return json.dumps(_dict)
 
-    def get_asset_path_from_name(self, name):
+    def get_asset_from_name(self, name):
         '''
         returns the path in physical hard drive of sprite
         using its name
         '''
         for i in self.assets:
             if i.name == name:
-                return i.path
+                return i
         return None

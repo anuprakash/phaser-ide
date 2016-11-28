@@ -2,7 +2,6 @@
 	isso porque na hora da remoção de cena, ele pergutna: 'deseja remover a cena <nome>?'
 	o nome da cena poderia ficar em negrito
 + add suport to 'effect' type in sound asset loading
-+ add suport to sprites
 + implements scale 'width' and 'height' attributes im ImageDraw
 + add drag 'lock' pressing 'x' and 'y' keys
 + ao remover um asset na tela direita os assets que ja foram adicionados devem ser excluidos tambem
@@ -10,7 +9,6 @@
 + prevenir abertura de multiplos popups
 + phaser exporter
 + project properties
-+ remover atributos do projeto que vão direto para a instancia de core.Project, o core project vai ser setado na mão (pensar na possibilidade de remover core.Project)
 + testar no windows
 + make checkbox ios like
 + in image properties window show width and height (and scale)
@@ -20,3 +18,5 @@
 + makes the code python3 compatible
 + criar um menu tools, ou dentro de plugins, para poder criar sprites
 	onde vc seleciona varias imgens e ele cria uma imagem só
++ na mensagem: ja existe uma cena com este nome, o texto do label eh cortado
++ sprite velocity (frames per second)
