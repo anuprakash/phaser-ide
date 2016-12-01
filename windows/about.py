@@ -1,8 +1,16 @@
+# coding: utf-8
+
 from . import *
+
+ABOUT_LABEL = '''
+## Author
+### Willie Lawrence - http://vls2.tk
+*Icons*: https://www.iconfinder.com/iconsets/small-n-flat
+'''
 
 class AboutWindow(DefaultDialog):
     def body(self, master):
-        mdl = MarkDownLabel(master, height=20, text='# Phaser Editor\nIcons: https://www.iconfinder.com/iconsets/small-n-flat')
+        mdl = MarkDownLabel(master, height=20, text=ABOUT_LABEL)
         mdl.grid(pady=45, padx=45)
         return mdl
     

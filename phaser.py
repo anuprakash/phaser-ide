@@ -191,7 +191,7 @@ class PhaserEditor(Tkinter.Tk):
         if selection:
             scene_name = selection.title
             if OkCancel(self,
-                'The scene %s will be delete. Are you sure?' % (scene_name),
+                'The scene *%s* will be delete. Are you sure?' % (scene_name),
                 title='Are you sure?').output:
 
                 self.current_project.remove_scene_from_name(scene_name)
@@ -273,9 +273,11 @@ class PhaserEditor(Tkinter.Tk):
         selection = self.assets_manager.get_selected()
         if selection:
             if OkCancel(self,
-                'The asset %s will be delete. Are you sure?' % (selection.title),
+                'The asset *%s* will be delete. Are you sure?' % (selection.title),
                 title='Are you sure?').output:
                 self.assets_manager.remove_by_title(selection.title)
+                # TODO: percorrer todos os canvas em busca de sprites
+                # que usem esse name
 
     def __dbl_click_image_sprite(self, evt):
         '''

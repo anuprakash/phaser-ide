@@ -1,6 +1,3 @@
-+ no okcanceldialog permitir colocar textos em negrito (pensar em fazer markdown no tkinter)
-	isso porque na hora da remoção de cena, ele pergutna: 'deseja remover a cena <nome>?'
-	o nome da cena poderia ficar em negrito
 + add suport to 'effect' type in sound asset loading
 + implements scale 'width' and 'height' attributes im ImageDraw
 + add drag 'lock' pressing 'x' and 'y' keys
@@ -9,6 +6,7 @@
 + prevenir abertura de multiplos popups
 + phaser exporter
 + project properties
++ add full screen in window for create project
 + testar no windows
 + make checkbox ios like
 + in image properties window show width and height (and scale)

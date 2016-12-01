@@ -1,3 +1,5 @@
+# coding: utf-8
+
 import Tkinter
 import ttk
 import tkSimpleDialog
@@ -753,16 +755,17 @@ class MarkDownLabel(Text):
         self['relief'] = 'flat'
         self['bg'] = master['bg']
 
-
         self.tag_config('normal', font=('TkDefaultFont', 9))
         self.tag_config('bold', font=('TkDefaultFont', 9, 'bold'))
         self.tag_config('italic', font=('TkDefaultFont', 9, 'italic'))
-        self.tag_config('h1', font=('TkDefaultFont', 20))
+        self.tag_config('h1', font=('TkDefaultFont', 45))
+        self.tag_config('h2', font=('TkDefaultFont', 30))
+        self.tag_config('h3', font=('TkDefaultFont', 15))
         # mixes
-        self.tag_config('bold.italic', font=('TkDefaultFont', 9, 'italic', 'bold'))
-        self.tag_config('h1.italic', font=('TkDefaultFont', 20, 'italic'))
-        self.tag_config('h1.bold', font=('TkDefaultFont', 20, 'bold'))
-        self.tag_config('h1.bold.italic', font=('TkDefaultFont', 20, 'italic', 'bold'))
+        # self.tag_config('bold.italic', font=('TkDefaultFont', 9, 'italic', 'bold'))
+        # self.tag_config('h1.italic', font=('TkDefaultFont', 20, 'italic'))
+        # self.tag_config('h1.bold', font=('TkDefaultFont', 20, 'bold'))
+        # self.tag_config('h1.bold.italic', font=('TkDefaultFont', 20, 'italic', 'bold'))
 
     @property
     def text(self):
@@ -773,39 +776,65 @@ class MarkDownLabel(Text):
         self['state'] = 'normal'
         self.delete(0.0, 'end')
 
-        lines = value.split('\n')
-        for i in lines:
-            self.__write_line(i)
+        state = 'normal'
+        last_char = None
+        last_last_char = None
+
+        for i in range(len(value)):
+            c = value[i]
+            if c == '#':
+                if state == 'normal':
+                    state = 'h1'
+                elif state == 'h1':
+                    state = 'h2'
+                elif state == 'h2':
+                    state = 'h3'
+            elif c == '*':
+                # two following * must write at least one
+                if state <> 'bold' and last_char <> '*':
+                    state = 'bold'
+                elif state == 'bold':
+                    state = 'normal'
+            elif c == '_':
+                # two following _ must write at least one
+                if state <> 'italic' and last_char <> '_':
+                    state = 'italic'
+                elif state == 'italic':
+                    state = 'normal'
+            elif c == '-':
+                if last_char == '-' and last_last_char == '-' and value[i-3] == '\n':
+                    c = '–' * int(self['width'])
+                    self.insert_character(c, state)
+                else:
+                    self.insert_character(c, state)
+            elif c == ' ':
+                # ignoring white space after h1
+                if last_char == '#':
+                    pass
+                else:
+                    self.insert_character(c, state)
+            elif c == '\n':
+                if state in ('h1', 'bold', 'italic', 'h2', 'h3'):
+                    # reseting the style on a new line
+                    state = 'normal'
+                self.new_line()
+            else:
+                if last_char == '-':
+                    self.insert_character('-', state)
+                self.insert_character(c, state)
+            last_last_char = last_char
+            last_char = c
 
         self['state'] = 'disabled'
 
-    def __write_line(self, line):
-        # makes a copy of normal font
-        font = tkFont.Font(**self.normal_font.actual())
-        if line.split()[0] == '#':
-            font['size'] = self.h1_size
-            line = ' '.join(line.split()[1:])
-        # if is title, cant be a list or other thing
-        self.insert_with_font(line, font)
+    def new_line(self):
+        '''
+        inserts a new line in text
+        '''
         self.insert('end', '\n')
 
-        # verifying bold and italic
-
-    def __gen_sprite_name(self):
-        '''
-        generates a random name
-        '''
-        return ''.join( [random.choice(string.letters) for i in xrange(15)] )
-
-    def insert_with_font(self, text, font):
-        '''
-        creates a new tag with this font and
-        inserts the text with it
-        '''
-        tag = self.__gen_sprite_name()
-        self.tag_config(tag, font=font)
-        self.insert('end', text, (tag,))
-        self.__tag_count += 1
+    def insert_character(self, character, state):
+        self.insert('end', character, (state,))
 
 class CanvasGrid(object):
     def __init__(self, canvas, x, y):
@@ -1004,10 +1033,10 @@ class MessageDialog(DefaultDialog):
 
     def body(self, master):
         mdl = MarkDownLabel(master,
-            height=1, width=25,
+            height=1, width=len(self.__message) + 4,
             text=self.__message)
         mdl.centralize_text()
-        mdl.pack(expand='yes', fill='both')
+        mdl.pack(expand='yes', fill='both', padx=20, pady=20)
         return mdl
 
     def buttonbox(self):
@@ -1030,8 +1059,8 @@ class OkCancel(DefaultDialog):
 
     def body(self, parent):
         self.output = False
-        l = Label(parent, text=self.msg)
-        l.pack()
+        l = MarkDownLabel(parent, text=self.msg, width=len(self.msg) + 4)
+        l.pack(padx=20, pady=20)
         return l
 
     def apply(self):
