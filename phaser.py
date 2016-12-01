@@ -293,13 +293,12 @@ class PhaserEditor(Tkinter.Tk):
         component = None
         if asset.type == 'image':
             component = comp.ImageComponent(canvas, cx, cy, asset.path,
-                ide=self, anchor='nw', name=asset.name)
+                self, asset.name)
         elif asset.type == 'sprite':
+            # canvas, x, y, path, ide, name, sprite_width, sprite_height
             component = comp.SpriteComponent(canvas, cx, cy, asset.path,
-                ide=self, anchor='nw', sprite_width=asset.sprite_width,
-                name=asset.name,
-                sprite_height=asset.sprite_height,
-                autoplay=asset.autoplay, framerate=asset.framerate)
+                self, asset.name, asset.sprite_width,
+                asset.sprite_height, asset.autoplay, asset.framerate)
         if component:
             self.__add_sprite_to_canvas( component )
 

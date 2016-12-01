@@ -16,6 +16,7 @@
 	remove labels and use placeholders
 + Prevent user to write chars in entry with attr:numberonly=True
 + makes the code python3 compatible
-+ criar um menu tools, ou dentro de plugins, para poder criar sprites
-	onde vc seleciona varias imgens e ele cria uma imagem só
 + na mensagem: ja existe uma cena com este nome, o texto do label eh cortado
++ atalho para adicionar cena
++ atalho para adicionar sprite
++ adicionar janela de propriedades para sprites

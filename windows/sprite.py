@@ -45,3 +45,15 @@ class SpriteImagePropertyWindow(DefaultDialog):
             'y': int(self.y.text),
             'name': self.name.text
         }
+
+class SpriteSheetImagePropertyWindow(SpriteImagePropertyWindow):
+    def body(self, master):
+        SpriteImagePropertyWindow.body(self, master)
+        # TODO
+    
+    def validate(self):
+        _return = SpriteImagePropertyWindow.validate(self)
+        if not _return:
+            return False
+        return True
+        # TODO: do the validations
