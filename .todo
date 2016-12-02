@@ -18,3 +18,6 @@
 + adicionar valor minimo e maximo para o campo de entrada numerico
 + verificar se quando um sprite é deletado o .after dele ainda fica sendo executado
 + no entry modo texto permitir copiar e colar
++ view scene manager
++ view assets manager
++ view logic editor

@@ -21,13 +21,12 @@ class PhaserEditor(Tkinter.Tk):
 
         Tkinter.Tk.__init__(self)
         ttk.Style().theme_use('clam')
-        self.title('Phaser - %s' % (VErSIOn))
         self['bg'] = BG_COLOR
         self.geometry('%dx%d' % (1200, 600))
 
         # parent of all menus
         self.menubar = Tkinter.Menu(self, relief=Tkinter.FLAT)
-        # file menu
+        ################################ file menu
         self.projectmenu = Tkinter.Menu(self.menubar, tearoff=0, relief=Tkinter.FLAT)
         self.menubar.add_cascade(label='Project', menu=self.projectmenu)
         self.projectmenu.add_command(label='New project', command=self.new_project)
@@ -36,12 +35,16 @@ class PhaserEditor(Tkinter.Tk):
         # self.projectmenu.add_command(label='Save project as TODO', command=self.save_project)
         self.projectmenu.add_separator()
         self.projectmenu.add_command(label='Quit', command=self.destroy)
-
-        # plugins menu
+        ################################ view menu
+        self.viewmenu = Tkinter.Menu(self.menubar, tearoff=0, relief=Tkinter.FLAT)
+        self.menubar.add_cascade(label='View', menu=self.viewmenu)
+        self.viewmenu.add_command(label='Scene manager', command=self.show_scene_manager)
+        self.viewmenu.add_command(label='Asset Manager', command=self.show_asset_manager)
+        self.viewmenu.add_command(label='Logic Editor', command=self.show_logic_editor)
+        ################################ plugins menu
         self.pluginsmenu = Tkinter.Menu(self.menubar, tearoff=0)
         self.menubar.add_cascade(label='Plugins', menu=self.pluginsmenu)
-
-        # about menu
+        ################################ about menu
         self.helpmenu = Tkinter.Menu(self.menubar, tearoff=0)
         self.menubar.add_cascade(label='Help', menu=self.helpmenu)
         self.helpmenu.add_command(label='About', command=self.show_about_window)
@@ -102,6 +105,10 @@ class PhaserEditor(Tkinter.Tk):
         self.focus_force()
 
         self.__load_plugins()
+        self.set_title()
+
+    def set_title(self):
+        self.title('Phase - %s - version: %s' % ('No project loaded' if not self.current_project else self.current_project.name, VErSIOn))
 
     def __load_plugins(self):
         '''
@@ -148,6 +155,16 @@ class PhaserEditor(Tkinter.Tk):
         self.canvases = {}
         self.sprite_canvases = {}
         self.actual_canvas = None
+
+    ################ VIEW MENU
+    def show_scene_manager(self):
+        print 'TODO'
+
+    def show_asset_manager(self):
+        print 'TODO'
+
+    def show_logic_editor(self):
+        print 'TODO'
 
     ################ SCENES
     def __on_select_scene(self, event):
@@ -423,7 +440,7 @@ class PhaserEditor(Tkinter.Tk):
             # clearing the scene/assets listbox
             self.scene_manager.delete_all()
             self.assets_manager.delete_all()
-            self.title('Phaser - %s' % (npw.output['name']))
+            self.set_title()
 
             # clearing the canvases
             self.__reset_all_canvas()
