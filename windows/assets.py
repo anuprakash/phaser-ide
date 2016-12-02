@@ -47,7 +47,7 @@ class SpriteEditor(DefaultDialog):
         self._left_frame.pack(side='left')
 
         Label(self._left_frame, text='Width').pack(anchor='nw')
-        self.width = Entry(self._left_frame)
+        self.width = Entry(self._left_frame, numbersonly=True, min=1)
         self.width.text = 2
         self.width.pack(anchor='nw')
         self.width.bind('<Any-KeyRelease>', self.__update_grid, '+')
@@ -56,7 +56,7 @@ class SpriteEditor(DefaultDialog):
         self._right_frame.pack(side='left')
 
         Label(self._right_frame, text='Height').pack(anchor='nw')
-        self.height = Entry(self._right_frame)
+        self.height = Entry(self._right_frame, numbersonly=True, min=1)
         self.height.text = 2
         self.height.pack(anchor='nw')
         self.height.bind('<Any-KeyRelease>', self.__update_grid, '+')
@@ -73,7 +73,7 @@ class SpriteEditor(DefaultDialog):
         self._fr_frame = Frame(master)
         self._fr_frame.pack(expand='yes', anchor='nw')
 
-        self.framerate = Entry(self._fr_frame, width=4)
+        self.framerate = Entry(self._fr_frame, width=4, numbersonly=True, min=1)
         self.framerate.text = 1
         self.framerate.pack(anchor='nw', pady=5, padx=5, side='left')
         Label(self._fr_frame, text='Frame rate').pack(expand='yes', anchor='w')

@@ -15,12 +15,12 @@ class NewProjectWindow(DefaultDialog):
 
         Label(master, text='Width: ').grid(row=2, column=0, sticky='W')
 
-        self.width = Entry(master, width=4)
+        self.width = Entry(master, width=4, numbersonly=True, min=1)
         self.width.grid(row=2, column=1, sticky='W')
 
         Label(master, text='Height: ').grid(row=2, column=2, sticky='W')
 
-        self.height = Entry(master, width=4)
+        self.height = Entry(master, width=4, numbersonly=True, min=1)
         self.height.grid(row=2, column=3, sticky='W')
 
         Label(master, text='Background color').grid(row=3, column=0, sticky='NW')

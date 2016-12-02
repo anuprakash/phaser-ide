@@ -142,8 +142,13 @@ class SpriteComponent(GenericImageComponent):
         self.__start_animation()
 
     def __start_animation(self):
+        '''
+        called many times to animate the sprite
+        '''
         self.ide.after(1000 / self.framerate, self.__start_animation)
 
+        # the function '__gen_frames' first clears the __frames
+        # list, so here we must check if its filled with something
         if len(self.__frames) == 0 or not self.autoplay:
             return
 

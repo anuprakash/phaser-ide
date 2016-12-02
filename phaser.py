@@ -133,20 +133,21 @@ class PhaserEditor(Tkinter.Tk):
         MessageBox.warning(parent=self, title='No project found', message='No project found')
         return False
 
-    def remove_asset_by_name(self, name):
-        sprites_to_delete = {}
-        for item in self.scene_manager.get_all():
-            scene_name = item.title
-            if not sprites_to_delete.has_key(scene_name):
-                sprites_to_delete[scene_name] = []
-            for sprite in self.sprite_canvases[scene_name]:
-                if sprite.assetname == name:
-                    sprites_to_delete[scene_name].append(sprite)
-        for item in self.scene_manager.get_all():
-            scene_name = item.title
-            for i in sprites_to_delete[scene_name]:
-                self.sprite_canvases[scene_name].remove(i)
-                i.delete()
+    def cur_canvas(self):
+        '''
+        returns the actual canvas instance shown in the screen
+        '''
+        return self.canvases.get(self.actual_canvas, None)
+
+    def __reset_all_canvas(self):
+        '''
+        remove from screen all canvas
+        '''
+        for i in self.canvases:
+            self.canvases[i].pack_forget()
+        self.canvases = {}
+        self.sprite_canvases = {}
+        self.actual_canvas = None
 
     ################ SCENES
     def __on_select_scene(self, event):
@@ -333,12 +334,6 @@ class PhaserEditor(Tkinter.Tk):
             i.bounds.update()
             i.update()
 
-    def cur_canvas(self):
-        '''
-        returns the actual canvas instance shown in the screen
-        '''
-        return self.canvases.get(self.actual_canvas, None)
-
     def __select_sprite(self, sprite):
         '''
         called when the user clicks in a sprite
@@ -401,6 +396,21 @@ class PhaserEditor(Tkinter.Tk):
         if selected:
             selected.y += 1
 
+    def remove_asset_by_name(self, name):
+        sprites_to_delete = {}
+        for item in self.scene_manager.get_all():
+            scene_name = item.title
+            if not sprites_to_delete.has_key(scene_name):
+                sprites_to_delete[scene_name] = []
+            for sprite in self.sprite_canvases[scene_name]:
+                if sprite.assetname == name:
+                    sprites_to_delete[scene_name].append(sprite)
+        for item in self.scene_manager.get_all():
+            scene_name = item.title
+            for i in sprites_to_delete[scene_name]:
+                self.sprite_canvases[scene_name].remove(i)
+                i.delete()
+
     ################### Menu events
     def show_about_window(self):
         AboutWindow(self)
@@ -426,16 +436,6 @@ class PhaserEditor(Tkinter.Tk):
 
             # clearing the canvases
             self.__reset_all_canvas()
-
-    def __reset_all_canvas(self):
-        '''
-        remove from screen all canvas
-        '''
-        for i in self.canvases:
-            self.canvases[i].pack_forget()
-        self.canvases = {}
-        self.sprite_canvases = {}
-        self.actual_canvas = None
 
 if __name__ == '__main__':
     top = PhaserEditor()

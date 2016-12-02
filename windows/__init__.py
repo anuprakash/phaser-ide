@@ -898,12 +898,139 @@ class CanvasGrid(object):
 class Entry(Tkinter.Entry, object):
     def __init__(self, *args, **kws):
         self.__placeholder = kws.pop('placeholder', '')
+        self.numbersonly = kws.pop('numbersonly', False)
+        self.__min = kws.pop('min', None)
+        self.__max = kws.pop('max', None)
+
+        # when 'intergersonly' is false the entry allows
+        # float entry
+        self.integersonly = kws.pop('integersonly', True)
+        # TODO: test period in windows
+        # the keysyms allowed in numberonly mode
+        self.numbers_dictionary = ['0', '1', '2', '3', '4', '5',
+            '6', '7', '8', '9', 'period', 'BackSpace', 'Delete',
+            'Left', 'Right', 'Up', 'Down', '.', '-', 'minus']
+        # when you clicks up and down key the current value is
+        # increased or decreased
+        self.__step = kws.pop('step', 1)
+        self.step = self.__step
+        self.min = self.__min
+        self.max = self.__max
         kws.update(relief='flat',
             border=10,
             insertwidth=1,
             highlightcolor='#aaa',
             highlightthickness=1)
         Tkinter.Entry.__init__(self, *args, **kws)
+
+        # TODO: fix this, up and down behaviour is not working properly
+        # self.bind('<Up>', self.__upk_handler, '+')
+        # self.bind('<Down>', self.__downk_handler, '+')
+        self.bind('<Any-Key>', self.__any_key_handler, '+')
+
+    @property
+    def min(self):
+        return self.__min
+
+    @min.setter
+    def min(self, value):
+        if value is None:
+            self.__min = None
+            return
+        self.__min = (int if self.integersonly else float)(value)
+
+    @property
+    def max(self):
+        return self.__max
+
+    @max.setter
+    def max(self, value):
+        if value is None:
+            self.__max = None
+            return
+        self.__max = (int if self.integersonly else float)(value)
+
+    @property
+    def step(self):
+        return self.__step
+
+    @step.setter
+    def step(self, value):
+        self.__step = (int if self.integersonly else float)(value)
+
+    def convert_to_number(self):
+        '''
+        returns the actual text to a number
+        '''
+        return (int if self.integersonly else float)(self.text)
+
+    def __upk_handler(self, event):
+        '''
+        called when the user press the Up arrow key
+        '''
+        if self.numbersonly:
+            try:
+                value = self.convert_to_number()
+                if (self.max is not None) and (value + self.step) > self.max:
+                    self.text = self.max
+                else:
+                    self.text = value + self.step
+            except:
+                pass
+
+    def __downk_handler(self, event):
+        '''
+        called when the user press the Down arrow key
+        '''
+        if self.numbersonly:
+            try:
+                value = float(self.text)
+                if (self.min is not None) and (value - self.step) < self.min:
+                    self.text = self.min
+                else:
+                    self.text = value - self.step
+            except:
+                pass
+
+    def validate(self):
+        '''
+        called every hit in keyboard
+        make the border red if is not valid
+        '''
+        self['highlightcolor'] = '#aaa'
+        if not self.numbersonly:
+            return
+
+        for c in self.text:
+            if c not in self.numbers_dictionary:
+                self['highlightcolor'] = '#f00'
+                break
+
+    def __any_key_handler(self, event):
+        '''
+        called at each hit in the keyboard
+        '''
+        if self.numbersonly:
+            if event.keysym not in self.numbers_dictionary:
+                # in tkinter, return 'breaks' cancel the propagation
+                # of event, not putting the letter in entry widget
+                return 'break'
+            else:
+                if event.keysym == 'period':
+                    # allows write only one period
+                    if  '.' in self.text:
+                        return 'break'
+                    elif self.text == '':
+                        # if is the first time that the period is hitted
+                        # and the the entry is empty, put a left zero
+                        self.text += '0'
+                if event.keysym == 'minus':
+                    if self.text[0] == '-':
+                        self.text = self.text[1:]
+                    else:
+                        self.text = '-' + self.text
+                    return 'break'
+        self.validate()
 
     @property
     def text(self):
@@ -913,6 +1040,7 @@ class Entry(Tkinter.Entry, object):
     def text(self, value):
         self.delete(0, 'end')
         self.insert(0, str(value))
+        self.validate()
 
 class Listbox(Tkinter.Listbox):
     def __init__(self, *args, **kwargs):
