@@ -1,7 +1,6 @@
 + add suport to 'effect' type in sound asset loading
 + implements scale 'width' and 'height' attributes im ImageDraw
 + add drag 'lock' pressing 'x' and 'y' keys
-+ ao remover um asset na tela direita os assets que ja foram adicionados devem ser excluidos tambem
 + add support to tiles
 + prevenir abertura de multiplos popups
 + phaser exporter
@@ -18,3 +17,4 @@
 + atalho para adicionar cena
 + atalho para adicionar sprite
 + adicionar janela de propriedades para sprites
++ adicionar opção para clonar uma cena

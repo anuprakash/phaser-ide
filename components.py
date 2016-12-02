@@ -112,6 +112,11 @@ class GenericImageComponent(GenericComponent, ImageDraw):
         ImageDraw.down(self)
         self.lower_right.up()
 
+    def delete(self):
+        ImageDraw.delete(self)
+        self.bounds.delete()
+        self.lower_right.delete()
+
 
 class SpriteComponent(GenericImageComponent):
     # canvas, x, y, path, ide, name

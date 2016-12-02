@@ -599,6 +599,9 @@ class ExtendedListbox(ExtendedCanvas):
         self['scrollregion'] = (0, 0, self.width, self.item_height * len(self.__items))
         return item
 
+    def get_all(self):
+        return self.__items
+
     def get_item_by_title(self, title):
         for i in self.__items:
             if i.title == title:

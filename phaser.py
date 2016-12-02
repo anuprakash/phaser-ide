@@ -71,7 +71,7 @@ class PhaserEditor(Tkinter.Tk):
         ################ RIGHT PANEL
         self.right_frame = Frame(self)
         self.right_frame_top = Frame(self.right_frame)
-        self.assets_manager = ExtendedListbox(self.right_frame, width=250)
+        self.assets_manager = ExtendedListbox(self.right_frame, width=250, unique_titles=True)
         Label(self.right_frame_top, text='Assets').pack(anchor='nw',
             side='left')
         self.right_frame_top.pack(anchor='nw', padx=5, pady=5, fill='both')
@@ -132,6 +132,21 @@ class PhaserEditor(Tkinter.Tk):
             return True
         MessageBox.warning(parent=self, title='No project found', message='No project found')
         return False
+
+    def remove_asset_by_name(self, name):
+        sprites_to_delete = {}
+        for item in self.scene_manager.get_all():
+            scene_name = item.title
+            if not sprites_to_delete.has_key(scene_name):
+                sprites_to_delete[scene_name] = []
+            for sprite in self.sprite_canvases[scene_name]:
+                if sprite.assetname == name:
+                    sprites_to_delete[scene_name].append(sprite)
+        for item in self.scene_manager.get_all():
+            scene_name = item.title
+            for i in sprites_to_delete[scene_name]:
+                self.sprite_canvases[scene_name].remove(i)
+                i.delete()
 
     ################ SCENES
     def __on_select_scene(self, event):
@@ -235,13 +250,12 @@ class PhaserEditor(Tkinter.Tk):
         asaw = AddSoundAssetWindow(self, path=file_name)
         if asaw.output:
             try:
-                self.current_project.add_asset( core.Asset(asaw.output) )
                 self.assets_manager.add_item(asaw.output['name'],
                     'sound', 'icons/headphone.png')
-            except core.DuplicatedAssetNameException:
+            except DuplicatedExtendedListboxItemException:
                 MessageBox.warning(
                     parent=self,
-                    title='DuplicatedAssetNameException',
+                    title='DuplicatedExtendedListboxItemException',
                     message='a asset in project already contains this name')
 
     def __add_image_asset(self, file_name):
@@ -251,14 +265,14 @@ class PhaserEditor(Tkinter.Tk):
         aiaw = AddImageAssetWindow(self, path=file_name)
         if aiaw.output:
             try:
-                self.current_project.add_asset( core.Asset(aiaw.output) )
                 item = self.assets_manager.add_item(aiaw.output['name'],
                     'image', 'icons/image.png')
+                item.details = aiaw.output
                 item.bind('<Double-Button-1>', self.__dbl_click_image_sprite, '+')
-            except core.DuplicatedAssetNameException:
+            except DuplicatedExtendedListboxItemException:
                 MessageBox.warning(
                     parent=self,
-                    title='DuplicatedAssetNameException',
+                    title='DuplicatedExtendedListboxItemException',
                     message='a asset in project already contains this name')
 
     def _del_sprite_btn_handler(self):
@@ -271,11 +285,10 @@ class PhaserEditor(Tkinter.Tk):
         selection = self.assets_manager.get_selected()
         if selection:
             if OkCancel(self,
-                'The asset *%s* will be delete. Are you sure?' % (selection.title),
+                'The asset *%s* will be delete and with him all yours sprites too. Are you sure?' % (selection.title),
                 title='Are you sure?').output:
                 self.assets_manager.remove_by_title(selection.title)
-                # TODO: percorrer todos os canvas em busca de sprites
-                # que usem esse name
+                self.remove_asset_by_name(selection.title)
 
     def __dbl_click_image_sprite(self, evt):
         '''
@@ -289,16 +302,18 @@ class PhaserEditor(Tkinter.Tk):
             return
         canvas = self.cur_canvas()
         cx, cy = canvas.center
-        asset = self.current_project.get_asset_from_name( self.assets_manager.get_selected().title )
+        # details is not defined in ExtendedListboxItem, but its created
+        # in run time when you create a assets
+        asset = self.assets_manager.get_selected().details
         component = None
-        if asset.type == 'image':
-            component = comp.ImageComponent(canvas, cx, cy, asset.path,
-                self, asset.name)
-        elif asset.type == 'sprite':
-            # canvas, x, y, path, ide, name, sprite_width, sprite_height
-            component = comp.SpriteComponent(canvas, cx, cy, asset.path,
-                self, asset.name, asset.sprite_width,
-                asset.sprite_height, asset.autoplay, asset.framerate)
+        if asset['type'] == 'image':
+            component = comp.ImageComponent(canvas, cx, cy, asset['path'],
+                self, asset['name'])
+        elif asset['type'] == 'sprite':
+            # args order: canvas, x, y, path, ide, name, sprite_width, sprite_height
+            component = comp.SpriteComponent(canvas, cx, cy, asset['path'],
+                self, asset['name'], asset['sprite_width'],
+                asset['sprite_height'], asset['autoplay'], asset['framerate'])
         if component:
             self.__add_sprite_to_canvas( component )
 
