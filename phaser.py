@@ -52,7 +52,7 @@ class PhaserEditor(Tkinter.Tk):
         ################ LEFT PANEL
         self.left_frame = Frame(self)
         self.left_frame_top = Frame(self.left_frame)
-        self.scene_manager = ExtendedListbox(self.left_frame, width=250)
+        self.scene_manager = ExtendedListbox(self.left_frame, width=250, unique_titles=True)
         self.scene_manager.bind('<1>', self.__on_select_scene, '+')
         self.add_scene_btn = Button(self.left_frame_top, text='+', width=20, command=self._add_scene_btn_handler)
         self.del_scene_btn = Button(self.left_frame_top, text='-', width=20, command=self._del_scene_btn_handler)
@@ -158,7 +158,6 @@ class PhaserEditor(Tkinter.Tk):
         asw = AddSceneWindow(self, title='Add Scene')
         if asw.output:
             try:
-                self.current_project.add_scene_from_dict(asw.output)
                 self.scene_manager.add_item(asw.output['name'], 'scene', 'icons/folder.png')
                 ca = ExtendedCanvas(self.canvas_frame,
                     width=self.current_project.width,
@@ -174,10 +173,10 @@ class PhaserEditor(Tkinter.Tk):
                 # put focus in actual canvas
                 self.scene_manager.desselect_all()
                 self.scene_manager.select_last()
-            except core.DuplicatedSceneNameException:
+            except DuplicatedExtendedListboxItemException:
                 MessageBox.warning(
                     parent=self,
-                    title='DuplicatedSceneNameException',
+                    title='DuplicatedExtendedListboxItemException',
                     message='a scene in project already contains this name')
 
     def _del_scene_btn_handler(self):
@@ -194,7 +193,6 @@ class PhaserEditor(Tkinter.Tk):
                 'The scene *%s* will be delete. Are you sure?' % (scene_name),
                 title='Are you sure?').output:
 
-                self.current_project.remove_scene_from_name(scene_name)
                 self.scene_manager.remove_by_title(scene_name)
                 self.canvases[scene_name].pack_forget()
                 del self.canvases[scene_name]

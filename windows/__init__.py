@@ -114,7 +114,8 @@ class ImageDraw(BaseCanvasDraw):
 
     @width.setter
     def width(self, value):
-        self.update() # TOdO
+        # does nothing
+        self.update()
 
     @property
     def height(self):
@@ -122,7 +123,8 @@ class ImageDraw(BaseCanvasDraw):
 
     @height.setter
     def height(self, value):
-        self.update() # TODo
+        # does nothing
+        self.update()
 
 class RectangleDraw(BaseCanvasDraw):
     def __init__(self, canvas, x, y, width, height, **kws):
@@ -574,19 +576,34 @@ class ExtendedListboxItem(object):
     # def icon(self, value):
     #     self.__icon.image = value
 
+class DuplicatedExtendedListboxItemException(Exception):
+    pass
+
 class ExtendedListbox(ExtendedCanvas):
     def __init__(self, *args, **kws):
         self.__items = []
+        # if unique titles is true, when you add a item
+        # with a title equal than another the ExtendedListbox
+        # raises an DuplicatedExtendedListboxItemError
+        self.unique_titles = kws.pop('unique_titles', False)
         self.item_height = kws.pop('item_height', 40)
         ExtendedCanvas.__init__(self, *args, **kws)
 
     def add_item(self, title, subtitle=None, icon=None):
+        if self.unique_titles and self.get_item_by_title(title):
+            raise DuplicatedExtendedListboxItemException()
         item = ExtendedListboxItem(self, title, subtitle, icon,
             self.item_height, self.item_height * len(self.__items),
             self.desselect_all)
         self.__items.append(item)
         self['scrollregion'] = (0, 0, self.width, self.item_height * len(self.__items))
         return item
+
+    def get_item_by_title(self, title):
+        for i in self.__items:
+            if i.title == title:
+                return i
+        return None
 
     def remove_by_title(self, title):
         for i in self.__items:

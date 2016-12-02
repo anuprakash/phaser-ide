@@ -30,9 +30,6 @@ import json
 }
 '''
 
-class DuplicatedSceneNameException(Exception):
-    pass
-
 class DuplicatedAssetNameException(Exception):
     pass
 
@@ -131,18 +128,6 @@ class PhaserProject:
         self.bgcolor = _dict['bgcolor']
         self.load_assets_from_dict(_dict['assets'])
         self.load_scenes_from_dict(_dict['scenes'])
-
-    def add_scene_from_dict(self, json_scene):
-        scene = PhaserScene(json_scene)
-        for i in self.scenes:
-            if i.name == scene.name:
-                raise DuplicatedSceneNameException()
-        self.scenes.append( scene )
-
-    def remove_scene_from_name(self, name):
-        for i in self.scenes:
-            if i.name == name:
-                self.scenes.remove(i)
 
     def assets_exists_by_name(self, name):
         for i in self.assets:
