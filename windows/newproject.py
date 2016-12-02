@@ -53,8 +53,6 @@ class NewProjectWindow(DefaultDialog):
             'name': self.name_entry.get(),
             'width': width,
             'height': height,
-            'scenes': [],
-            'assets': [],
             'bgcolor': self.bgcolor.color
         }
     

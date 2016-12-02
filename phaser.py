@@ -33,7 +33,7 @@ class PhaserEditor(Tkinter.Tk):
         self.projectmenu.add_command(label='New project', command=self.new_project)
         # TODO
         # self.projectmenu.add_command(label='Open project TODO', command=open_project)
-        self.projectmenu.add_command(label='Save project as', command=self.save_project)
+        # self.projectmenu.add_command(label='Save project as TODO', command=self.save_project)
         self.projectmenu.add_separator()
         self.projectmenu.add_command(label='Quit', command=self.destroy)
 
@@ -414,15 +414,6 @@ class PhaserEditor(Tkinter.Tk):
     ################### Menu events
     def show_about_window(self):
         AboutWindow(self)
-
-    def save_project(self):
-        if not self.current_project:
-            return
-        fn = tkFileDialog.asksaveasfilename()
-        if fn:
-            f = open(fn, 'w')
-            f.write(self.current_project.get_json())
-            f.close()
 
     def new_project(self):
         npw = NewProjectWindow(self)
