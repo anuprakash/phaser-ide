@@ -16,5 +16,5 @@
 + na mensagem: ja existe uma cena com este nome, o texto do label eh cortado
 + atalho para adicionar cena
 + atalho para adicionar sprite
-+ adicionar janela de propriedades para sprites
 + adicionar opção para clonar uma cena
++ adicionar valor minimo e maximo para o campo de entrada numerico

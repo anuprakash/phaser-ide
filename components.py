@@ -128,8 +128,8 @@ class SpriteComponent(GenericImageComponent):
 
         self.framerate = framerate
         # size of each frame in pixels
-        self.sprite_width = self.__origin_image.size[0] / sprite_width
-        self.sprite_height = self.__origin_image.size[1] / sprite_height
+        self.sprite_width = sprite_width
+        self.sprite_height = sprite_height
         self.__frame_index = 0
         self.autoplay = autoplay
 
@@ -139,27 +139,32 @@ class SpriteComponent(GenericImageComponent):
         self.image = self.__frames[0]
         self.update()
 
-        if self.autoplay:
-            self.__start_animation()
+        self.__start_animation()
 
     def __start_animation(self):
+        self.ide.after(1000 / self.framerate, self.__start_animation)
+
+        if len(self.__frames) == 0 or not self.autoplay:
+            return
+
         self.image = self.__frames[self.__frame_index]
         self.__frame_index += 1
         if self.__frame_index >= len(self.__frames):
             self.__frame_index = 0
-        self.ide.after(1000 / self.framerate, self.__start_animation)
 
     def __gen_frames(self):
         '''
         crops the image into many images
         '''
         self.__frames = []
-        for x in range(0, self.__origin_image.size[0], self.sprite_width):
-            for y in range(0, self.__origin_image.size[1], self.sprite_height):
+        self.__frame_index = 0
+        for x in range(0, self.__origin_image.size[0], self.__origin_image.size[0] / self.sprite_width):
+            for y in range(0, self.__origin_image.size[1], self.__origin_image.size[1] / self.sprite_height):
                 self.__frames.append(
                     ImageTk.PhotoImage(
                         self.__origin_image.crop(
-                            (x, y, x+self.sprite_width, y+self.sprite_height)
+                            (x, y, x+self.__origin_image.size[0] / self.sprite_width,
+                                y+self.__origin_image.size[1] / self.sprite_height)
                         )
                     )
                 )
@@ -171,13 +176,22 @@ class SpriteComponent(GenericImageComponent):
         _dict = {
             'name': self.name,
             'x': self.x,
-            'y': self.y
+            'y': self.y,
+            'sprite_width': self.sprite_width,
+            'sprite_height': self.sprite_height,
+            'autoplay': self.autoplay,
+            'framerate': self.framerate
         }
         sipw = SpriteSheetImagePropertyWindow(self.ide, _dict)
         if sipw.output:
             self.x = sipw.output.get('x')
             self.y = sipw.output.get('y')
             self.name = sipw.output.get('name')
+            self.autoplay = sipw.output.get('autoplay')
+            self.framerate = sipw.output.get('framerate')
+            self.sprite_width = sipw.output.get('sprite_width')
+            self.sprite_height = sipw.output.get('sprite_height')
+            self.__gen_frames()
 
 
 class ImageComponent(GenericImageComponent):
