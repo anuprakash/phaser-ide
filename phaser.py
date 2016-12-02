@@ -108,7 +108,7 @@ class PhaserEditor(Tkinter.Tk):
         self.set_title()
 
     def set_title(self):
-        self.title('Phase - %s - version: %s' % ('No project loaded' if not self.current_project else self.current_project.name, VErSIOn))
+        self.title('Phaser - %s - version: %s' % ('No project loaded' if not self.current_project else self.current_project.name, VErSIOn))
 
     def __load_plugins(self):
         '''
