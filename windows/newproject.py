@@ -51,7 +51,7 @@ class NewProjectWindow(DefaultDialog):
             width = int(self.width.get())
             height = int(self.height.get())
         except:
-            print 'Invalid width or height'
+            print('Invalid width or height')
 
         self.output = {
             'name': self.name_entry.get(),

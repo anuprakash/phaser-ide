@@ -1,6 +1,15 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+import sys
 import core
-import tkFileDialog
-import Tkinter
+PYTHON_3 = sys.version_info.major == 3
+if PYTHON_3:
+    from tkinter import filedialog as tkFileDialog
+    import tkinter
+else:
+    import tkFileDialog
+    import Tkinter
 from windows import *
 from windows.shortcuts import *
 import components as comp
@@ -92,10 +101,20 @@ class PhaserEditor(Tkinter.Tk):
             underline=0
         )
         ################################ plugins menu
-        self.pluginsmenu = Tkinter.Menu(self.menubar, tearoff=0)
-        self.menubar.add_cascade(label='Plugins', menu=self.pluginsmenu, underline=1)
+        self.pluginsmenu = Tkinter.Menu(
+            self.menubar,
+            tearoff=0
+        )
+        self.menubar.add_cascade(
+            label='Plugins',
+            menu=self.pluginsmenu,
+            underline=1
+        )
         ################################ about menu
-        self.helpmenu = Tkinter.Menu(self.menubar, tearoff=0)
+        self.helpmenu = Tkinter.Menu(
+            self.menubar,
+            tearoff=0
+        )
         self.menubar.add_cascade(
             label='Help',
             menu=self.helpmenu,
@@ -116,43 +135,118 @@ class PhaserEditor(Tkinter.Tk):
         ################ LEFT PANEL
         self.left_frame = Frame(self)
         self.left_frame_top = Frame(self.left_frame)
-        self.scene_manager = ExtendedListbox(self.left_frame, width=250, unique_titles=True)
+        self.scene_manager = ExtendedListbox(
+            self.left_frame,
+            width=250,
+            unique_titles=True
+        )
         self.scene_manager.bind('<1>', self.__on_select_scene, '+')
-        self.add_scene_btn = Button(self.left_frame_top, text='+', width=20, command=self._add_scene_btn_handler)
-        self.del_scene_btn = Button(self.left_frame_top, text='-', width=20, command=self._del_scene_btn_handler)
-        Label(self.left_frame_top, text='Scenes').pack(anchor='nw', side='left')
-        self.add_scene_btn.pack(side='right', anchor='ne', padx=1)
-        self.del_scene_btn.pack(side='right', anchor='ne', padx=1)
-        self.left_frame_top.pack(anchor='nw', padx=5, pady=5, fill='both')
+        self.add_scene_btn = Button(
+            self.left_frame_top,
+            text='+',
+            width=20,
+            command=self._add_scene_btn_handler
+        )
+        self.del_scene_btn = Button(
+            self.left_frame_top,
+            text='-',
+            width=20,
+            command=self._del_scene_btn_handler
+        )
+        Label(self.left_frame_top, text='Scenes').pack(
+            anchor='nw',
+            side='left'
+        )
+        self.add_scene_btn.pack(
+            side='right',
+            anchor='ne',
+            padx=1
+        )
+        self.del_scene_btn.pack(
+            side='right',
+            anchor='ne',
+            padx=1
+        )
+        self.left_frame_top.pack(
+            anchor='nw',
+            padx=5,
+            pady=5,
+            fill='both'
+        )
         self.left_frame.pack(side='left', fill='y')
 
         self.scene_scroll = Scrollbar(self.left_frame, orient='vertical')
-        self.scene_scroll.pack(side='left',fill='y', expand='yes')
-        self.scene_manager.pack(expand='yes', fill='y', anchor='nw')
+        self.scene_scroll.pack(
+            side='left',
+            fill='y',
+            expand='yes'
+        )
+        self.scene_manager.pack(
+            expand='yes',
+            fill='y',
+            anchor='nw'
+        )
         self.scene_scroll.config(command=self.scene_manager.yview)
         self.scene_manager.config(yscrollcommand=self.scene_scroll.set)
 
         ################ RIGHT PANEL
         self.right_frame = Frame(self)
         self.right_frame_top = Frame(self.right_frame)
-        self.assets_manager = ExtendedListbox(self.right_frame, width=250, unique_titles=True)
-        Label(self.right_frame_top, text='Assets').pack(anchor='nw',
-            side='left')
-        self.right_frame_top.pack(anchor='nw', padx=5, pady=5, fill='both')
+        self.assets_manager = ExtendedListbox(
+            self.right_frame,
+            width=250,
+            unique_titles=True
+        )
+        Label(self.right_frame_top, text='Assets').pack(
+            anchor='nw',
+            side='left'
+        )
+        self.right_frame_top.pack(
+            anchor='nw',
+            padx=5,
+            pady=5,
+            fill='both'
+        )
 
         self.add_sprite_btn = Button(
             self.right_frame_top,
             text='+', width=20,
             command=self._add_sprite_btn_handler
         )
-        self.del_sprite_btn = Button(self.right_frame_top, text='-', width=20, command=self._del_sprite_btn_handler)
-        self.add_sprite_btn.pack(side='right', anchor='ne', padx=1)
-        self.del_sprite_btn.pack(side='right', anchor='ne', padx=1)
-        self.assets_manager.pack(side='left', expand='yes', fill='y', anchor='nw')
-        self.right_frame.pack(side='right', fill='y')
+        self.del_sprite_btn = Button(
+            self.right_frame_top,
+            text='-',
+            width=20,
+            command=self._del_sprite_btn_handler
+        )
+        self.add_sprite_btn.pack(
+            side='right',
+            anchor='ne',
+            padx=1)
+        self.del_sprite_btn.pack(
+            side='right',
+            anchor='ne',
+            padx=1
+        )
+        self.assets_manager.pack(
+            side='left',
+            expand='yes',
+            fill='y',
+            anchor='nw'
+        )
+        self.right_frame.pack(
+            side='right',
+            fill='y'
+        )
 
-        self.assets_scroll = Scrollbar(self.right_frame, orient='vertical')
-        self.assets_scroll.pack(fill='y', expand='yes')
+        self.assets_scroll = Scrollbar(
+            self.right_frame,
+            orient='vertical'
+        )
+        self.assets_scroll.pack(
+            fill='y',
+            expand='yes'
+        )
         self.assets_scroll.config(command=self.assets_manager.yview)
         self.assets_manager.config(yscrollcommand=self.assets_scroll.set)
 
@@ -192,8 +286,10 @@ class PhaserEditor(Tkinter.Tk):
         for i in modules:
             mod = importlib.import_module(i.replace('\n', ''))
             mod.init(self)
-            self.pluginsmenu.add_command(label=mod.title,
-                command=lambda:mod.execute(self))
+            self.pluginsmenu.add_command(
+                label=mod.title,
+                command=lambda:mod.execute(self)
+            )
 
     def update_canvases(self):
         '''
@@ -232,13 +328,13 @@ class PhaserEditor(Tkinter.Tk):
 
     ################ VIEW MENU
     def show_scene_manager(self):
-        print 'TODO'
+        print('TODO')
 
     def show_asset_manager(self):
-        print 'TODO'
+        print('TODO')
 
     def show_logic_editor(self):
-        print 'TODO'
+        print('TODO')
 
     ################ SCENES
     def __on_select_scene(self, event):

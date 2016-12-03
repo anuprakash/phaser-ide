@@ -6,7 +6,7 @@ class ExporterWindow(DefaultDialog):
 	pass
 
 def init(ide):
-	print 'INIT!@'
+	print('INIT!@')
 
 def execute(ide):
 	ExporterWindow(ide)

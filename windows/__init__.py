@@ -1,12 +1,20 @@
 # coding: utf-8
 
-import Tkinter
-import ttk
-import tkSimpleDialog
+import sys
+PYTHON_3 = sys.version_info.major == 3
+if PYTHON_3:
+    import tkinter as Tkinter
+    from tkinter import filedialog as tkSimpleDialog
+    from tkinter import colorchooser as tkColorChooser
+    from tkinter import font as tkFont
+else:
+    import Tkinter
+    import tkSimpleDialog
+    import ttk
+    import tkColorChooser
+    import tkFont
 import math
-import tkColorChooser
 import ImageTk
-import tkFont
 import random
 import string
 
@@ -816,13 +824,13 @@ class MarkDownLabel(Text):
                     state = 'h3'
             elif c == '*':
                 # two following * must write at least one
-                if state <> 'bold' and last_char <> '*':
+                if state != 'bold' and last_char != '*':
                     state = 'bold'
                 elif state == 'bold':
                     state = 'normal'
             elif c == '_':
                 # two following _ must write at least one
-                if state <> 'italic' and last_char <> '_':
+                if state != 'italic' and last_char != '_':
                     state = 'italic'
                 elif state == 'italic':
                     state = 'normal'
