@@ -38,6 +38,7 @@ class PhaserProject:
         self.width = 640
         self.height = 480
         self.bgcolor = '#dadada'
+        self.fullscreen = False
 
         if json:
             self.fill_from_json(json)
@@ -50,15 +51,19 @@ class PhaserProject:
         self.width = _dict['width']
         self.height = _dict['height']
         self.bgcolor = _dict['bgcolor']
+        self.fullscreen = _dict['fullscreen']
+
+    def get_dict(self):
+        return {
+            'name': self.name,
+            'width': self.width,
+            'height': self.height,
+            'bgcolor': self.bgcolor,
+            'fullscreen': self.fullscreen
+        }
 
     def get_json(self):
         '''
         returns the json representation of project
         '''
-        _dict = {
-            'name': self.name,
-            'width': self.width,
-            'height': self.height,
-            'bgcolor': self.bgcolor
-        }
-        return json.dumps(_dict)
+        return json.dumps(self.get_dict())

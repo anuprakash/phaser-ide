@@ -64,12 +64,9 @@ class SpriteSheetImagePropertyWindow(SpriteImagePropertyWindow):
         self.sprite_height.text = self._dict.get('sprite_height')
         self.sprite_height.grid(row=3, column=1)
 
-        self._check_frame = Frame(master)
-        self._check_frame.grid(row=4, column=0, columnspan=2)
-
-        self.autoplay = SimpleCheckbox(self._check_frame, checked=self._dict.get('autoplay'))
-        self.autoplay.pack(anchor='nw', pady=5, padx=5, side='left')
-        Label(self._check_frame, text='Autoplay animation').pack(expand='yes', anchor='w')
+        self.autoplay = LabeledSimpleCheckbox(master,
+            text='Autoplay animation', checked=self._dict.get('autoplay'))
+        self.autoplay.grid(row=4, column=0, columnspan=2)
 
         Label(master, text='Frame rate').grid(row=5, column=0)
         self.framerate = Entry(master, width=4, numbersonly=True, min=1)

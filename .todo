@@ -4,16 +4,12 @@
 + add support to tiles
 + prevenir abertura de multiplos popups
 + phaser exporter
-+ project properties
-+ add full screen in window for create project
 + testar no windows
 + make checkbox ios like
 + in image properties window show width and height (and scale)
 + Entry placeholder http://www.designrazor.net/wp-content/uploads/2015/01/html5-css3-contact-form21.jpg
 	remove labels and use placeholders
 + makes the code python3 compatible
-+ atalho para adicionar cena
-+ atalho para adicionar sprite
 + adicionar opção para clonar uma cena
 + adicionar valor minimo e maximo para o campo de entrada numerico
 + verificar se quando um sprite é deletado o .after dele ainda fica sendo executado

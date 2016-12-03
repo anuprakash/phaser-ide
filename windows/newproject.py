@@ -24,14 +24,18 @@ class NewProjectWindow(DefaultDialog):
         self.height.grid(row=2, column=3, sticky='W')
 
         Label(master, text='Background color').grid(row=3, column=0, sticky='NW')
-        self.bgcolor = ColorChooser(master, '#dadada', height=20)
+        self.bgcolor = ColorChooser(master, '#dadada', height=30)
         self.bgcolor.grid(row=4, column=0, columnspan=4)
+
+        self.fullscreen = LabeledSimpleCheckbox(master, text='Fullscreen')
+        self.fullscreen.grid(row=5, column=0, columnspan=2, sticky='w')
 
         if self._dict:
             self.name_entry.text = self._dict.get('name', '')
             self.width.text = str(self._dict.get('width', '640'))
             self.height.text = str(self._dict.get('height', '480'))
             self.bgcolor.color = self._dict.get('bgcolor', '#dadada')
+            self.fullscreen.checked = self._dict.get('fullscreen', False)
         else:
             self.name_entry.text = ''
             self.width.text = 640
@@ -53,7 +57,8 @@ class NewProjectWindow(DefaultDialog):
             'name': self.name_entry.get(),
             'width': width,
             'height': height,
-            'bgcolor': self.bgcolor.color
+            'bgcolor': self.bgcolor.color,
+            'fullscreen': self.fullscreen.checked
         }
     
     def validate(self):

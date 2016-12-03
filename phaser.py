@@ -2,6 +2,7 @@ import core
 import tkFileDialog
 import Tkinter
 from windows import *
+from windows.shortcuts import *
 import components as comp
 import posixpath
 import importlib
@@ -25,29 +26,89 @@ class PhaserEditor(Tkinter.Tk):
         self.geometry('%dx%d' % (1200, 600))
 
         # parent of all menus
-        self.menubar = Tkinter.Menu(self, relief=Tkinter.FLAT)
+        self.menubar = Tkinter.Menu(
+            self,
+            relief=Tkinter.FLAT
+        )
         ################################ file menu
-        self.projectmenu = Tkinter.Menu(self.menubar, tearoff=0, relief=Tkinter.FLAT)
-        self.menubar.add_cascade(label='Project', menu=self.projectmenu)
-        self.projectmenu.add_command(label='New project', command=self.new_project)
+        self.projectmenu = Tkinter.Menu(
+            self.menubar,
+            tearoff=0,
+            relief=Tkinter.FLAT
+        )
+        self.menubar.add_cascade(
+            label='Project',
+            menu=self.projectmenu,
+            underline=0
+        )
+        self.projectmenu.add_command(
+            label='New project',
+            command=self.new_project,
+            underline=0,
+            accelerator='Control+N'
+        )
+        self.projectmenu.add_command(
+            label='Project properties',
+            command=self.show_project_properties,
+            underline=1
+        )
+        self.bind('<Control-n>', lambda e: self.new_project(), '+')
+        self.bind('<Control-m>', lambda e: self._add_scene_btn_handler(), '+')
+        self.bind('<Control-x>', lambda e: self._add_sprite_btn_handler(), '+')
+        self.bind('<Alt-p>', lambda e: self.show_project_properties(), '+')
         # TODO
         # self.projectmenu.add_command(label='Open project TODO', command=open_project)
         # self.projectmenu.add_command(label='Save project as TODO', command=self.save_project)
         self.projectmenu.add_separator()
-        self.projectmenu.add_command(label='Quit', command=self.destroy)
+        self.projectmenu.add_command(
+            label='Quit',
+            command=self.destroy,
+            underline=0
+        )
         ################################ view menu
-        self.viewmenu = Tkinter.Menu(self.menubar, tearoff=0, relief=Tkinter.FLAT)
-        self.menubar.add_cascade(label='View', menu=self.viewmenu)
-        self.viewmenu.add_command(label='Scene manager', command=self.show_scene_manager)
-        self.viewmenu.add_command(label='Asset Manager', command=self.show_asset_manager)
-        self.viewmenu.add_command(label='Logic Editor', command=self.show_logic_editor)
+        self.viewmenu = Tkinter.Menu(
+            self.menubar,
+            tearoff=0,
+            relief=Tkinter.FLAT
+        )
+        self.menubar.add_cascade(
+            label='View',
+            menu=self.viewmenu,
+            underline=0
+        )
+        self.viewmenu.add_command(
+            label='Scene manager',
+            command=self.show_scene_manager,
+            underline=0
+        )
+        self.viewmenu.add_command(
+            label='Asset Manager',
+            command=self.show_asset_manager,
+            underline=0
+        )
+        self.viewmenu.add_command(
+            label='Logic Editor',
+            command=self.show_logic_editor,
+            underline=0
+        )
         ################################ plugins menu
         self.pluginsmenu = Tkinter.Menu(self.menubar, tearoff=0)
-        self.menubar.add_cascade(label='Plugins', menu=self.pluginsmenu)
+        self.menubar.add_cascade(label='Plugins', menu=self.pluginsmenu, underline=1)
         ################################ about menu
         self.helpmenu = Tkinter.Menu(self.menubar, tearoff=0)
-        self.menubar.add_cascade(label='Help', menu=self.helpmenu)
-        self.helpmenu.add_command(label='About', command=self.show_about_window)
+        self.menubar.add_cascade(
+            label='Help',
+            menu=self.helpmenu,
+            underline=0
+        )
+        self.helpmenu.add_command(
+            label='Shortcuts',
+            command=self.show_shortcuts_window
+        )
+        self.helpmenu.add_command(
+            label='About',
+            command=self.show_about_window
+        )
 
         # add menu to window
         self.config(menu=self.menubar)
@@ -79,7 +140,11 @@ class PhaserEditor(Tkinter.Tk):
             side='left')
         self.right_frame_top.pack(anchor='nw', padx=5, pady=5, fill='both')
 
-        self.add_sprite_btn = Button(self.right_frame_top, text='+', width=20, command=self._add_sprite_btn_handler)
+        self.add_sprite_btn = Button(
+            self.right_frame_top,
+            text='+', width=20,
+            command=self._add_sprite_btn_handler
+        )
         self.del_sprite_btn = Button(self.right_frame_top, text='-', width=20, command=self._del_sprite_btn_handler)
         self.add_sprite_btn.pack(side='right', anchor='ne', padx=1)
         self.del_sprite_btn.pack(side='right', anchor='ne', padx=1)
@@ -129,6 +194,15 @@ class PhaserEditor(Tkinter.Tk):
             mod.init(self)
             self.pluginsmenu.add_command(label=mod.title,
                 command=lambda:mod.execute(self))
+
+    def update_canvases(self):
+        '''
+        updates the bg, width and height of all canvases
+        '''
+        for canvas in self.canvases.values():
+            canvas['bg'] = self.current_project.bgcolor
+            canvas['width'] = self.current_project.width
+            canvas['height'] = self.current_project.height
 
     def project_is_loaded(self):
         '''
@@ -429,7 +503,16 @@ class PhaserEditor(Tkinter.Tk):
                 i.delete()
 
     ################### Menu events
+    def show_shortcuts_window(self):
+        '''
+        called when you click Help > shortcuts
+        '''
+        ShortcutsWindow(self)
+
     def show_about_window(self):
+        '''
+        called when you click Help > About
+        '''
         AboutWindow(self)
 
     def new_project(self):
@@ -444,6 +527,20 @@ class PhaserEditor(Tkinter.Tk):
 
             # clearing the canvases
             self.__reset_all_canvas()
+
+    def show_project_properties(self):
+        '''
+        called in Project > Project Properties
+        '''
+        if self.current_project:
+            npw = NewProjectWindow(self, _dict=self.current_project.get_dict())
+            if npw.output:
+                self.current_project = core.PhaserProject()
+                self.current_project.fill_from_dict(npw.output)
+                self.set_title()
+                # if your change the bg color, or the size of project
+                # all already created canvas must be updated
+                self.update_canvases()
 
 if __name__ == '__main__':
     top = PhaserEditor()

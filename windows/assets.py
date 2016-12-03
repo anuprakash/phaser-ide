@@ -63,12 +63,8 @@ class SpriteEditor(DefaultDialog):
 
         self.__canvas_grid = CanvasGrid(self.canvas, 2, 2)
 
-        self._check_frame = Frame(master)
-        self._check_frame.pack(expand='yes', anchor='nw')
-
-        self.autoplay = SimpleCheckbox(self._check_frame, checked=True)
-        self.autoplay.pack(anchor='nw', pady=5, padx=5, side='left')
-        Label(self._check_frame, text='Autoplay animation').pack(expand='yes', anchor='w')
+        self.autoplay = LabeledSimpleCheckbox(master, text='Autoplay animation', checked=True)
+        self.autoplay.pack(expand='yes', anchor='nw')
 
         self._fr_frame = Frame(master)
         self._fr_frame.pack(expand='yes', anchor='nw')
@@ -117,11 +113,8 @@ class AddImageAssetWindow(DefaultDialog):
         self.sprite_name.grid(row=1, columnspan=2)
         self.sprite_name.text = posixpath.basename(self.__path).split('.')[0].lower()
 
-        self.check_frame = Frame(master)
-        self.is_sprite = SimpleCheckbox(self.check_frame)
-        self.is_sprite.pack(side='left', padx=5, pady=5)
-        Label(self.check_frame, text='Is sprite').pack(expand='yes')
-        self.check_frame.grid(row=2, sticky='nw')
+        self.is_sprite = LabeledSimpleCheckbox(master, text='Is sprite')
+        self.is_sprite.grid(row=2, sticky='nw')
         return self.sprite_name
 
     def validate(self):

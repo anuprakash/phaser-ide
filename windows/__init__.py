@@ -489,6 +489,7 @@ class SimpleCheckbox(ExtendedCanvas):
     def __check_click(self, event):
         self.checked = not self.checked
 
+
 class ExtendedListboxItem(object):
     '''
     before_click: function called before the click selection
@@ -691,10 +692,6 @@ class ColorChooser(ExtendedCanvas, object):
         self.delete(self.__color_index)
         self.__color_index = self.__gen_index(self.color)
 
-class Frame(Tkinter.Frame):
-    def __init__(self, *args, **kwargs):
-        Tkinter.Frame.__init__(self, *args, **kwargs)
-        self['bg'] = self.master['bg']
 
 class Button(ExtendedCanvas):
     def __init__(self, *args, **kwargs):
@@ -739,7 +736,7 @@ class Button(ExtendedCanvas):
             return
         self.bind('<1>', lambda *args : cmd(), '+')
 
-class Label(Tkinter.Label):
+class Label(Tkinter.Label, object):
     def __init__(self, *args, **kwargs):
         Tkinter.Label.__init__(self, *args, **kwargs)
         self['bg'] = self.master['bg']
@@ -753,6 +750,14 @@ class Label(Tkinter.Label):
         x, y = kwargs.pop('padx', 5), kwargs.pop('pady', 5)
         kwargs.update(padx=x, pady=y)
         Tkinter.Label.grid(self, *args, **kwargs)
+
+    @property
+    def text(self):
+        return self['text']
+
+    @text.setter
+    def text(self, value):
+        self['text'] = value
 
 class Text(Tkinter.Text, object):
     def __init__(self, *args, **kws):
@@ -855,6 +860,38 @@ class MarkDownLabel(Text):
 
     def insert_character(self, character, state):
         self.insert('end', character, (state,))
+
+class Frame(Tkinter.Frame, object):
+    def __init__(self, *args, **kwargs):
+        Tkinter.Frame.__init__(self, *args, **kwargs)
+        self['bg'] = self.master['bg']
+
+class LabeledSimpleCheckbox(Frame):
+    '''
+    a simplecheckbox with a label
+    '''
+    def __init__(self, master, text='', checked=False):
+        Frame.__init__(self, master)
+        self.checkbutton = SimpleCheckbox(self, checked)
+        self.checkbutton.pack(anchor='nw', pady=5, padx=5, side='left')
+        self.label = Label(self, text=text)
+        self.label.pack(expand='yes', anchor='w')
+
+    @property
+    def text(self):
+        return self.label.text
+
+    @text.setter
+    def text(self, value):
+        self.label.text = value
+
+    @property
+    def checked(self):
+        return self.checkbutton.checked
+
+    @checked.setter
+    def checked(self, value):
+        self.checkbutton.checked = value
 
 class CanvasGrid(object):
     def __init__(self, canvas, x, y):
