@@ -884,6 +884,13 @@ class LabeledSimpleCheckbox(Frame):
         self.checkbutton.pack(anchor='nw', pady=5, padx=5, side='left')
         self.label = Label(self, text=text)
         self.label.pack(expand='yes', anchor='w')
+        self.label.bind('<1>', self.__check, '+')
+
+    def __check(self, event):
+        '''
+        called when you click in the frame
+        '''
+        self.checkbutton.checked = not self.checkbutton.checked
 
     @property
     def text(self):
@@ -954,7 +961,8 @@ class Entry(Tkinter.Entry, object):
         # the keysyms allowed in numberonly mode
         self.numbers_dictionary = ['0', '1', '2', '3', '4', '5',
             '6', '7', '8', '9', 'period', 'BackSpace', 'Delete',
-            'Left', 'Right', 'Up', 'Down', '.', '-', 'minus']
+            'Left', 'Right', 'Up', 'Down', '.', '-', 'minus',
+            'Escape']
         # when you clicks up and down key the current value is
         # increased or decreased
         self.__step = kws.pop('step', 1)
@@ -1081,6 +1089,12 @@ class Entry(Tkinter.Entry, object):
     def text(self):
         return self.get()
 
+    @property
+    def value(self):
+        if self.numbersonly:
+            return (int if self.integersonly else float)(self.text)
+        return self.text
+
     @text.setter
     def text(self, value):
         self.delete(0, 'end')
@@ -1096,11 +1110,138 @@ class Listbox(Tkinter.Listbox):
         self['selectbackground'] = '#c7ccd1'
         self['activestyle'] = 'none'
 
+
+class FormFrame(Frame):
+    def __init__(self, master, formstring, input_width=40, initial_values=None):
+        self.__formstring = formstring
+        self.initial_values = initial_values
+        self.__frames = []
+        self.__inputs = []
+        self.input_width = input_width
+        Frame.__init__(self, master)
+        self.build_form()
+
+    def kill_frames(self):
+        '''
+        grid forget all frames
+        '''
+        for frame in self.__frames:
+            frame.grid_forget()
+
+    def get_values(self):
+        '''
+        return the current value in form
+        '''
+        result = []
+        for i in self.__inputs:
+            if type(i) == Entry:
+                result.append(i.value)
+            elif type(i) == SimpleCheckbox:
+                result.append(i.checked)
+            elif type(i) == ColorChooser:
+                result.append(i.color)
+        return result
+
+    def build_form(self):
+        field_counter = 0
+        self.kill_frames()
+        for line in self.__formstring.split('\n'):
+            if not line:
+                continue
+            fields = line.split('|')
+            # each line has a frame
+            frame = Frame(self)
+            column = 0
+            for field in fields:
+                textlabel, inputtype = field.split('@')
+                # each field has a frame, a line can have many
+                # fields per line
+                fieldframe = Frame(frame)
+                fieldframe.grid(row=0, column=column, padx=0)
+
+                label = Label(fieldframe, text=textlabel)
+                label.grid(pady=1, padx=1, row=0, column=0, sticky='w')
+
+                input = None
+
+                if inputtype == 'string':
+                    input = Entry(
+                        fieldframe,
+                        width=self.input_width / len(fields)
+                    )
+                    if self.initial_values:
+                        input.text = self.initial_values[field_counter]
+                elif inputtype == 'int':
+                    input = Entry(
+                        fieldframe,
+                        # many fields in line makes the sum of the widths be
+                        # greater than an only fields because border
+                        width=(self.input_width / len(fields)) if len(fields) == 1 else (self.input_width / len(fields) - 2),
+                        numbersonly=True,
+                        integersonly=True
+                    )
+                    if self.initial_values:
+                        input.text = self.initial_values[field_counter]
+                elif inputtype == 'float':
+                    input = Entry(
+                        fieldframe,
+                        width=self.input_width / len(fields),
+                        numbersonly=True,
+                        integersonly=False
+                    )
+                    if self.initial_values:
+                        input.text = self.initial_values[field_counter]
+                elif inputtype == 'password':
+                    # has not initial values for password entry
+                    # if someone is given, is ignored
+                    input = Entry(
+                        fieldframe,
+                        width=self.input_width / len(fields),
+                        show='*'
+                    )
+                elif inputtype == 'check':
+                    input = SimpleCheckbox(fieldframe)
+                    if self.initial_values:
+                        input.checked = self.initial_values[field_counter]
+                elif inputtype == 'color':
+                    input = ColorChooser(
+                        fieldframe,
+                        '#dadada' if not self.initial_values else self.initial_values[field_counter],
+                        height=30, width=350
+                    )
+                else:
+                    raise Exception('InvalidFormStringError')
+                input.grid(pady=1, padx=0, row=1, column=0, sticky='w')
+
+                self.__inputs.append(input)
+
+                column += 1
+                field_counter += 1
+            frame.grid(pady=5, padx=5, sticky='w')
+            self.__frames.append(frame)
+        self.__inputs[0].focus_force()
+
+    @property
+    def formstring(self):
+        return self.__formstring
+
+    @property
+    def inputs(self):
+        return self.__inputs
+
+    @formstring.setter
+    def formstring(self, value):
+        self.__formstring = value
+        self.build_form()
+
+
 class OptionMenu(Tkinter.OptionMenu):
     pass
 
+
 class Scrollbar(ttk.Scrollbar):
     pass
+
 
 class DefaultDialog(Tkinter.Toplevel):
     '''

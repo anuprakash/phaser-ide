@@ -132,6 +132,9 @@ class SpriteComponent(GenericImageComponent):
         self.sprite_height = sprite_height
         self.__frame_index = 0
         self.autoplay = autoplay
+        # when this field is False
+        # the animations stops
+        self.__call_animation_func = True
 
         GenericImageComponent.__init__(self, canvas, x, y, path, ide, name, 'sprite')
 
@@ -141,11 +144,16 @@ class SpriteComponent(GenericImageComponent):
 
         self.__start_animation()
 
+    def delete(self):
+        GenericImageComponent.delete(self)
+        self.__call_animation_func = False
+
     def __start_animation(self):
         '''
         called many times to animate the sprite
         '''
-        self.ide.after(1000 / self.framerate, self.__start_animation)
+        if self.__call_animation_func:
+            self.ide.after(1000 / self.framerate, self.__start_animation)
 
         # the function '__gen_frames' first clears the __frames
         # list, so here we must check if its filled with something
