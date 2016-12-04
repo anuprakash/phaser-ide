@@ -47,7 +47,6 @@ class SpriteImagePropertyWindow(DefaultDialog):
 
 
 SPRITESHEET_FORMSTRING = '''
-Sprite Width@int|Sprite height@int
 Autoplay animation@check
 Frame rate@int
 '''
@@ -59,8 +58,6 @@ class SpriteSheetImagePropertyWindow(SpriteImagePropertyWindow):
             master,
             SPRITESHEET_FORMSTRING,
             initial_values=[
-                self._dict.get('sprite_width'),
-                self._dict.get('sprite_height'),
                 self._dict.get('autoplay'),
                 self._dict.get('framerate')
             ]
@@ -73,15 +70,8 @@ class SpriteSheetImagePropertyWindow(SpriteImagePropertyWindow):
             return False
 
         values = self.spriteform.values
-        if values[0] <= 0 or values[1] <= 0:
-            MessageBox.warning(
-                parent=self,
-                title='Wrong data',
-                message='Invalid x/y'
-            )
-            return False
 
-        if values[3] <= 0:
+        if values[1] <= 0: # framerate
             MessageBox.warning(
                 parent=self,
                 title='Wrong data',
@@ -94,8 +84,6 @@ class SpriteSheetImagePropertyWindow(SpriteImagePropertyWindow):
         SpriteImagePropertyWindow.apply(self)
         values = self.spriteform.values
         self.output.update(
-            sprite_width=values[0],
-            sprite_height=values[1],
-            autoplay=values[2],
-            framerate=values[3]
+            autoplay=values[0],
+            framerate=values[1]
         )

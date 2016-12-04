@@ -202,8 +202,6 @@ class SpriteComponent(GenericImageComponent):
             self.name = sipw.output.get('name')
             self.autoplay = sipw.output.get('autoplay')
             self.framerate = sipw.output.get('framerate')
-            self.sprite_width = sipw.output.get('sprite_width')
-            self.sprite_height = sipw.output.get('sprite_height')
             self.__gen_frames()
 
 

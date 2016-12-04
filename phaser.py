@@ -15,6 +15,7 @@ from windows.shortcuts import *
 import components as comp
 import posixpath
 import importlib
+import json
 
 VErSIOn = 'alpha'
 
@@ -65,9 +66,15 @@ class PhaserEditor(Tkinter.Tk):
         self.bind('<Control-m>', lambda e: self._add_scene_btn_handler(), '+')
         self.bind('<Control-x>', lambda e: self._add_sprite_btn_handler(), '+')
         self.bind('<Alt-p>', lambda e: self.show_project_properties(), '+')
+        self.bind('<Control-s>', lambda e: self.save_project_as_json(), '+')
         # TODO
         # self.projectmenu.add_command(label='Open project TODO', command=open_project)
-        # self.projectmenu.add_command(label='Save project as TODO', command=self.save_project)
+        self.projectmenu.add_command(
+            label='Save project as JSON',
+            command=self.save_project_as_json,
+            underline=1,
+            accelerator='Control+S'
+        )
         self.projectmenu.add_separator()
         self.projectmenu.add_command(
             label='Quit',
@@ -268,6 +275,60 @@ class PhaserEditor(Tkinter.Tk):
 
     def set_title(self):
         self.title('Phaser - %s - version: %s' % ('No project loaded' if not self.current_project else self.current_project.name, VErSIOn))
+
+    def save_project_as_json(self):
+        if self.current_project:
+            json_dict = self.current_project.get_dict()
+            json_dict.update(
+                scenes=self.get_scenes_dict(),
+                assets=self.get_assets_dict()
+            )
+            filename = tkFileDialog.asksaveasfilename()
+            if filename:
+                f = open(filename, 'w')
+                f.write( json.dumps(json_dict) )
+                f.close()
+                MessageBox.info(parent=self, title='Success', message='Project saved!')
+
+    def get_assets_dict(self):
+        result = []
+        for asset in self.assets_manager.get_all():
+            result.append(asset.details)
+        return result
+
+    def get_scenes_dict(self):
+        result = []
+        for scenename in self.sprite_canvases.keys():
+            d = {}
+            result.append({
+                'name': scenename,
+                'sprites': self.get_sprites_dict(self.sprite_canvases[scenename])
+            })
+        return result
+
+    def get_sprites_dict(self, sprites):
+        '''
+        sprites: a list of sprites
+        '''
+        result = []
+        for sprite in sprites:
+            if type(sprite) == comp.ImageComponent:
+                result.append({
+                    'name': sprite.name,
+                    'assetname': sprite.assetname,
+                    'x': sprite.x,
+                    'y': sprite.y
+                })
+            elif type(sprite) == comp.SpriteComponent:
+                result.append({
+                    'name': sprite.name,
+                    'assetname': sprite.assetname,
+                    'x': sprite.x,
+                    'y': sprite.y,
+                    'framerate': sprite.framerate,
+                    'autoplay': sprite.autoplay
+                })
+        return result
 
     def __load_plugins(self):
         '''
@@ -498,10 +559,16 @@ class PhaserEditor(Tkinter.Tk):
             component = comp.ImageComponent(canvas, cx, cy, asset['path'],
                 self, asset['name'])
         elif asset['type'] == 'sprite':
-            # args order: canvas, x, y, path, ide, name, sprite_width, sprite_height
-            component = comp.SpriteComponent(canvas, cx, cy, asset['path'],
-                self, asset['name'], asset['sprite_width'],
-                asset['sprite_height'], asset['autoplay'], asset['framerate'])
+            component = comp.SpriteComponent(
+                canvas,
+                cx, cy, asset['path'],
+                self, # ide instance
+                asset['name'],
+                asset['sprite_width'],
+                asset['sprite_height'],
+                True, # autoplay
+                10 # framerate
+            )
         if component:
             self.__add_sprite_to_canvas( component )
 

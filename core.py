@@ -61,9 +61,3 @@ class PhaserProject:
             'bgcolor': self.bgcolor,
             'fullscreen': self.fullscreen
         }
-
-    def get_json(self):
-        '''
-        returns the json representation of project
-        '''
-        return json.dumps(self.get_dict())

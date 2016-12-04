@@ -962,7 +962,7 @@ class Entry(Tkinter.Entry, object):
         self.numbers_dictionary = ['0', '1', '2', '3', '4', '5',
             '6', '7', '8', '9', 'period', 'BackSpace', 'Delete',
             'Left', 'Right', 'Up', 'Down', '.', '-', 'minus',
-            'Escape']
+            'Escape', 'Return']
         # when you clicks up and down key the current value is
         # increased or decreased
         self.__step = kws.pop('step', 1)
@@ -1385,7 +1385,19 @@ class MessageDialog(DefaultDialog):
 class MessageBox:
     @staticmethod
     def warning(**kws):
-        MessageDialog(kws.get('parent'), kws.get('title', ''), kws.get('message'))
+        MessageDialog(
+            kws.get('parent'),
+            kws.get('title', ''),
+            kws.get('message')
+        )
+
+    @staticmethod
+    def info(**kws):
+        MessageDialog(
+            kws.get('parent'),
+            kws.get('title', ''),
+            kws.get('message')
+        )
 
 class OkCancel(DefaultDialog):
     def __init__(self, parent, msg, title=None):

@@ -29,8 +29,6 @@ class AddSoundAssetWindow(DefaultDialog):
 
 SPRITE_FORMSTRING = '''
 Width@int|Height@int
-Autoplay animation@check
-Frame rate@int
 '''
 
 class SpriteEditor(DefaultDialog):
@@ -67,9 +65,7 @@ class SpriteEditor(DefaultDialog):
         values = self.form.values
         self.output = {
             'sprite_width': values[0],
-            'sprite_height': values[1],
-            'autoplay': values[2],
-            'framerate': values[3]
+            'sprite_height': values[1]
         }
 
     def validate(self):
