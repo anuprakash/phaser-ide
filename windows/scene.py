@@ -1,15 +1,18 @@
 from . import *
 
+FORMSTRING = '''
+Name@string
+'''
+
 class AddSceneWindow(DefaultDialog):
 	def body(self, master):
 		self.output = None
-		Label(master, text="Name").grid(row=0, sticky='nw')
-		self.scene_name = Entry(master, width=20)
-		self.scene_name.grid(row=1)
-		return self.scene_name
+		self.form = FormFrame(master, FORMSTRING)
+		self.form.grid(pady=10, padx=10)
+		return self.form.inputs[0]
 
 	def validate(self):
-		if not self.scene_name.get():
+		if not self.form.values[0]:
 			MessageBox.warning(parent=self,
 				title='Invalid name',
 				message='Enter a valid name')
@@ -18,6 +21,5 @@ class AddSceneWindow(DefaultDialog):
 
 	def apply(self):
 		self.output = {
-			"name": self.scene_name.get(),
-			'sprites': []
+			"name": self.form.values[0]
 		}

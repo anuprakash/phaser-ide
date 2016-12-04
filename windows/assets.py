@@ -27,6 +27,12 @@ class AddSoundAssetWindow(DefaultDialog):
             'type': 'music'
         }
 
+SPRITE_FORMSTRING = '''
+Width@int|Height@int
+Autoplay animation@check
+Frame rate@int
+'''
+
 class SpriteEditor(DefaultDialog):
     def __init__(self, master, path):
         self.__path = path
@@ -40,59 +46,35 @@ class SpriteEditor(DefaultDialog):
         self.canvas.height = self.__image.image.height()
         self.canvas.pack(expand='yes')
 
-        self._top_frame = Frame(master)
-        self._top_frame.pack()
+        self.form = FormFrame(master, SPRITE_FORMSTRING, initial_values=[2, 2, True, 1])
+        self.form.pack(pady=10, padx=10)
 
-        self._left_frame = Frame(self._top_frame)
-        self._left_frame.pack(side='left')
-
-        Label(self._left_frame, text='Width').pack(anchor='nw')
-        self.width = Entry(self._left_frame, numbersonly=True, min=1)
-        self.width.text = 2
-        self.width.pack(anchor='nw')
-        self.width.bind('<Any-KeyRelease>', self.__update_grid, '+')
-
-        self._right_frame = Frame(self._top_frame)
-        self._right_frame.pack(side='left')
-
-        Label(self._right_frame, text='Height').pack(anchor='nw')
-        self.height = Entry(self._right_frame, numbersonly=True, min=1)
-        self.height.text = 2
-        self.height.pack(anchor='nw')
-        self.height.bind('<Any-KeyRelease>', self.__update_grid, '+')
+        # with and height binds
+        self.form.inputs[0].bind('<Any-KeyRelease>', self.__update_grid, '+')
+        self.form.inputs[1].bind('<Any-KeyRelease>', self.__update_grid, '+')
 
         self.__canvas_grid = CanvasGrid(self.canvas, 2, 2)
 
-        self.autoplay = LabeledSimpleCheckbox(master, text='Autoplay animation', checked=True)
-        self.autoplay.pack(expand='yes', anchor='nw')
-
-        self._fr_frame = Frame(master)
-        self._fr_frame.pack(expand='yes', anchor='nw')
-
-        self.framerate = Entry(self._fr_frame, width=4, numbersonly=True, min=1)
-        self.framerate.text = 1
-        self.framerate.pack(anchor='nw', pady=5, padx=5, side='left')
-        Label(self._fr_frame, text='Frame rate').pack(expand='yes', anchor='w')
-
     def __update_grid(self, event):
         try:
-            self.__canvas_grid.x = int(self.width.text)
-            self.__canvas_grid.y = int(self.height.text)
+            self.__canvas_grid.x = self.form.values[0]
+            self.__canvas_grid.y = self.form.values[1]
             self.__canvas_grid.update()
         except ValueError:
             pass
 
     def apply(self):
+        values = self.form.values
         self.output = {
-            'sprite_width': int(self.width.text),
-            'sprite_height': int(self.height.text),
-            'autoplay': self.autoplay.checked,
-            'framerate': int(self.framerate.text)
+            'sprite_width': values[0],
+            'sprite_height': values[1],
+            'autoplay': values[2],
+            'framerate': values[3]
         }
 
     def validate(self):
         try:
-            if (int(self.width.text) <= 0) or (int(self.height.text) <= 0):
+            if (self.form.values[0] <= 0) or (self.form.inputs[1] <= 0):
                 MessageBox.warning(parent=self,
                     title='Wrong size',
                     message='Positive numbers only')
@@ -102,6 +84,10 @@ class SpriteEditor(DefaultDialog):
             MessageBox.warning(parent=self, title='Wrong size', message='Digits only (No white spaces)')
             return False
 
+IMAGE_ASSET_FORMSTRING = '''
+Name@string
+Is sprite@check
+'''
 class AddImageAssetWindow(DefaultDialog):
     def __init__(self, parent, title=None, path=''):
         self.__path = path
@@ -109,16 +95,13 @@ class AddImageAssetWindow(DefaultDialog):
 
     def body(self, master):
         self.output = None
-        self.sprite_name = Entry(master, placeholder='Name')
-        self.sprite_name.grid(row=1, columnspan=2)
-        self.sprite_name.text = posixpath.basename(self.__path).split('.')[0].lower()
+        self.form = FormFrame(master, IMAGE_ASSET_FORMSTRING)
+        self.form.grid(pady=10, padx=10)
 
-        self.is_sprite = LabeledSimpleCheckbox(master, text='Is sprite')
-        self.is_sprite.grid(row=2, sticky='nw')
-        return self.sprite_name
+        return self.form.inputs[0]
 
     def validate(self):
-        if not self.sprite_name.text:
+        if not self.form.values[0]:
             MessageBox.warning(parent=self,
                 title='Invalid name',
                 message='Enter a valid name')
@@ -126,12 +109,13 @@ class AddImageAssetWindow(DefaultDialog):
         return True
 
     def apply(self):
+        values = self.form.values
         self.output = {
-            'name': self.sprite_name.get(),
+            'name': values[0],
             'path': self.__path,
             'type': 'image'
         }
-        if self.is_sprite.checked:
+        if self.form.values[1]: # is sprite = true
             se = SpriteEditor(self, self.__path)
             if se.output:
                 self.output.update(**se.output)

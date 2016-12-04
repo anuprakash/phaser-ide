@@ -4,6 +4,10 @@ when the user right-clicks in sprite
 '''
 from . import *
 
+SPRITE_IMAGE_FORMSTRING = '''
+Name@string
+X@int|Y@int
+'''
 class SpriteImagePropertyWindow(DefaultDialog):
     def __init__(self, master, _dict):
         self._dict = _dict
@@ -11,32 +15,22 @@ class SpriteImagePropertyWindow(DefaultDialog):
 
     def body(self, master):
         self.output = None
-        Label(master, text='x').grid(row=0, column=0)
-        self.x = Entry(master, width=4, numbersonly=True, min=1)
-        self.x.text = self._dict.get('x')
-        self.x.grid(row=0, column=1)
 
-        Label(master, text='y').grid(row=0, column=2)
-        self.y = Entry(master, width=4, numbersonly=True, min=1)
-        self.y.text = self._dict.get('y')
-        self.y.grid(row=0, column=3)
+        self.form = FormFrame(
+            master,
+            SPRITE_IMAGE_FORMSTRING,
+            initial_values=[
+                self._dict.get('name'),
+                self._dict.get('x'),
+                self._dict.get('y')
+            ]
+        )
+        self.form.grid(pady=5, padx=10)
 
-        Label(master, text='name:').grid(row=1, column=0)
-        self.name = Entry(master, width=20)
-        self.name.text = self._dict.get('name')
-        self.name.grid(row=1, column=1, columnspan=3)
-        return self.x
+        return self.form.inputs[0]
 
     def validate(self):
-        try:
-            int(self.x.text)
-            int(self.y.text)
-        except:
-            MessageBox.warning(parent=self,
-                title='Wrong data',
-                message='Invalid x/y')
-            return False
-        if self.name.text.strip() == '':
+        if self.form.values[0].strip() == '':
             MessageBox.warning(parent=self,
                 title='Wrong data',
                 message='Invalid name')
@@ -44,58 +38,64 @@ class SpriteImagePropertyWindow(DefaultDialog):
         return True
 
     def apply(self):
+        values = self.form.values
         self.output = {
-            'x': int(self.x.text),
-            'y': int(self.y.text),
-            'name': self.name.text
+            'name': values[0],
+            'x': values[1],
+            'y': values[2]
         }
 
+
+SPRITESHEET_FORMSTRING = '''
+Sprite Width@int|Sprite height@int
+Autoplay animation@check
+Frame rate@int
+'''
 class SpriteSheetImagePropertyWindow(SpriteImagePropertyWindow):
     def body(self, master):
         SpriteImagePropertyWindow.body(self, master)
 
-        Label(master, text='sprite width').grid(row=2, column=0)
-        self.sprite_width = Entry(master, width=4, numbersonly=True, min=1)
-        self.sprite_width.text = self._dict.get('sprite_width')
-        self.sprite_width.grid(row=2, column=1)
-
-        Label(master, text='sprite height').grid(row=3, column=0)
-        self.sprite_height = Entry(master, width=4, numbersonly=True, min=1)
-        self.sprite_height.text = self._dict.get('sprite_height')
-        self.sprite_height.grid(row=3, column=1)
-
-        self.autoplay = LabeledSimpleCheckbox(master,
-            text='Autoplay animation', checked=self._dict.get('autoplay'))
-        self.autoplay.grid(row=4, column=0, columnspan=2)
-
-        Label(master, text='Frame rate').grid(row=5, column=0)
-        self.framerate = Entry(master, width=4, numbersonly=True, min=1)
-        self.framerate.text = self._dict.get('framerate')
-        self.framerate.grid(row=5, column=1)
+        self.spriteform = FormFrame(
+            master,
+            SPRITESHEET_FORMSTRING,
+            initial_values=[
+                self._dict.get('sprite_width'),
+                self._dict.get('sprite_height'),
+                self._dict.get('autoplay'),
+                self._dict.get('framerate')
+            ]
+        )
+        self.spriteform.grid(pady=5, padx=10)
     
     def validate(self):
         _return = SpriteImagePropertyWindow.validate(self)
         if not _return:
             return False
 
-        try:
-            int(self.sprite_width.text)
-            int(self.sprite_height.text)
-            int(self.framerate.text)
-        except:
-            MessageBox.warning(parent=self,
+        values = self.spriteform.values
+        if values[0] <= 0 or values[1] <= 0:
+            MessageBox.warning(
+                parent=self,
                 title='Wrong data',
-                message='Invalid sprite width/height')
+                message='Invalid x/y'
+            )
             return False
-        if int(self.framerate.text) <= 0:
+
+        if values[3] <= 0:
+            MessageBox.warning(
+                parent=self,
+                title='Wrong data',
+                message='Invalid framerate'
+            )
             return False
         return True
 
     def apply(self):
         SpriteImagePropertyWindow.apply(self)
+        values = self.spriteform.values
         self.output.update(
-            sprite_width=int(self.sprite_width.text),
-            sprite_height=int(self.sprite_height.text),
-            autoplay=self.autoplay.checked,
-            framerate=int(self.framerate.text)
+            sprite_width=values[0],
+            sprite_height=values[1],
+            autoplay=values[2],
+            framerate=values[3]
         )

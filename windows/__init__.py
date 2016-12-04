@@ -1128,7 +1128,8 @@ class FormFrame(Frame):
         for frame in self.__frames:
             frame.grid_forget()
 
-    def get_values(self):
+    @property
+    def values(self):
         '''
         return the current value in form
         '''

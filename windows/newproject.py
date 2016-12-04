@@ -28,7 +28,7 @@ class NewProjectWindow(DefaultDialog):
                 self._dict.get('fullscreen')
             ]
         self.form = FormFrame(master, FORMSTRING, initial_values=initial_values)
-        self.form.grid(sticky='W', row=0, column=0, columnspan=4)
+        self.form.grid(pady=10, padx=10)
 
         return self.form.inputs[0]
 
@@ -36,26 +36,23 @@ class NewProjectWindow(DefaultDialog):
         '''
         called when ok button is pressed
         '''
-        values = self.form.get_values()
-
         self.output = {
-            'name': values[0],
-            'width': values[1],
-            'height': values[2],
-            'bgcolor': values[3],
-            'fullscreen': values[4]
+            'name': self.form.values[0],
+            'width': self.form.values[1],
+            'height': self.form.values[2],
+            'bgcolor': self.form.values[3],
+            'fullscreen': self.form.values[4]
         }
 
     def validate(self):
-        values = self.form.get_values()
-        width = values[1]
-        height = values[2]
+        width = self.form.values[1]
+        height = self.form.values[2]
         if width <= 0 or height <= 0:
             MessageBox.warning(parent=self,
                 title='Wrong data',
                 message='Invalid width/height')
             return False
-        if not values[0]:
+        if not self.form.values[0]:
             MessageBox.warning(parent=self,
                 title='Project title',
                 message='Invalid project name')

@@ -7,15 +7,13 @@
 + testar no windows
 + make checkbox ios like
 + in image properties window show width and height (and scale)
-+ Entry placeholder http://www.designrazor.net/wp-content/uploads/2015/01/html5-css3-contact-form21.jpg
-	remove labels and use placeholders
 + makes the code python3 compatible
 + adicionar opção para clonar uma cena
 + adicionar valor minimo e maximo para o campo de entrada numerico
-+ verificar se quando um sprite é deletado o .after dele ainda fica sendo executado
 + no entry modo texto permitir copiar e colar
 + view scene manager
 + view assets manager
 + view logic editor
-+ melhorar a aparencia da tela de propriedades de sprite (botao direito)
-+ max length
++ max length in entry
++ edit scene name
++ edit asset name (update all sprites created)
