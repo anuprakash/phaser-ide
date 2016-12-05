@@ -1,26 +1,25 @@
 from windows import *
 from windows.sprite import SpriteSheetImagePropertyWindow, SpriteImagePropertyWindow
-import random
-import string
 from PIL import Image
 import ImageTk
 
 class GenericComponent(object):
-    def __init__(self, ide, name, spritetype):
+    def __init__(self, ide=None, name=None, assetname=None, spritetype=None):
     	self.ide = ide
     	self.spritetype = spritetype
-        self.name = self.__gen_sprite_name()
-        self.assetname = name
+        self.name = name
+        self.assetname = assetname
 
-    def __gen_sprite_name(self):
-        '''
-        generates a random name
-        '''
-        return ''.join( [random.choice(string.letters) for i in xrange(15)] )
 
 class GenericImageComponent(GenericComponent, ImageDraw):
-    def __init__(self, canvas, x, y, path, ide, name, spritetype):
-        GenericComponent.__init__(self, ide, name, spritetype)
+    def __init__(self, canvas=None, x=None, y=None, path=None, ide=None, name=None, assetname=None, spritetype=None):
+        GenericComponent.__init__(
+            self,
+            ide=ide,
+            name=name,
+            assetname=assetname,
+            spritetype=spritetype
+        )
         ImageDraw.__init__(self, canvas, x, y, path, anchor='nw')
         self.bind('<3>', self.show_sprite_menu, '+')
         # generates the control points
@@ -120,9 +119,9 @@ class GenericImageComponent(GenericComponent, ImageDraw):
 
 class SpriteComponent(GenericImageComponent):
     # canvas, x, y, path, ide, name
-    def __init__(self, canvas, x, y, path, ide, name,
-            sprite_width, sprite_height, autoplay,
-            framerate):
+    def __init__(self, canvas=None, x=None, y=None, path=None, ide=None, name=None, assetname=None,
+            sprite_width=None, sprite_height=None, autoplay=None,
+            framerate=None):
         self.__frames = []
         self.__origin_image = Image.open(path)
 
@@ -136,7 +135,15 @@ class SpriteComponent(GenericImageComponent):
         # the animations stops
         self.__call_animation_func = True
 
-        GenericImageComponent.__init__(self, canvas, x, y, path, ide, name, 'sprite')
+        GenericImageComponent.__init__(
+            self,
+            canvas=canvas,
+            x=x, y=y, path=path,
+            ide=ide,
+            name=name,
+            assetname=assetname,
+            spritetype='sprite'
+        )
 
         self.__gen_frames()
         self.image = self.__frames[0]
@@ -206,8 +213,15 @@ class SpriteComponent(GenericImageComponent):
 
 
 class ImageComponent(GenericImageComponent):
-    def __init__(self, canvas, x, y, path, ide, name):
-        GenericImageComponent.__init__(self, canvas, x, y, path, ide, name, 'image')
+    def __init__(self, canvas=None, x=None, y=None, path=None, ide=None, name=None, assetname=None):
+        GenericImageComponent.__init__(
+            self,
+            canvas=canvas,
+            x=x, y=y,
+            path=path, ide=ide, name=name,
+            assetname=assetname,
+            spritetype='image'
+        )
 
     def show_sprite_properties(self, event):
         '''

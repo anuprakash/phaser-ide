@@ -16,12 +16,14 @@ import components as comp
 import posixpath
 import importlib
 import json
+import random
+import string
 
 VErSIOn = 'alpha'
 
-class PhaserEditor(Tkinter.Tk):
+class PhaserEditor(Tkinter.Tk, object):
     def __init__(self):
-        self.current_project = None
+        self.__current_project = None
         # stores the canvas itself
         # the key is the scene name
         self.canvases = {}
@@ -31,7 +33,7 @@ class PhaserEditor(Tkinter.Tk):
         self.actual_canvas = None
 
         Tkinter.Tk.__init__(self)
-        ttk.Style().theme_use('clam')
+        ttk.Style().theme_use('clam') # TODO wheres ttk from? o_O
         self['bg'] = BG_COLOR
         self.geometry('%dx%d' % (1200, 600))
 
@@ -57,23 +59,23 @@ class PhaserEditor(Tkinter.Tk):
             underline=0,
             accelerator='Control+N'
         )
+
         self.projectmenu.add_command(
-            label='Project properties',
-            command=self.show_project_properties,
-            underline=1
+            label='Open project from JSON',
+            command=self.open_json_project,
+            underline=0,
+            accelerator='Control+O'
         )
-        self.bind('<Control-n>', lambda e: self.new_project(), '+')
-        self.bind('<Control-m>', lambda e: self._add_scene_btn_handler(), '+')
-        self.bind('<Control-x>', lambda e: self._add_sprite_btn_handler(), '+')
-        self.bind('<Alt-p>', lambda e: self.show_project_properties(), '+')
-        self.bind('<Control-s>', lambda e: self.save_project_as_json(), '+')
-        # TODO
-        # self.projectmenu.add_command(label='Open project TODO', command=open_project)
         self.projectmenu.add_command(
             label='Save project as JSON',
             command=self.save_project_as_json,
             underline=1,
             accelerator='Control+S'
+        )
+        self.projectmenu.add_command(
+            label='Project properties',
+            command=self.show_project_properties,
+            underline=1
         )
         self.projectmenu.add_separator()
         self.projectmenu.add_command(
@@ -81,6 +83,13 @@ class PhaserEditor(Tkinter.Tk):
             command=self.destroy,
             underline=0
         )
+
+        self.bind('<Control-n>', lambda e: self.new_project(), '+')
+        self.bind('<Control-m>', lambda e: self._add_scene_btn_handler(), '+')
+        self.bind('<Control-x>', lambda e: self._add_sprite_btn_handler(), '+')
+        self.bind('<Control-s>', lambda e: self.save_project_as_json(), '+')
+        self.bind('<Control-o>', lambda e: self.open_json_project(), '+')
+        self.bind('<Alt-p>', lambda e: self.show_project_properties(), '+')
         ################################ view menu
         self.viewmenu = Tkinter.Menu(
             self.menubar,
@@ -273,10 +282,22 @@ class PhaserEditor(Tkinter.Tk):
         self.__load_plugins()
         self.set_title()
 
+    @property
+    def current_project(self):
+        return self.__current_project
+
+    @current_project.setter
+    def current_project(self, value):
+        self.__current_project = value
+        self.set_title()
+
     def set_title(self):
         self.title('Phaser - %s - version: %s' % ('No project loaded' if not self.current_project else self.current_project.name, VErSIOn))
 
     def save_project_as_json(self):
+        '''
+        called when you press ctrl + s
+        '''
         if self.current_project:
             json_dict = self.current_project.get_dict()
             json_dict.update(
@@ -290,13 +311,83 @@ class PhaserEditor(Tkinter.Tk):
                 f.close()
                 MessageBox.info(parent=self, title='Success', message='Project saved!')
 
+    def __gen_sprite_name(self):
+        '''
+        generates a random name
+        '''
+        return ''.join( [random.choice(string.letters) for i in xrange(15)] )
+
+    def __get_file_content(self, file_path): # TODO: utils
+        '''
+        returns the content of file
+        '''
+        fs = open(file_path)
+        content = fs.read()
+        fs.close()
+        return content
+
+    def open_json_project(self):
+        '''
+        called when you press ctrl + o
+        '''
+        if self.current_project and (not OkCancel(self, 'A loaded project already exists. Do you wish to continue?').output):
+            return
+        self.__reset_ide()
+
+        file_opt = dict(filetypes=[('JSON Project', '.json')])
+        file_name = tkFileDialog.askopenfilename(parent=self, **file_opt)
+        if file_name:
+            try:
+                json_project = json.loads( self.__get_file_content(file_name) )
+                self.current_project = core.PhaserProject(json_project)
+                # the assets must be loaded first
+                # because the scene loading will try get assets information
+                # to put the sprite in ide
+                self.load_assets_from_dictlist( json_project['assets'] )
+                self.load_scenes_from_dictlist( json_project['scenes'] )
+            except Exception, e:
+                MessageBox.warning(
+                    parent=self,
+                    title='Error loading JSON project',
+                    message='The JSON format is wrong'
+                )
+                raise e
+
+    def load_scenes_from_dictlist(self, _list):
+        '''
+        fill the ide with scenes in '_list'
+        '''
+        for scene in _list:
+            self.add_scene( scene['name'] )
+            for sprite in scene['sprites']:
+                component = self.add_sprite(
+                    scene['name'], sprite
+                )
+
+    def load_assets_from_dictlist(self, _list):
+        '''
+        fill the ide with assets in '_list'
+        '''
+        for asset in _list:
+            self.add_asset( asset )
+
     def get_assets_dict(self):
+        '''
+        returns a list where each item is a dict describing
+        the asset.
+        used when you save the project
+        '''
         result = []
         for asset in self.assets_manager.get_all():
-            result.append(asset.details)
+            result.append( asset.details )
         return result
 
     def get_scenes_dict(self):
+        '''
+        returns a list where each item is a dict describing
+        the scene.
+        used when you save the project
+        '''
         result = []
         for scenename in self.sprite_canvases.keys():
             d = {}
@@ -309,6 +400,9 @@ class PhaserEditor(Tkinter.Tk):
     def get_sprites_dict(self, sprites):
         '''
         sprites: a list of sprites
+        this function receive a list of components
+        and transforms them in a list where each item
+        is a dict describind it
         '''
         result = []
         for sprite in sprites:
@@ -422,26 +516,32 @@ class PhaserEditor(Tkinter.Tk):
         asw = AddSceneWindow(self, title='Add Scene')
         if asw.output:
             try:
-                self.scene_manager.add_item(asw.output['name'], 'scene', 'icons/folder.png')
-                ca = ExtendedCanvas(self.canvas_frame,
-                    width=self.current_project.width,
-                    height=self.current_project.height,
-                    bg=self.current_project.bgcolor)
-                ca.pack(anchor='sw', side='left')
-                self.canvases[asw.output['name']] = ca
-                # the list of sprites of this scene is a empty list
-                self.sprite_canvases[asw.output['name']] = []
-                if self.actual_canvas:
-                    self.cur_canvas().pack_forget()
-                self.actual_canvas = asw.output['name']
-                # put focus in actual canvas
-                self.scene_manager.desselect_all()
-                self.scene_manager.select_last()
+                self.add_scene(asw.output['name'])
             except DuplicatedExtendedListboxItemException:
                 MessageBox.warning(
                     parent=self,
                     title='DuplicatedExtendedListboxItemException',
                     message='a scene in project already contains this name')
+
+    def add_scene(self, name):
+        '''
+        add an icon in scene manager and fills the canvas
+        '''
+        self.scene_manager.add_item(name, 'scene', 'icons/folder.png')
+        ca = ExtendedCanvas(self.canvas_frame,
+            width=self.current_project.width,
+            height=self.current_project.height,
+            bg=self.current_project.bgcolor)
+        ca.pack(anchor='sw', side='left')
+        self.canvases[name] = ca
+        # the list of sprites of this scene is a empty list
+        self.sprite_canvases[name] = []
+        if self.actual_canvas:
+            self.cur_canvas().pack_forget()
+        self.actual_canvas = name
+        # put focus in actual canvas
+        self.scene_manager.desselect_all()
+        self.scene_manager.select_last()
 
     def _del_scene_btn_handler(self):
         '''
@@ -514,15 +614,25 @@ class PhaserEditor(Tkinter.Tk):
         aiaw = AddImageAssetWindow(self, path=file_name)
         if aiaw.output:
             try:
-                item = self.assets_manager.add_item(aiaw.output['name'],
-                    'image', 'icons/image.png')
-                item.details = aiaw.output
-                item.bind('<Double-Button-1>', self.__dbl_click_image_sprite, '+')
+                self.add_asset( aiaw.output )
             except DuplicatedExtendedListboxItemException:
                 MessageBox.warning(
                     parent=self,
                     title='DuplicatedExtendedListboxItemException',
                     message='a asset in project already contains this name')
+
+    def add_asset(self, details):
+        '''
+        add a asset in IDE
+        details must be a dict describeing the asset
+        can raises a DuplicatedExtendedListboxItemException
+        use in loading json project
+        '''
+        if details['type'] in ('image', 'sprite'):
+            item = self.assets_manager.add_item(details['name'],
+                'image', 'icons/image.png')
+            item.bind('<Double-Button-1>', lambda event : self.__dbl_click_image_asset(item), '+')
+        item.details = details
 
     def _del_sprite_btn_handler(self):
         '''
@@ -539,9 +649,41 @@ class PhaserEditor(Tkinter.Tk):
                 self.assets_manager.remove_by_title(selection.title)
                 self.remove_asset_by_name(selection.title)
 
-    def __dbl_click_image_sprite(self, evt):
+    def add_sprite(self, scenename, _dict):
         '''
-        called when user double clicks in the sprite image button
+        puts in canvas of scene named 'scenename' a component
+
+        return the sprite
+        '''
+        asset = self.get_asset_details_by_name( _dict['assetname'] )
+
+        kws = dict(**_dict)
+
+        kws.update(
+            canvas = self.canvases[scenename],
+            path = asset['path'],
+            ide = self
+        )
+        
+        sprite = None
+
+        if asset['type'] == 'image':
+            sprite = comp.ImageComponent( **kws )
+        elif asset['type'] == 'sprite':
+            kws.update(
+                sprite_width = asset['sprite_width'],
+                sprite_height = asset['sprite_height']
+            )
+            sprite = comp.SpriteComponent( **kws )
+        # binds common events
+        if sprite:
+            sprite.details = _dict
+            self.__add_sprite_to_canvas( sprite )
+        return sprite
+
+    def __dbl_click_image_asset(self, item):
+        '''
+        called when user double clicks in the asset image button
         '''
         if not self.actual_canvas:
             MessageBox.warning(
@@ -549,28 +691,26 @@ class PhaserEditor(Tkinter.Tk):
                     title='No scene specified',
                     message='Select/create a scene to put sprite')
             return
-        canvas = self.cur_canvas()
-        cx, cy = canvas.center
-        # details is not defined in ExtendedListboxItem, but its created
-        # in run time when you create a assets
-        asset = self.assets_manager.get_selected().details
-        component = None
-        if asset['type'] == 'image':
-            component = comp.ImageComponent(canvas, cx, cy, asset['path'],
-                self, asset['name'])
-        elif asset['type'] == 'sprite':
-            component = comp.SpriteComponent(
-                canvas,
-                cx, cy, asset['path'],
-                self, # ide instance
-                asset['name'],
-                asset['sprite_width'],
-                asset['sprite_height'],
-                True, # autoplay
-                10 # framerate
+
+        cx, cy = self.cur_canvas().center
+        # scenename, _dict
+        kws = dict(
+            name = self.__gen_sprite_name(),
+            x = cx, y = cy,
+            path = item.details['path'],
+            assetname = item.title
+        )
+        if item.details['type'] == 'sprite':
+            kws.update(
+                sprite_width = item.details['sprite_width'],
+                sprite_height = item.details['sprite_height'],
+                framerate = 10,
+                autoplay = True
             )
-        if component:
-            self.__add_sprite_to_canvas( component )
+        self.add_sprite(
+            self.actual_canvas, # the actual_canvas field is the name of scene
+            kws
+        )
 
     def __add_sprite_to_canvas(self, sprite):
         '''
@@ -651,6 +791,9 @@ class PhaserEditor(Tkinter.Tk):
             selected.y += 1
 
     def remove_asset_by_name(self, name):
+        '''
+        remove a asset and all 'childs' (sprites)
+        '''
         sprites_to_delete = {}
         for item in self.scene_manager.get_all():
             scene_name = item.title
@@ -664,6 +807,15 @@ class PhaserEditor(Tkinter.Tk):
             for i in sprites_to_delete[scene_name]:
                 self.sprite_canvases[scene_name].remove(i)
                 i.delete()
+
+    def get_asset_details_by_name(self, name):
+        '''
+        returns the details of a asset gived your name
+        '''
+        for i in self.assets_manager.get_all():
+            if i.details['name'] == name:
+                return i.details
+        return None
 
     ################### Menu events
     def show_shortcuts_window(self):
@@ -679,17 +831,21 @@ class PhaserEditor(Tkinter.Tk):
         AboutWindow(self)
 
     def new_project(self):
+        if self.current_project and (not OkCancel(self, 'A loaded project already exists. Do you wish to continue?').output):
+            return
         npw = NewProjectWindow(self)
         if npw.output:
-            self.current_project = core.PhaserProject()
-            self.current_project.fill_from_dict(npw.output)
-            # clearing the scene/assets listbox
-            self.scene_manager.delete_all()
-            self.assets_manager.delete_all()
-            self.set_title()
+            self.__reset_ide()
+            self.current_project = core.PhaserProject(npw.output)
 
-            # clearing the canvases
-            self.__reset_all_canvas()
+    def __reset_ide(self):
+        '''
+        clears all canvases, scenes, sprite etc...
+        '''
+        self.current_project = None
+        self.scene_manager.delete_all()
+        self.assets_manager.delete_all()
+        self.__reset_all_canvas()
 
     def show_project_properties(self):
         '''

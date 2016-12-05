@@ -87,7 +87,7 @@ class ImageDraw(BaseCanvasDraw):
         self.draw_func = canvas.create_image
         BaseCanvasDraw.__init__(self, canvas,
             [x, y],
-            image=ImageTk.PhotoImage(file=image) if type(image)==str else image, **kws)
+            image=ImageTk.PhotoImage(file=image) if type(image) in (str, unicode) else image, **kws)
 
     @property
     def image(self):

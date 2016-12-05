@@ -17,3 +17,5 @@
 + max length in entry
 + edit scene name
 + edit asset name (update all sprites created)
++ impedir criar cenas com nomes com espaço (allowed characters)
+    > o entry automaticamente adiciona os return, backspace a nao ser que um parametro seja passado

@@ -8,6 +8,8 @@ LABEL = '''
 *Control+N*    Creates a new project
 *Control+M*    Creates a new scene
 *Control+X*    Creates a new sprite
+*Control+S*    Saves the current project as a JSON file
+*Control+O*    Opens a JSON project file
 *Alt+P*        Shows the project properties
 '''
 
