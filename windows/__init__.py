@@ -951,6 +951,8 @@ class Entry(Tkinter.Entry, object):
     def __init__(self, *args, **kws):
         self.__placeholder = kws.pop('placeholder', '')
         self.numbersonly = kws.pop('numbersonly', False)
+
+        self.__maxlength = None
         self.__min = kws.pop('min', None)
         self.__max = kws.pop('max', None)
 
@@ -958,17 +960,23 @@ class Entry(Tkinter.Entry, object):
         # float entry
         self.integersonly = kws.pop('integersonly', True)
         # TODO: test period in windows
+        self.commands_dictionary = ['BackSpace', 'Delete',
+            'Left', 'Right', 'Up', 'Down', 'Escape', 'Return']
+        # allows only specified characters
+        self.__allowsonly = None
+        self.allowsonly = kws.pop('allowsonly', None)
+
         # the keysyms allowed in numberonly mode
-        self.numbers_dictionary = ['0', '1', '2', '3', '4', '5',
-            '6', '7', '8', '9', 'period', 'BackSpace', 'Delete',
-            'Left', 'Right', 'Up', 'Down', '.', '-', 'minus',
-            'Escape', 'Return']
+        self.numbers_dictionary = ['period', '.', '-', 'minus']
+        self.numbers_dictionary.extend( list(string.digits) )
+        self.numbers_dictionary.extend( self.commands_dictionary )
         # when you clicks up and down key the current value is
         # increased or decreased
         self.__step = kws.pop('step', 1)
         self.step = self.__step
         self.min = self.__min
         self.max = self.__max
+        self.__maxlength = kws.pop('maxlength', None)
         kws.update(relief='flat',
             border=10,
             insertwidth=1,
@@ -980,6 +988,32 @@ class Entry(Tkinter.Entry, object):
         # self.bind('<Up>', self.__upk_handler, '+')
         # self.bind('<Down>', self.__downk_handler, '+')
         self.bind('<Any-Key>', self.__any_key_handler, '+')
+        self.bind('<Any-KeyRelease>', lambda e: self.validate(), '+')
+
+    @property
+    def allowsonly(self):
+        return self.__allowsonly
+
+    @allowsonly.setter
+    def allowsonly(self, value):
+        if type(value) not in (list, type(None), tuple):
+            raise ValueError('wrong type {}'.format(type(value)))
+        if value:
+            self.__allowsonly = list(value)
+            self.__allowsonly.extend( self.commands_dictionary )
+
+    @property
+    def maxlength(self):
+        return self.__maxlength
+
+    @maxlength.setter
+    def maxlength(self, value):
+        if type(value) == None:
+            self.__maxlength = None
+            return
+        if type(value) != int or value <= 0:
+            raise ValueError('Incorrect maxlength value')
+        self.__maxlength = value
 
     @property
     def min(self):
@@ -1045,24 +1079,41 @@ class Entry(Tkinter.Entry, object):
             except:
                 pass
 
+    def valid(self):
+        '''
+        returns true if entry content is valid
+        '''
+        if type(self.allowsonly) == list:
+            for c in self.text:
+                if c not in self.allowsonly:
+                    return False
+
+        if self.numbersonly:
+            for c in self.text:
+                if c not in self.numbers_dictionary:
+                    return False
+
+        if type(self.maxlength) == int:
+            if len(self.text) > self.maxlength:
+                return False
+
+        return True
+
     def validate(self):
         '''
         called every hit in keyboard
         make the border red if is not valid
         '''
-        self['highlightcolor'] = '#aaa'
-        if not self.numbersonly:
-            return
-
-        for c in self.text:
-            if c not in self.numbers_dictionary:
-                self['highlightcolor'] = '#f00'
-                break
+        self['highlightcolor'] = '#aaa' if self.valid() else 'red'
 
     def __any_key_handler(self, event):
         '''
         called at each hit in the keyboard
         '''
+        if type(self.allowsonly) == list:
+            if event.keysym not in self.allowsonly:
+                return 'break'
+
         if self.numbersonly:
             if event.keysym not in self.numbers_dictionary:
                 # in tkinter, return 'breaks' cancel the propagation
@@ -1083,6 +1134,11 @@ class Entry(Tkinter.Entry, object):
                     else:
                         self.text = '-' + self.text
                     return 'break'
+
+        if type(self.maxlength) == int and event.keysym not in self.commands_dictionary:
+            # the character that you are writing now is not in entry still
+            if len(self.text) == self.maxlength:
+                return 'break'
         self.validate()
 
     @property
