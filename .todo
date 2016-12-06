@@ -19,3 +19,4 @@
 + edit asset name (update all sprites created)
 + impedir criar cenas com nomes com espaço (allowed characters)
     > o entry automaticamente adiciona os return, backspace a nao ser que um parametro seja passado
++ passar cadastro de assets para baixo do de cenas
