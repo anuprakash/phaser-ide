@@ -19,3 +19,4 @@
 + edit asset name (update all sprites created)
 + passar cadastro de assets para baixo do de cenas
 + criar um outro widget que embute um label e um entry. o label fica em baixo dizendo que erro de validacao ocorreu
++ adicionar opção nas imagens de editar o anchor
