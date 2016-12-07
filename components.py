@@ -23,7 +23,7 @@ class GenericImageComponent(GenericComponent, ImageDraw):
         ImageDraw.__init__(self, canvas, x, y, path, anchor='nw')
         self.bind('<3>', self.show_sprite_menu, '+')
         # generates the control points
-        drag_control(self)
+        drag_control(self, kmapobject=ide)
 
     def raise_sprite(self, event):
         '''

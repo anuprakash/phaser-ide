@@ -202,12 +202,13 @@ class PolygonDraw(BaseCanvasDraw):
         self.draw_func = canvas.create_polygon
         BaseCanvasDraw.__init__(self, canvas, coords, **kws)
 
-def draggable(item, update=None, init=None, end=None):
+def draggable(item, update=None, init=None, end=None, kmapobject=None):
     '''
     item: must have x and y attributes and bind method
     update(event): function called at each mouse movement
     init(event): function called in the first click
     end(event): function called in release of mouse
+    kmapobject: an object with a 'kmap' property where type(kmapobject) == dict
 
     use item.draggable to set if item is draggable or not
     '''
@@ -230,8 +231,10 @@ def draggable(item, update=None, init=None, end=None):
     def __drag(evt):
         if not item.draggable:
             return
-        item.x = evt.x - item.mouse_offset[0]
-        item.y = evt.y - item.mouse_offset[1]
+        if (kmapobject==None) or (not kmapobject.kmap.get('y', False)):
+            item.x = evt.x - item.mouse_offset[0]
+        if (kmapobject==None) or (not kmapobject.kmap.get('x', False)):
+            item.y = evt.y - item.mouse_offset[1]
         if update:
             update(evt)
     item.bind('<B1-Motion>', __drag, '+')
@@ -265,7 +268,7 @@ def update_control_points(item):
     # put control points over every thing inside canvas
     item.lower_right.up()
 
-def drag_control(item, radius=5):
+def drag_control(item, radius=5, kmapobject=None):
     '''
     create dragcontrol points
     radius: the radius of each control point
@@ -294,8 +297,8 @@ def drag_control(item, radius=5):
         item.x+item.width-radius, item.y+item.height-radius, radius*2,
         radius*2, **DRAG_CONTROL_STYLE)
 
-    draggable(item, update=update_control_point_position)
-    draggable(item.lower_right, update=drag_control_point)
+    draggable(item, update=update_control_point_position, kmapobject=kmapobject)
+    draggable(item.lower_right, update=drag_control_point, kmapobject=kmapobject)
     change_control_point_color(item.lower_right)
 
 def remove_drag_control(item):
@@ -961,7 +964,8 @@ class Entry(Tkinter.Entry, object):
         self.integersonly = kws.pop('integersonly', True)
         # TODO: test period in windows
         self.commands_dictionary = ['BackSpace', 'Delete',
-            'Left', 'Right', 'Up', 'Down', 'Escape', 'Return']
+            'Left', 'Right', 'Up', 'Down', 'Escape', 'Return',
+            'Tab', 'Shift_L', 'Shift_R', 'ISO_Left_Tab']
         # allows only specified characters
         self.__allowsonly = None
         self.allowsonly = kws.pop('allowsonly', None)
@@ -1167,12 +1171,19 @@ class Listbox(Tkinter.Listbox):
         self['activestyle'] = 'none'
 
 
+class HorizontalLine(ExtendedCanvas):
+    def __init__(self, master, **kws):
+        ExtendedCanvas.__init__(self, master, height=1, relief='flat', bd=0, highlightthickness=0, **kws)
+
 class FormFrame(Frame):
-    def __init__(self, master, formstring, input_width=40, initial_values=None):
+    def __init__(self, master, formstring, input_width=40, initial_values=None, title=''):
+        self.__title = title
         self.__formstring = formstring
         self.initial_values = initial_values
         self.__frames = []
         self.__inputs = []
+        self.__horizontal_line = None
+        self.__markdown_title = None
         self.input_width = input_width
         Frame.__init__(self, master)
         self.build_form()
@@ -1181,6 +1192,8 @@ class FormFrame(Frame):
         '''
         grid forget all frames
         '''
+        self.__horizontal_line.grid_forget()
+        self.__markdown_title.grid_forget()
         for frame in self.__frames:
             frame.grid_forget()
 
@@ -1200,6 +1213,18 @@ class FormFrame(Frame):
         return result
 
     def build_form(self):
+        if self.__title:
+            self.__markdown_title = MarkDownLabel(
+                self,
+                text='### %s' % (self.__title),
+                height=2,
+                width=20
+            )
+            self.__markdown_title.grid(
+                sticky='w', pady=10
+            )
+            self.__horizontal_line = HorizontalLine(self, width=100)
+            self.__horizontal_line.grid(sticky='we', pady=10)
         field_counter = 0
         self.kill_frames()
         for line in self.__formstring.split('\n'):

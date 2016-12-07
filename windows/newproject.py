@@ -11,7 +11,7 @@ class NewProjectWindow(DefaultDialog):
     def __init__(self, master, _dict=None):
         self._dict = _dict
         self.output = None
-        DefaultDialog.__init__(self, master, title='%s Project' % ('Edit' if _dict else 'New'))
+        DefaultDialog.__init__(self, master)
 
     def body(self, master):
         initial_values = [
@@ -27,7 +27,7 @@ class NewProjectWindow(DefaultDialog):
                 self._dict.get('bgcolor'),
                 self._dict.get('fullscreen')
             ]
-        self.form = FormFrame(master, FORMSTRING, initial_values=initial_values)
+        self.form = FormFrame(master, FORMSTRING, initial_values=initial_values, title='%s Project' % ('Edit' if self._dict else 'New'))
         self.form.grid(pady=10, padx=10)
 
         return self.form.inputs[0]

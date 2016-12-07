@@ -37,6 +37,13 @@ class PhaserEditor(Tkinter.Tk, object):
         self['bg'] = BG_COLOR
         self.geometry('%dx%d' % (1200, 600))
 
+        # for drag loacking
+        self.kmap = dict()
+        self.__pressing_x = False
+        self.__pressing_y = False
+        self.bind('<Any-KeyPress>', self.__press_key, '+')
+        self.bind('<Any-KeyRelease>', self.__release_key, '+')
+
         # parent of all menus
         self.menubar = Tkinter.Menu(
             self,
@@ -282,6 +289,18 @@ class PhaserEditor(Tkinter.Tk, object):
         self.__load_plugins()
         self.set_title()
 
+    def __release_key(self, event):
+        '''
+        called when you release any key (keyboard)
+        '''
+        self.kmap[event.keysym] = False
+
+    def __press_key(self, event):
+        '''
+        called when you release any key (keyboard)
+        '''
+        self.kmap[event.keysym] = True
+
     @property
     def current_project(self):
         return self.__current_project
@@ -513,7 +532,7 @@ class PhaserEditor(Tkinter.Tk, object):
         if not self.project_is_loaded():
             return
 
-        asw = AddSceneWindow(self, title='Add Scene')
+        asw = AddSceneWindow(self)
         if asw.output:
             try:
                 self.add_scene(asw.output['name'])
@@ -863,5 +882,6 @@ class PhaserEditor(Tkinter.Tk, object):
 
 if __name__ == '__main__':
     top = PhaserEditor()
+    top.focus_force()
     # AboutWindow(top)
     top.mainloop()
