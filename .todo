@@ -6,7 +6,6 @@
     > singleton
 + phaser exporter
 + testar no windows
-+ make checkbox ios like
 + in image properties window show width and height (and scale)
 + makes the code python3 compatible
 + adicionar opção para clonar uma cena
@@ -18,11 +17,13 @@
 + edit scene name
     mydict[new_key] = mydict.pop(old_key)
 + edit asset name (update all sprites created)
-+ passar cadastro de assets para baixo do de cenas
 + criar um outro widget que embute um label e um entry. o label fica em baixo dizendo que erro de validacao ocorreu
 + adicionar opção nas imagens de editar o anchor
 + adicionar o arquivo do ttk como parte do projeto
 + opção para fazer scroll com o mouse para ver a cena completa
+    + adicionar opção para alterar o tamhno scroll do canvas
 + começar a usar o string templates do python com o phaser
-+ transformar cenas abas, como no firefox/chrome
++ criar componente abas, como no firefox/chrome
 + criar um botao "android" com wave effect no boring
++ adicionar propriedade 'tint' ao objeto
++ criar agrupamento de objetos

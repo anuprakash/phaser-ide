@@ -18,6 +18,7 @@ import importlib
 import json
 import random
 import string
+import logiceditor
 
 VErSIOn = 'alpha'
 
@@ -109,16 +110,6 @@ class PhaserEditor(Tkinter.Tk, object):
             underline=0
         )
         self.viewmenu.add_command(
-            label='Scene manager',
-            command=self.show_scene_manager,
-            underline=0
-        )
-        self.viewmenu.add_command(
-            label='Asset Manager',
-            command=self.show_asset_manager,
-            underline=0
-        )
-        self.viewmenu.add_command(
             label='Logic Editor',
             command=self.show_logic_editor,
             underline=0
@@ -155,8 +146,14 @@ class PhaserEditor(Tkinter.Tk, object):
         # add menu to window
         self.config(menu=self.menubar)
 
+        self.left_panel = Frame(self)
+        self.left_panel.pack(
+            fill='y',
+            side='left'
+        )
+
         ################ LEFT PANEL
-        self.left_frame = Frame(self)
+        self.left_frame = Frame(self.left_panel)
         self.left_frame_top = Frame(self.left_frame)
         self.scene_manager = ExtendedListbox(
             self.left_frame,
@@ -196,24 +193,28 @@ class PhaserEditor(Tkinter.Tk, object):
             pady=5,
             fill='both'
         )
-        self.left_frame.pack(side='left', fill='y')
-
-        self.scene_scroll = Scrollbar(self.left_frame, orient='vertical')
-        self.scene_scroll.pack(
-            side='left',
+        self.left_frame.pack(
             fill='y',
             expand='yes'
         )
+
+        self.scene_scroll = Scrollbar(self.left_frame, orient='vertical')
+
         self.scene_manager.pack(
+            side='left',
             expand='yes',
             fill='y',
             anchor='nw'
+        )
+        self.scene_scroll.pack(
+            fill='y',
+            expand='yes'
         )
         self.scene_scroll.config(command=self.scene_manager.yview)
         self.scene_manager.config(yscrollcommand=self.scene_scroll.set)
 
         ################ RIGHT PANEL
-        self.right_frame = Frame(self)
+        self.right_frame = Frame(self.left_panel)
         self.right_frame_top = Frame(self.right_frame)
         self.assets_manager = ExtendedListbox(
             self.right_frame,
@@ -258,8 +259,8 @@ class PhaserEditor(Tkinter.Tk, object):
             anchor='nw'
         )
         self.right_frame.pack(
-            side='right',
-            fill='y'
+            fill='y',
+            expand='yes'
         )
 
         self.assets_scroll = Scrollbar(
@@ -275,7 +276,9 @@ class PhaserEditor(Tkinter.Tk, object):
 
         ################ RIGHT PANEL
         self.canvas_frame = Frame(self)
-        self.canvas_frame.pack(expand='yes')
+        self.canvas_frame.pack(
+            expand='yes'
+        )
 
         ############################
         center(self)
@@ -501,13 +504,10 @@ class PhaserEditor(Tkinter.Tk, object):
         self.actual_canvas = None
 
     ################ VIEW MENU
-    def show_scene_manager(self):
-        print('TODO')
-
-    def show_asset_manager(self):
-        print('TODO')
-
     def show_logic_editor(self):
+        '''
+        called when the user clicks in View > Show logic editor
+        '''
         print('TODO')
 
     ################ SCENES
