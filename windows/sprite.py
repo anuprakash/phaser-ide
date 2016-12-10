@@ -2,28 +2,32 @@
 the windows defined here are used to show properties
 when the user right-clicks in sprite
 '''
-from . import *
+import boring.dialog
+import boring.form
 
 SPRITE_IMAGE_FORMSTRING = '''
 Name@string
 X@int|Y@int
 '''
-class SpriteImagePropertyWindow(DefaultDialog):
+class SpriteImagePropertyWindow(boring.dialog.DefaultDialog):
     def __init__(self, master, _dict):
         self._dict = _dict
-        DefaultDialog.__init__(self, master)
+        boring.dialog.DefaultDialog.__init__(
+            self, master
+        )
 
     def body(self, master):
         self.output = None
 
-        self.form = FormFrame(
+        self.form = boring.form.FormFrame(
             master,
             SPRITE_IMAGE_FORMSTRING,
             initial_values=[
                 self._dict.get('name'),
                 self._dict.get('x'),
                 self._dict.get('y')
-            ]
+            ],
+            title='Sprite Properties'
         )
         self.form.grid(pady=5, padx=10)
 
@@ -54,7 +58,7 @@ class SpriteSheetImagePropertyWindow(SpriteImagePropertyWindow):
     def body(self, master):
         SpriteImagePropertyWindow.body(self, master)
 
-        self.spriteform = FormFrame(
+        self.spriteform = boring.form.FormFrame(
             master,
             SPRITESHEET_FORMSTRING,
             initial_values=[

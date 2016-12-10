@@ -1,6 +1,7 @@
 # coding: utf-8
 
-from . import *
+import boring.dialog
+import boring.widgets
 
 LABEL = '''
 ## Shortcuts
@@ -13,16 +14,28 @@ LABEL = '''
 *Alt+P*        Shows the project properties
 '''
 
-class ShortcutsWindow(DefaultDialog):
+class ShortcutsWindow(boring.dialog.DefaultDialog):
     def body(self, master):
-        mdl = MarkDownLabel(master, height=20, text=LABEL)
-        mdl.grid(pady=45, padx=45)
+        mdl = boring.widgets.MarkDownLabel(
+            master,
+            height=20,
+            text=LABEL
+        )
+        mdl.grid(
+            pady=45, padx=45
+        )
         return mdl
     
     def buttonbox(self):
-        box = Frame(self)
-        w = Button(box, text="OK", command=self.ok, default='active')
+        box = boring.widgets.Frame(self)
+        w = boring.widgets.Button(
+            box,
+            text="OK",
+            command=self.ok,
+            default='active'
+        )
         w.pack(side='left', padx=5, pady=5)
         self.bind("<Return>", self.ok)
         self.bind("<Escape>", self.ok)
         box.pack()
+        return w

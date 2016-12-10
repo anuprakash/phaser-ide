@@ -1,4 +1,5 @@
-from . import *
+import boring.dialog
+import boring.form
 
 FORMSTRING = '''
 Project name@string
@@ -7,11 +8,11 @@ Background color@color
 Fullscreen@check
 '''
 
-class NewProjectWindow(DefaultDialog):
+class NewProjectWindow(boring.dialog.DefaultDialog):
     def __init__(self, master, _dict=None):
         self._dict = _dict
         self.output = None
-        DefaultDialog.__init__(self, master)
+        boring.dialog.DefaultDialog.__init__(self, master)
 
     def body(self, master):
         initial_values = [
@@ -27,7 +28,7 @@ class NewProjectWindow(DefaultDialog):
                 self._dict.get('bgcolor'),
                 self._dict.get('fullscreen')
             ]
-        self.form = FormFrame(master, FORMSTRING, initial_values=initial_values, title='%s Project' % ('Edit' if self._dict else 'New'))
+        self.form = boring.form.FormFrame(master, FORMSTRING, initial_values=initial_values, title='%s Project' % ('Edit' if self._dict else 'New'))
         self.form.grid(pady=10, padx=10)
 
         return self.form.inputs[0]
@@ -48,12 +49,12 @@ class NewProjectWindow(DefaultDialog):
         width = self.form.values[1]
         height = self.form.values[2]
         if width <= 0 or height <= 0:
-            MessageBox.warning(parent=self,
+            boring.dialog.MessageBox.warning(parent=self,
                 title='Wrong data',
                 message='Invalid width/height')
             return False
         if not self.form.values[0]:
-            MessageBox.warning(parent=self,
+            boring.dialog.MessageBox.warning(parent=self,
                 title='Project title',
                 message='Invalid project name')
             return False

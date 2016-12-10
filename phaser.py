@@ -19,6 +19,13 @@ import json
 import random
 import string
 import logiceditor
+import boring
+import boring.widgets
+import windows.newproject
+import windows.about
+import windows.scene
+import windows.assets
+import boring.ttk as ttk
 
 VErSIOn = 'alpha'
 
@@ -35,7 +42,7 @@ class PhaserEditor(Tkinter.Tk, object):
 
         Tkinter.Tk.__init__(self)
         ttk.Style().theme_use('clam') # TODO wheres ttk from? o_O
-        self['bg'] = BG_COLOR
+        self['bg'] = boring.BG_COLOR
         self.geometry('%dx%d' % (1200, 600))
 
         # for drag loacking
@@ -146,34 +153,34 @@ class PhaserEditor(Tkinter.Tk, object):
         # add menu to window
         self.config(menu=self.menubar)
 
-        self.left_panel = Frame(self)
+        self.left_panel = boring.widgets.Frame(self)
         self.left_panel.pack(
             fill='y',
             side='left'
         )
 
         ################ LEFT PANEL
-        self.left_frame = Frame(self.left_panel)
-        self.left_frame_top = Frame(self.left_frame)
-        self.scene_manager = ExtendedListbox(
+        self.left_frame = boring.widgets.Frame(self.left_panel)
+        self.left_frame_top = boring.widgets.Frame(self.left_frame)
+        self.scene_manager = boring.widgets.ExtendedListbox(
             self.left_frame,
             width=250,
             unique_titles=True
         )
         self.scene_manager.bind('<1>', self.__on_select_scene, '+')
-        self.add_scene_btn = Button(
+        self.add_scene_btn = boring.widgets.Button(
             self.left_frame_top,
             text='+',
             width=20,
             command=self._add_scene_btn_handler
         )
-        self.del_scene_btn = Button(
+        self.del_scene_btn = boring.widgets.Button(
             self.left_frame_top,
             text='-',
             width=20,
             command=self._del_scene_btn_handler
         )
-        Label(self.left_frame_top, text='Scenes').pack(
+        boring.widgets.Label(self.left_frame_top, text='Scenes').pack(
             anchor='nw',
             side='left'
         )
@@ -198,7 +205,7 @@ class PhaserEditor(Tkinter.Tk, object):
             expand='yes'
         )
 
-        self.scene_scroll = Scrollbar(self.left_frame, orient='vertical')
+        self.scene_scroll = boring.widgets.Scrollbar(self.left_frame, orient='vertical')
 
         self.scene_manager.pack(
             side='left',
@@ -214,14 +221,14 @@ class PhaserEditor(Tkinter.Tk, object):
         self.scene_manager.config(yscrollcommand=self.scene_scroll.set)
 
         ################ RIGHT PANEL
-        self.right_frame = Frame(self.left_panel)
-        self.right_frame_top = Frame(self.right_frame)
-        self.assets_manager = ExtendedListbox(
+        self.right_frame = boring.widgets.Frame(self.left_panel)
+        self.right_frame_top = boring.widgets.Frame(self.right_frame)
+        self.assets_manager = boring.widgets.ExtendedListbox(
             self.right_frame,
             width=250,
             unique_titles=True
         )
-        Label(self.right_frame_top, text='Assets').pack(
+        boring.widgets.Label(self.right_frame_top, text='Assets').pack(
             anchor='nw',
             side='left'
         )
@@ -232,12 +239,12 @@ class PhaserEditor(Tkinter.Tk, object):
             fill='both'
         )
 
-        self.add_sprite_btn = Button(
+        self.add_sprite_btn = boring.widgets.Button(
             self.right_frame_top,
             text='+', width=20,
             command=self._add_sprite_btn_handler
         )
-        self.del_sprite_btn = Button(
+        self.del_sprite_btn = boring.widgets.Button(
             self.right_frame_top,
             text='-',
             width=20,
@@ -263,7 +270,7 @@ class PhaserEditor(Tkinter.Tk, object):
             expand='yes'
         )
 
-        self.assets_scroll = Scrollbar(
+        self.assets_scroll = boring.widgets.Scrollbar(
             self.right_frame,
             orient='vertical'
         )
@@ -275,13 +282,13 @@ class PhaserEditor(Tkinter.Tk, object):
         self.assets_manager.config(yscrollcommand=self.assets_scroll.set)
 
         ################ RIGHT PANEL
-        self.canvas_frame = Frame(self)
+        self.canvas_frame = boring.widgets.Frame(self)
         self.canvas_frame.pack(
             expand='yes'
         )
 
         ############################
-        center(self)
+        boring.center(self)
         self.bind('<Delete>', self.__delete_sprite, '+')
         self.bind('<Up>', self.__up_key, '+')
         self.bind('<Down>', self.__down_key, '+')
@@ -331,7 +338,10 @@ class PhaserEditor(Tkinter.Tk, object):
                 f = open(filename, 'w')
                 f.write( json.dumps(json_dict) )
                 f.close()
-                MessageBox.info(parent=self, title='Success', message='Project saved!')
+                boring.dialog.MessageBox.info(
+                    parent=self, title='Success',
+                    message='Project saved!'
+                )
 
     def __gen_sprite_name(self):
         '''
@@ -352,7 +362,7 @@ class PhaserEditor(Tkinter.Tk, object):
         '''
         called when you press ctrl + o
         '''
-        if self.current_project and (not OkCancel(self, 'A loaded project already exists. Do you wish to continue?').output):
+        if self.current_project and (not boring.dialog.OkCancel(self, 'A loaded project already exists. Do you wish to continue?').output):
             return
         self.__reset_ide()
 
@@ -368,7 +378,7 @@ class PhaserEditor(Tkinter.Tk, object):
                 self.load_assets_from_dictlist( json_project['assets'] )
                 self.load_scenes_from_dictlist( json_project['scenes'] )
             except Exception, e:
-                MessageBox.warning(
+                boring.dialog.MessageBox.warning(
                     parent=self,
                     title='Error loading JSON project',
                     message='The JSON format is wrong'
@@ -484,7 +494,11 @@ class PhaserEditor(Tkinter.Tk, object):
         '''
         if self.current_project:
             return True
-        MessageBox.warning(parent=self, title='No project found', message='No project found')
+        boring.dialog.MessageBox.warning(
+            parent=self,
+            title='No project found',
+            message='No project found'
+        )
         return False
 
     def cur_canvas(self):
@@ -532,12 +546,12 @@ class PhaserEditor(Tkinter.Tk, object):
         if not self.project_is_loaded():
             return
 
-        asw = AddSceneWindow(self)
+        asw = windows.scene.AddSceneWindow(self)
         if asw.output:
             try:
                 self.add_scene(asw.output['name'])
-            except DuplicatedExtendedListboxItemException:
-                MessageBox.warning(
+            except boring.widgets.DuplicatedExtendedListboxItemException:
+                boring.dialog.MessageBox.warning(
                     parent=self,
                     title='DuplicatedExtendedListboxItemException',
                     message='a scene in project already contains this name')
@@ -547,7 +561,7 @@ class PhaserEditor(Tkinter.Tk, object):
         add an icon in scene manager and fills the canvas
         '''
         self.scene_manager.add_item(name, 'scene', 'icons/folder.png')
-        ca = ExtendedCanvas(self.canvas_frame,
+        ca = boring.widgets.ExtendedCanvas(self.canvas_frame,
             width=self.current_project.width,
             height=self.current_project.height,
             bg=self.current_project.bgcolor)
@@ -572,7 +586,7 @@ class PhaserEditor(Tkinter.Tk, object):
         selection = self.scene_manager.get_selected()
         if selection:
             scene_name = selection.title
-            if OkCancel(self,
+            if boring.dialog.OkCancel(self,
                 'The scene *%s* will be delete. Are you sure?' % (scene_name),
                 title='Are you sure?').output:
 
@@ -621,7 +635,7 @@ class PhaserEditor(Tkinter.Tk, object):
                 self.assets_manager.add_item(asaw.output['name'],
                     'sound', 'icons/headphone.png')
             except DuplicatedExtendedListboxItemException:
-                MessageBox.warning(
+                boring.diloag.MessageBox.warning(
                     parent=self,
                     title='DuplicatedExtendedListboxItemException',
                     message='a asset in project already contains this name')
@@ -630,12 +644,12 @@ class PhaserEditor(Tkinter.Tk, object):
         '''
         called after select a image file
         '''
-        aiaw = AddImageAssetWindow(self, path=file_name)
+        aiaw = windows.assets.AddImageAssetWindow(self, path=file_name)
         if aiaw.output:
             try:
                 self.add_asset( aiaw.output )
             except DuplicatedExtendedListboxItemException:
-                MessageBox.warning(
+                boring.diloag.MessageBox.warning(
                     parent=self,
                     title='DuplicatedExtendedListboxItemException',
                     message='a asset in project already contains this name')
@@ -662,7 +676,7 @@ class PhaserEditor(Tkinter.Tk, object):
 
         selection = self.assets_manager.get_selected()
         if selection:
-            if OkCancel(self,
+            if boring.dialog.OkCancel(self,
                 'The asset *%s* will be delete and with him all yours sprites too. Are you sure?' % (selection.title),
                 title='Are you sure?').output:
                 self.assets_manager.remove_by_title(selection.title)
@@ -705,7 +719,7 @@ class PhaserEditor(Tkinter.Tk, object):
         called when user double clicks in the asset image button
         '''
         if not self.actual_canvas:
-            MessageBox.warning(
+            boring.dialog.MessageBox.warning(
                     parent=self,
                     title='No scene specified',
                     message='Select/create a scene to put sprite')
@@ -743,7 +757,7 @@ class PhaserEditor(Tkinter.Tk, object):
             i.selected = False
             # if has rectangle bounds
             if i.bounds:
-                i.bounds.style['outline'] = DRAG_CONTROL_STYLE['fill']
+                i.bounds.style['outline'] = boring.drag.DRAG_CONTROL_STYLE['fill']
             i.bounds.update()
             i.update()
 
@@ -847,12 +861,12 @@ class PhaserEditor(Tkinter.Tk, object):
         '''
         called when you click Help > About
         '''
-        AboutWindow(self)
+        windows.about.AboutWindow(self)
 
     def new_project(self):
-        if self.current_project and (not OkCancel(self, 'A loaded project already exists. Do you wish to continue?').output):
+        if self.current_project and (not boring.dialog.OkCancel(self, 'A loaded project already exists. Do you wish to continue?').output):
             return
-        npw = NewProjectWindow(self)
+        npw = windows.newproject.NewProjectWindow(self)
         if npw.output:
             self.__reset_ide()
             self.current_project = core.PhaserProject(npw.output)
@@ -871,7 +885,7 @@ class PhaserEditor(Tkinter.Tk, object):
         called in Project > Project Properties
         '''
         if self.current_project:
-            npw = NewProjectWindow(self, _dict=self.current_project.get_dict())
+            npw = windows.newproject.NewProjectWindow(self, _dict=self.current_project.get_dict())
             if npw.output:
                 self.current_project = core.PhaserProject()
                 self.current_project.fill_from_dict(npw.output)

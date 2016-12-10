@@ -1,7 +1,8 @@
-from windows import *
+import boring.draw
 from windows.sprite import SpriteSheetImagePropertyWindow, SpriteImagePropertyWindow
 from PIL import Image
 import ImageTk
+import boring.drag
 
 class GenericComponent(object):
     def __init__(self, ide=None, name=None, assetname=None, spritetype=None):
@@ -11,7 +12,7 @@ class GenericComponent(object):
         self.assetname = assetname
 
 
-class GenericImageComponent(GenericComponent, ImageDraw):
+class GenericImageComponent(GenericComponent, boring.draw.ImageDraw):
     def __init__(self, canvas=None, x=None, y=None, path=None, ide=None, name=None, assetname=None, spritetype=None):
         GenericComponent.__init__(
             self,
@@ -20,10 +21,10 @@ class GenericImageComponent(GenericComponent, ImageDraw):
             assetname=assetname,
             spritetype=spritetype
         )
-        ImageDraw.__init__(self, canvas, x, y, path, anchor='nw')
+        boring.draw.ImageDraw.__init__(self, canvas, x, y, path, anchor='nw')
         self.bind('<3>', self.show_sprite_menu, '+')
         # generates the control points
-        drag_control(self, kmapobject=ide)
+        boring.drag.drag_control(self, kmapobject=ide)
 
     def raise_sprite(self, event):
         '''
@@ -83,15 +84,15 @@ class GenericImageComponent(GenericComponent, ImageDraw):
         '''
         called when the user right-click the sprite in canvas
         '''
-        pop = PopUpMenu(self.ide, self.get_pop_up_items())
+        pop = boring.widgets.PopUpMenu(self.ide, self.get_pop_up_items())
 
     def update(self):
         '''
         overrides the ImageDraw.update to update the control
         points too
         '''
-        ImageDraw.update(self)
-        update_control_points(self)
+        boring.draw.ImageDraw.update(self)
+        boring.drag.update_control_points(self)
 
     def up(self):
         '''
@@ -108,11 +109,11 @@ class GenericImageComponent(GenericComponent, ImageDraw):
         down in layers too
         '''
         self.bounds.down()
-        ImageDraw.down(self)
+        boring.draw.ImageDraw.down(self)
         self.lower_right.up()
 
     def delete(self):
-        ImageDraw.delete(self)
+        boring.draw.ImageDraw.delete(self)
         self.bounds.delete()
         self.lower_right.delete()
 

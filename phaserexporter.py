@@ -1,8 +1,8 @@
-from windows import *
+import boring.dialog
 
 title = 'Export to Phaser'
 
-class ExporterWindow(DefaultDialog):
+class ExporterWindow(boring.dialog.DefaultDialog):
 	pass
 
 def init(ide):
