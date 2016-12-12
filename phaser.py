@@ -29,7 +29,7 @@ import boring.ttk as ttk
 
 VErSIOn = 'alpha'
 
-class PhaserEditor(Tkinter.Tk, object):
+class PhaserEditor(boring.Window):
     def __init__(self):
         self.__current_project = None
         # stores the canvas itself
@@ -41,7 +41,7 @@ class PhaserEditor(Tkinter.Tk, object):
         self.actual_canvas = None
 
         Tkinter.Tk.__init__(self)
-        ttk.Style().theme_use('clam') # TODO wheres ttk from? o_O
+        ttk.Style().theme_use('clam')
         self['bg'] = boring.BG_COLOR
         self.geometry('%dx%d' % (1200, 600))
 
@@ -288,7 +288,7 @@ class PhaserEditor(Tkinter.Tk, object):
         )
 
         ############################
-        boring.center(self)
+        self.center()
         self.bind('<Delete>', self.__delete_sprite, '+')
         self.bind('<Up>', self.__up_key, '+')
         self.bind('<Down>', self.__down_key, '+')
@@ -522,7 +522,7 @@ class PhaserEditor(Tkinter.Tk, object):
         '''
         called when the user clicks in View > Show logic editor
         '''
-        print('TODO')
+        logiceditor.LogicEditor(self)
 
     ################ SCENES
     def __on_select_scene(self, event):
