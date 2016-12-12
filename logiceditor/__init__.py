@@ -10,68 +10,84 @@ import actuators
 
 class LogicEditor(boring.dialog.DefaultDialog):
     def body(self, master):
-        self.add_menu({
-            'Sensors': [
+        self.add_menu([
+            [
+                'Logic Editor', [
+                    {
+                        'title': 'Quit',
+                        'command': self.destroy
+                    }
+                ]
+            ],
+            ['Sensors', [
                 {
-                    'title': 'Once on startup',
-                    'command': lambda : self.__add_sensor(sensors.SENSOR_ONCE),
-                    'shortcut': 'Control+O'
+                    'title': 'Single Signal',
+                    'command': lambda *args : self.__add_sensor(sensors.SENSOR_SIGNAL),
+                    'shortcut': 'Control-s'
                 },
                 {
                     'title': 'Always',
-                    'command': lambda : self.__add_sensor(sensors.SENSOR_ALWAYS),
-                    'shortcut': 'Control+A'
+                    'command': lambda *args : self.__add_sensor(sensors.SENSOR_ALWAYS),
+                    'shortcut': 'Control-a'
                 },
                 {
                     'title': 'Keyboard',
-                    'command': lambda : self.__add_sensor(sensors.SENSOR_KEYBOARD),
-                    'shortcut': 'Control+K'
+                    'command': lambda *args : self.__add_sensor(sensors.SENSOR_KEYBOARD),
+                    'shortcut': 'Control-k'
                 },
                 {
                     'title': 'Joystick',
-                    'command': lambda : self.__add_sensor(sensors.SENSOR_JOYSTICK),
-                    'shortcut': 'Control+K'
+                    'command': lambda *args : self.__add_sensor(sensors.SENSOR_JOYSTICK),
+                    'shortcut': 'Control-j'
                 },
                 {
                     'title': 'Mouse',
-                    'command': lambda : self.__add_sensor(sensors.SENSOR_MOUSE),
-                    'shortcut': 'Control+M'
+                    'command': lambda *args : self.__add_sensor(sensors.SENSOR_MOUSE),
+                    'shortcut': 'Control-m'
                 },
                 {
                     'title': 'Message',
-                    'command': lambda : self.__add_sensor(sensors.SENSOR_MESSAGE),
-                    'shortcut': 'Control+E'
+                    'command': lambda *args : self.__add_sensor(sensors.SENSOR_MESSAGE),
+                    'shortcut': 'Control-e'
                 },
                 {
                     'title': 'Property',
-                    'command': lambda : self.__add_sensor(sensors.SENSOR_PROPERTY),
-                    'shortcut': 'Control+P'
+                    'command': lambda *args : self.__add_sensor(sensors.SENSOR_PROPERTY),
+                    'shortcut': 'Control-p'
                 },
                 {
                     'title': 'Collision',
-                    'command': lambda : self.__add_sensor(sensors.SENSOR_COLLISION),
-                    'shortcut': 'Control+C'
+                    'command': lambda *args : self.__add_sensor(sensors.SENSOR_COLLISION),
+                    'shortcut': 'Control-c'
                 }
-            ],
-            'Controlers': [
+            ]],
+            ['Controlers', [
                 {
                     'title': 'AND',
-                    'command': lambda : self.__add_controller(constrollers.CONTROLLER_AND),
-                    'shortcut': 'Control-F'
+                    'command': lambda *args : self.__add_controller(controllers.CONTROLLER_AND),
+                    'shortcut': 'Control-f'
                 },
                 {
                     'title': 'OR',
-                    'command': lambda : self.__add_controller(constrollers.CONTROLLER_OR),
-                    'shortcut': 'Control-G'
+                    'command': lambda *args : self.__add_controller(controllers.CONTROLLER_OR),
+                    'shortcut': 'Control-g'
                 }
-            ],
-            'Actuators': [
+            ]],
+            ['Actuators', [
                 {
                     'title': 'Code',
-                    'command': lambda : self.__add_actuator(actuators.ACTUATOR_CODE)
+                    'command': lambda *args : self.__add_actuator(actuators.ACTUATOR_CODE)
+                },
+                {
+                    'title': 'Scene',
+                    'command': lambda *args : self.__add_actuator(actuators.ACTUATOR_SCENE)
+                },
+                {
+                    'title': 'Game',
+                    'command': lambda *args : self.__add_actuator(actuators.ACTUATOR_GAME)
                 }
-            ]
-        })
+            ]]
+        ])
 
         self.canvas = boring.widgets.ExtendedCanvas(
             master,
@@ -95,9 +111,28 @@ class LogicEditor(boring.dialog.DefaultDialog):
                 self.canvas
             )
             mdw.center()
+        elif sensor_type == sensors.SENSOR_SIGNAL:
+            ssdw = sensors.SignalSensorDrawWindow(
+                self.canvas
+            )
+            ssdw.center()
+        elif sensor_type == sensors.SENSOR_ALWAYS:
+            asdw = sensors.AlwaysSensorDrawWindow(
+                self.canvas
+            )
+            asdw.center()
 
     def __add_controller(self, controller_type):
-        pass
+        if controller_type == controllers.CONTROLLER_AND:
+            acdw = controllers.ANDControllerDrawWindow(
+                self.canvas
+            )
+            acdw.center()
+        elif controller_type == controllers.CONTROLLER_OR:
+            ocdw = controllers.ORControllerDrawWindow(
+                self.canvas
+            )
+            ocdw.center()
 
     def __add_actuator(self, controller_type):
         pass

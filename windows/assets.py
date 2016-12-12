@@ -114,7 +114,7 @@ class AddImageAssetWindow(boring.dialog.DefaultDialog):
 
     def validate(self):
         if not self.form.values[0]:
-            MessageBox.warning(parent=self,
+            boring.dialog.MessageBox.warning(parent=self,
                 title='Invalid name',
                 message='Enter a valid name')
             return False

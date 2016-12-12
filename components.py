@@ -99,7 +99,7 @@ class GenericImageComponent(GenericComponent, boring.draw.ImageDraw):
         override the ImageDraw.up to make the control points
         up in layers too
         '''
-        ImageDraw.up(self)
+        boring.draw.ImageDraw.up(self)
         self.bounds.up()
         self.lower_right.up()
 
