@@ -3,23 +3,10 @@ import boring.dialog
 import boring.widgets
 import boring.drawwidgets
 from boring import *
+import sensors
+import controllers
+import actuators
 
-SENSOR_ONCE = 0
-SENSOR_ALWAYS = 1
-SENSOR_KEYBOARD = 2
-SENSOR_JOYSTICK = 3
-SENSOR_MOUSE = 4 # TODO: permitir selecionar o objeto
-SENSOR_MESSAGE = 5
-SENSOR_PROPERTY = 6
-SENSOR_COLLISION = 7
-
-CONTROLLER_AND = 0
-CONTROLLER_OR = 1
-
-ACTUATOR_CODE = 0
-
-class MessageSensorDrawWindow(boring.drawwidgets.DrawWindow):
-    pass
 
 class LogicEditor(boring.dialog.DefaultDialog):
     def body(self, master):
@@ -27,61 +14,61 @@ class LogicEditor(boring.dialog.DefaultDialog):
             'Sensors': [
                 {
                     'title': 'Once on startup',
-                    'command': lambda : self.__add_sensor(SENSOR_ONCE),
+                    'command': lambda : self.__add_sensor(sensors.SENSOR_ONCE),
                     'shortcut': 'Control+O'
                 },
                 {
                     'title': 'Always',
-                    'command': lambda : self.__add_sensor(SENSOR_ALWAYS),
+                    'command': lambda : self.__add_sensor(sensors.SENSOR_ALWAYS),
                     'shortcut': 'Control+A'
                 },
                 {
                     'title': 'Keyboard',
-                    'command': lambda : self.__add_sensor(SENSOR_KEYBOARD),
+                    'command': lambda : self.__add_sensor(sensors.SENSOR_KEYBOARD),
                     'shortcut': 'Control+K'
                 },
                 {
                     'title': 'Joystick',
-                    'command': lambda : self.__add_sensor(SENSOR_JOYSTICK),
+                    'command': lambda : self.__add_sensor(sensors.SENSOR_JOYSTICK),
                     'shortcut': 'Control+K'
                 },
                 {
                     'title': 'Mouse',
-                    'command': lambda : self.__add_sensor(SENSOR_MOUSE),
+                    'command': lambda : self.__add_sensor(sensors.SENSOR_MOUSE),
                     'shortcut': 'Control+M'
                 },
                 {
                     'title': 'Message',
-                    'command': lambda : self.__add_sensor(SENSOR_MESSAGE),
+                    'command': lambda : self.__add_sensor(sensors.SENSOR_MESSAGE),
                     'shortcut': 'Control+E'
                 },
                 {
                     'title': 'Property',
-                    'command': lambda : self.__add_sensor(SENSOR_PROPERTY),
+                    'command': lambda : self.__add_sensor(sensors.SENSOR_PROPERTY),
                     'shortcut': 'Control+P'
                 },
                 {
                     'title': 'Collision',
-                    'command': lambda : self.__add_sensor(SENSOR_COLLISION),
+                    'command': lambda : self.__add_sensor(sensors.SENSOR_COLLISION),
                     'shortcut': 'Control+C'
                 }
             ],
             'Controlers': [
                 {
                     'title': 'AND',
-                    'command': lambda : self.__add_controller(CONTROLLER_AND),
+                    'command': lambda : self.__add_controller(constrollers.CONTROLLER_AND),
                     'shortcut': 'Control-F'
                 },
                 {
                     'title': 'OR',
-                    'command': lambda : self.__add_controller(CONTROLLER_OR),
+                    'command': lambda : self.__add_controller(constrollers.CONTROLLER_OR),
                     'shortcut': 'Control-G'
                 }
             ],
             'Actuators': [
                 {
                     'title': 'Code',
-                    'command': lambda : self.__add_actuator(ACTUATOR_CODE)
+                    'command': lambda : self.__add_actuator(actuators.ACTUATOR_CODE)
                 }
             ]
         })
@@ -103,8 +90,8 @@ class LogicEditor(boring.dialog.DefaultDialog):
         return self.canvas
 
     def __add_sensor(self, sensor_type):
-        if sensor_type == SENSOR_MESSAGE:
-            mdw = MessageSensorDrawWindow(
+        if sensor_type == sensors.SENSOR_MESSAGE:
+            mdw = sensors.MessageSensorDrawWindow(
                 self.canvas
             )
             mdw.center()
