@@ -28,7 +28,5 @@
 + adicionar propriedade 'tint' ao objeto
 + criar agrupamento de objetos
 + ao criar abrir um projeto json, depois d excluir um asset qlqr o double click do asset q sobra n funciona mais
-+ adicionar um menu no logic editor com as opção de adição
-+ adicionar classe Windows, com opcao de 'center' e adicao de menus por dicionario
 + drag canvas items
-+ o conteudo do drawwindow pode ser um frame, por isso a fonte precisa ser pequena, deve ser possivel controlar a fonte do Form (dos entries etc)
++ usar popup pra fazer widget combobox

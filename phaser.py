@@ -898,4 +898,5 @@ if __name__ == '__main__':
     top = PhaserEditor()
     top.focus_force()
     # AboutWindow(top)
+    import logiceditor; logiceditor.LogicEditor(top)
     top.mainloop()

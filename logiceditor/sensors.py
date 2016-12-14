@@ -2,6 +2,8 @@
 import boring.drawwidgets
 import boring.draw
 import boring.form
+import boring.widgets
+import core
 
 SENSOR_SIGNAL = 0
 SENSOR_ALWAYS = 1
@@ -13,7 +15,7 @@ SENSOR_PROPERTY = 6
 SENSOR_COLLISION = 7
 
 
-class GenericSensorDrawWindow(boring.drawwidgets.DrawWindow):
+class GenericSensorDrawWindow(core.GenericLogicEditorDrawWindow):
     def __init__(self, canvas, title='Sensor', widget=None):
         self.__connector = boring.draw.OvalDraw(
             canvas,
@@ -22,23 +24,16 @@ class GenericSensorDrawWindow(boring.drawwidgets.DrawWindow):
             5,
             5
         )
-        boring.drawwidgets.DrawWindow.__init__(
+        core.GenericLogicEditorDrawWindow.__init__(
             self,
             canvas,
             fill='#aaa',
             radius=[3]*4,
             title=title,
-            widget=widget
+            widget=widget,
+            emissor=True,
+            receptor=False
         )
-
-    def update(self):
-        boring.drawwidgets.DrawWindow.update(self)
-        self.__connector.x = self.x + self.width + 5
-        self.__connector.y = self.y + 2
-
-    def delete(self):
-        boring.drawwidgets.DrawWindow.delete(self)
-        self.__connector.delete()
 
 class MessageSensorDrawWindow(GenericSensorDrawWindow):
     def __init__(self, canvas):
