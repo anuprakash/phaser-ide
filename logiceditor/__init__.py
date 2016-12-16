@@ -2,6 +2,7 @@
 import boring.dialog
 import boring.widgets
 import boring.drawwidgets
+import boring.menus
 from boring import *
 import sensors
 import controllers
@@ -10,85 +11,6 @@ import actuators
 
 class LogicEditor(boring.dialog.DefaultDialog):
     def body(self, master):
-        self.add_menu([
-            [
-                'Logic Editor', [
-                    {
-                        'title': 'Quit',
-                        'command': self.destroy
-                    }
-                ]
-            ],
-            ['Sensors', [
-                {
-                    'title': 'Single Signal',
-                    'command': lambda *args : self.__add_sensor(sensors.SENSOR_SIGNAL),
-                    'shortcut': 'Control-s'
-                },
-                {
-                    'title': 'Always',
-                    'command': lambda *args : self.__add_sensor(sensors.SENSOR_ALWAYS),
-                    'shortcut': 'Control-a'
-                },
-                {
-                    'title': 'Keyboard',
-                    'command': lambda *args : self.__add_sensor(sensors.SENSOR_KEYBOARD),
-                    'shortcut': 'Control-k'
-                },
-                {
-                    'title': 'Joystick',
-                    'command': lambda *args : self.__add_sensor(sensors.SENSOR_JOYSTICK),
-                    'shortcut': 'Control-j'
-                },
-                {
-                    'title': 'Mouse',
-                    'command': lambda *args : self.__add_sensor(sensors.SENSOR_MOUSE),
-                    'shortcut': 'Control-m'
-                },
-                {
-                    'title': 'Message',
-                    'command': lambda *args : self.__add_sensor(sensors.SENSOR_MESSAGE),
-                    'shortcut': 'Control-e'
-                },
-                {
-                    'title': 'Property',
-                    'command': lambda *args : self.__add_sensor(sensors.SENSOR_PROPERTY),
-                    'shortcut': 'Control-p'
-                },
-                {
-                    'title': 'Collision',
-                    'command': lambda *args : self.__add_sensor(sensors.SENSOR_COLLISION),
-                    'shortcut': 'Control-c'
-                }
-            ]],
-            ['Controlers', [
-                {
-                    'title': 'AND',
-                    'command': lambda *args : self.__add_controller(controllers.CONTROLLER_AND),
-                    'shortcut': 'Control-f'
-                },
-                {
-                    'title': 'OR',
-                    'command': lambda *args : self.__add_controller(controllers.CONTROLLER_OR),
-                    'shortcut': 'Control-g'
-                }
-            ]],
-            ['Actuators', [
-                {
-                    'title': 'Code',
-                    'command': lambda *args : self.__add_actuator(actuators.ACTUATOR_CODE)
-                },
-                {
-                    'title': 'Scene',
-                    'command': lambda *args : self.__add_actuator(actuators.ACTUATOR_SCENE)
-                },
-                {
-                    'title': 'Game',
-                    'command': lambda *args : self.__add_actuator(actuators.ACTUATOR_GAME)
-                }
-            ]]
-        ])
-
         self.canvas = boring.widgets.ExtendedCanvas(
             master,
             relief='flat',
@@ -97,8 +19,77 @@ class LogicEditor(boring.dialog.DefaultDialog):
             bg='#ededed'
         )
         self.canvas.pack(
-            expand='yes', fill='both'
+            expand='yes',
+            fill='both'
         )
+
+        self.__menu = boring.menus.CommandChooserWindow(
+            self,
+            items=[
+                dict(
+                    name='Add single signal sensor',
+                    command=lambda *args : self.__add_sensor(sensors.SENSOR_SIGNAL)
+                ),
+                dict(
+                    name='Quit/close',
+                    command=lambda *args : self.withdraw()
+                ),
+                dict(
+                    name='Add Always sensor',
+                    command=lambda *args: self.__add_sensor(sensors.SENSOR_ALWAYS)
+                ),
+                dict(
+                    name='Add Keyboard sensor',
+                    command=lambda *args : self.__add_sensor(sensors.SENSOR_KEYBOARD)
+                ),
+                dict(
+                    name='Add Joystick sensor',
+                    command=lambda *args : self.__add_sensor(sensors.SENSOR_JOYSTICK)
+                ),
+                dict(
+                    name='Add Mouse sensor',
+                    command=lambda *args : self.__add_sensor(sensors.SENSOR_MOUSE)
+                ),
+                dict(
+                    name='Add Message sensor',
+                    command=lambda *args : self.__add_sensor(sensors.SENSOR_MESSAGE)
+                ),
+                dict(
+                    name='Add Property sensor',
+                    command=lambda *args : self.__add_sensor(sensors.SENSOR_PROPERTY)
+                ),
+                dict(
+                    name='Add Collision sensor',
+                    command=lambda *args : self.__add_sensor(sensors.SENSOR_COLLISION)
+                ),
+                dict(
+                    name='Add AND Controller',
+                    command=lambda *args : self.__add_controller(controllers.CONTROLLER_AND)
+                ),
+                dict(
+                    name='Add OR Controller',
+                    command=lambda *args : self.__add_controller(controllers.CONTROLLER_OR)
+                ),
+                dict(
+                    name='Add Code Actuator',
+                    command=lambda *args : self.__add_actuator(actuators.ACTUATOR_CODE)
+                ),
+                dict(
+                    name='Add Scene Actuator',
+                    command=lambda *args : self.__add_actuator(actuators.ACTUATOR_SCENE)
+                ),
+                dict(
+                    name='Add Game Actuator',
+                    command=lambda *args : self.__add_actuator(actuators.ACTUATOR_GAME)
+                )
+            ]
+        )
+        self.bind(
+            '<Control-g>',
+            lambda evt: self.__menu.show(),
+            '+'
+        )
+        self.__menu.withdraw()
 
         self.resizable(1, 1)
         # TODO: meximize in Windows
@@ -135,4 +126,7 @@ class LogicEditor(boring.dialog.DefaultDialog):
             ocdw.center()
 
     def __add_actuator(self, controller_type):
+        pass
+
+    def buttonbox(self):
         pass
