@@ -29,7 +29,8 @@ class ConnectorString(boring.draw.LineDraw):
 
 class ConnectorReceptor(boring.draw.OvalDraw):
     RECEPTORS = []
-    def __init__(self, draw_window):
+    def __init__(self, draw_window, receptor_type):
+        self.receptor_type = receptor_type
         self.draw_window = draw_window
         self.__strings = []
         boring.draw.OvalDraw.__init__(
@@ -58,7 +59,11 @@ class ConnectorReceptor(boring.draw.OvalDraw):
                 i.update_coords()
 
 class ConnectorEmissor(boring.draw.OvalDraw):
-    def __init__(self, draw_window):
+    def __init__(self, draw_window, emissor_type):
+        '''
+        emissor_type can be sensor or controller
+        '''
+        self.emissor_type = emissor_type
         self.draw_window = draw_window
         self.__string = None
         boring.draw.OvalDraw.__init__(
@@ -75,6 +80,13 @@ class ConnectorEmissor(boring.draw.OvalDraw):
             self.__string.delete()
             self.__string = None
 
+    def __valid_connection(self, receptor):
+        if self.emissor_type == 'sensor':
+            return receptor.receptor_type == 'controller'
+        elif self.emissor_type == 'controller':
+            return receptor.receptor_type == 'actuator'
+        return False
+
     def __motion(self, event):
         if not self.__string:
             self.__string = ConnectorString(
@@ -85,7 +97,9 @@ class ConnectorEmissor(boring.draw.OvalDraw):
                 self.__string.p2 = [event.x, event.y]
                 self.__string.update_coords()
                 for receptor in ConnectorReceptor.RECEPTORS:
-                    if receptor.is_inside(event.x, event.y):
+                    inside = receptor.is_inside(event.x, event.y)
+                    valid_connection = self.__valid_connection(receptor)
+                    if valid_connection and inside:
                         self.__string.obj2 = receptor
                         receptor.add_string_connector(self.__string)
                         break
@@ -106,6 +120,8 @@ class GenericLogicEditorDrawWindow(boring.drawwidgets.DrawWindow):
             emissor=True,
             receptor=True,
             fill='#ccc',
+            emissor_type=None,
+            receptor_type=None,
             radius=[3]*4):
         self.receptor = None
         self.emissor = None
@@ -118,9 +134,13 @@ class GenericLogicEditorDrawWindow(boring.drawwidgets.DrawWindow):
             fill=fill
         )
         if receptor:
-            self.receptor = ConnectorReceptor(self)
+            self.receptor = ConnectorReceptor(
+                self, receptor_type=receptor_type
+            )
         if emissor:
-            self.emissor = ConnectorEmissor(self)
+            self.emissor = ConnectorEmissor(
+                self, emissor_type=emissor_type
+            )
 
     def update(self):
         boring.drawwidgets.DrawWindow.update(self)

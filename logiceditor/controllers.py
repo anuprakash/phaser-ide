@@ -15,7 +15,9 @@ class GenericControllerDrawWindow(core.GenericLogicEditorDrawWindow):
             title=title,
             widget=widget,
             emissor=True,
-            receptor=True
+            receptor=True,
+            receptor_type='controller',
+            emissor_type='controller'
         )
 
 class ANDControllerDrawWindow(GenericControllerDrawWindow):

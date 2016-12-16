@@ -32,6 +32,7 @@ class GenericSensorDrawWindow(core.GenericLogicEditorDrawWindow):
             title=title,
             widget=widget,
             emissor=True,
+            emissor_type='sensor',
             receptor=False
         )
 
