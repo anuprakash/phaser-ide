@@ -31,7 +31,7 @@ class LogicEditor(boring.dialog.DefaultDialog):
                     command=lambda *args : self.__add_sensor(sensors.SENSOR_SIGNAL)
                 ),
                 dict(
-                    name='Quit/close',
+                    name='Quit/close Logic Editor',
                     command=lambda *args : self.withdraw()
                 ),
                 dict(
@@ -71,62 +71,64 @@ class LogicEditor(boring.dialog.DefaultDialog):
                     command=lambda *args : self.__add_controller(controllers.CONTROLLER_OR)
                 ),
                 dict(
+                    name='Add Quit Game Actuator',
+                    command=lambda *args : self.__add_actuator(actuators.ACTUATOR_QUIT_GAME)
+                ),
+                dict(
+                    name='Add Restart Game Actuator',
+                    command=lambda *args : self.__add_actuator(actuators.ACTUATOR_RESTART_GAME)
+                ),
+                dict(
+                    name='Add Restart Scene Actuator',
+                    command=lambda *args: self.__add_actuator(actuators.ACTUATOR_RESTART_SCENE)
+                ),
+                dict(
                     name='Add Code Actuator',
                     command=lambda *args : self.__add_actuator(actuators.ACTUATOR_CODE)
                 ),
                 dict(
-                    name='Add Scene Actuator',
-                    command=lambda *args : self.__add_actuator(actuators.ACTUATOR_SCENE)
+                    name='Add Mouse Visibility Actuator',
+                    command=lambda *args: self.__add_actuator(actuators.ACTUATOR_MOUSE_VISIBILITY)
                 ),
-                dict(
-                    name='Add Game Actuator',
-                    command=lambda *args : self.__add_actuator(actuators.ACTUATOR_GAME)
-                )
             ]
         )
         self.bind(
-            '<Control-g>',
+            '<Control-space>',
             lambda evt: self.__menu.show(),
             '+'
         )
         self.__menu.withdraw()
 
         self.resizable(1, 1)
-        # TODO: meximize in Windows
+        # TODO: maximize in Windows
         self.attributes('-zoomed', 1)
         return self.canvas
 
     def __add_sensor(self, sensor_type):
         if sensor_type == sensors.SENSOR_MESSAGE:
-            mdw = sensors.MessageSensorDrawWindow(
-                self.canvas
-            )
-            mdw.center()
+            sensors.MessageSensorDrawWindow(self.canvas).center()
         elif sensor_type == sensors.SENSOR_SIGNAL:
-            ssdw = sensors.SignalSensorDrawWindow(
-                self.canvas
-            )
-            ssdw.center()
+            sensors.SignalSensorDrawWindow(self.canvas).center()
         elif sensor_type == sensors.SENSOR_ALWAYS:
-            asdw = sensors.AlwaysSensorDrawWindow(
-                self.canvas
-            )
-            asdw.center()
+            sensors.AlwaysSensorDrawWindow(self.canvas).center()
 
     def __add_controller(self, controller_type):
         if controller_type == controllers.CONTROLLER_AND:
-            acdw = controllers.ANDControllerDrawWindow(
-                self.canvas
-            )
-            acdw.center()
+            controllers.ANDControllerDrawWindow(self.canvas).center()
         elif controller_type == controllers.CONTROLLER_OR:
-            ocdw = controllers.ORControllerDrawWindow(
-                self.canvas
-            )
-            ocdw.center()
+            controllers.ORControllerDrawWindow(self.canvas).center()
 
-    def __add_actuator(self, controller_type):
-        pass
+    def __add_actuator(self, actuator_type):
+        if actuator_type == actuators.ACTUATOR_QUIT_GAME:
+            actuators.QuitGameActuatorDrawWindow(self.canvas).center()
+        elif actuator_type == actuators.ACTUATOR_RESTART_GAME:
+            actuators.RestartGameActuatorDrawWindow(self.canvas).center()
+        elif actuator_type == actuators.ACTUATOR_RESTART_SCENE:
+            actuators.RestartSceneActuatorDrawWindow(self.canvas).center()
+        elif actuator_type == actuators.ACTUATOR_CODE:
+            actuators.CodeActuatorDrawWindow(self.canvas).center()
+        elif actuator_type == actuators.ACTUATOR_MOUSE_VISIBILITY:
+            actuators.MouseVisibilityActuatorDrawWindow(self.canvas).center()
 
     def buttonbox(self):
         pass

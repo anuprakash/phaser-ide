@@ -35,3 +35,4 @@
 + criar component entry dentro de frame com packpropagate pra controlar direito o tamanho e ajustar o form
 + migrar o scenemanager e o assetmanager para o scrollableextendedlistbox
 + ao navegar pelo listcommand o scroll deve se ajustar sozinho
++ adicionar ao FORM um tipo "text" que ao inves de entry usa Text e adicionar ao actuator CODE

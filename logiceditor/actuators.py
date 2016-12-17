@@ -1,34 +1,95 @@
 # logiceditor:actuators
 
-import boring.drawwidgets
+import core
+import boring.draw
+import boring.form
 
-ACTUATOR_CODE = 0
-ACTUATOR_SCENE = 1
-ACTUATOR_GAME = 2
+ACTUATOR_QUIT_GAME = 0
+ACTUATOR_RESTART_GAME = 1
 
-class GenericActuatorDrawWindow(boring.drawwidgets.DrawWindow):
-    def __init__(self, canvas, title='Actuator', widget=None):
-        self.__connector_right = boring.draw.OvalDraw(
+ACTUATOR_RESTART_SCENE = 2
+ACTUATOR_LOAD_SCENE = 3 # TODO
+
+ACTUATOR_CODE = 4
+
+ACTUATOR_MOUSE_VISIBILITY = 5
+
+# ADD OBJECT: x, y, z
+# END OBJECT
+# MAYBE: ADD 2D FILTER
+# MOTION: POSITION AND ROTATION
+# PROPERTY (ASSIGN, ADD, COPY)
+# TOGGLE (TRUE/FALSE)
+# SOUND
+
+class GenericActuatorDrawWindow(core.GenericLogicEditorDrawWindow):
+    def __init__(self, canvas, title='Sensor', widget=None):
+        self.__connector = boring.draw.OvalDraw(
             canvas,
             -10,
             -10,
             5,
             5
         )
-        boring.drawwidgets.DrawWindow.__init__(
+        core.GenericLogicEditorDrawWindow.__init__(
             self,
             canvas,
-            fill='#cccccc',
+            fill='#333',
             radius=[3]*4,
             title=title,
-            widget=widget
+            widget=widget,
+            emissor=False,
+            receptor_type='actuator',
+            receptor=True
         )
 
-    def update(self):
-        boring.drawwidgets.DrawWindow.update(self)
-        self.__connector_right.x = self.x + self.width + 5
-        self.__connector_right.y = self.y + 2
+#### GAME
+class QuitGameActuatorDrawWindow(GenericActuatorDrawWindow):
+    def __init__(self, canvas):
+        GenericActuatorDrawWindow.__init__(
+            self,
+            canvas,
+            title='Quit Game'
+        )
 
-    def delete(self):
-        boring.drawwidgets.DrawWindow.delete(self)
-        self.__connector_right.delete()
+class RestartGameActuatorDrawWindow(GenericActuatorDrawWindow):
+    def __init__(self, canvas):
+        GenericActuatorDrawWindow.__init__(
+            self,
+            canvas,
+            title='Restart Game'
+        )
+
+class RestartSceneActuatorDrawWindow(GenericActuatorDrawWindow):
+    def __init__(self, canvas):
+        GenericActuatorDrawWindow.__init__(
+            self,
+            canvas,
+            title='Restart Scene'
+        )
+
+class CodeActuatorDrawWindow(GenericActuatorDrawWindow):
+    def __init__(self, canvas):
+        GenericActuatorDrawWindow.__init__(
+            self,
+            canvas,
+            title='Code',
+            widget=boring.form.FormFrame(
+                canvas,
+                'Code@string',
+                font=('TkDefaultFont', 6)
+            )
+        )
+
+class MouseVisibilityActuatorDrawWindow(GenericActuatorDrawWindow):
+    def __init__(self, canvas):
+        GenericActuatorDrawWindow.__init__(
+            self,
+            canvas,
+            title='Mouse',
+            widget=boring.form.FormFrame(
+                canvas,
+                'Visible@check',
+                font=('TkDefaultFont', 6)
+            )
+        )
