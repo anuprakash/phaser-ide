@@ -26,5 +26,5 @@ class AddSceneWindow(boring.dialog.DefaultDialog):
 
 	def apply(self):
 		self.output = {
-			"name": self.form.values[0]
+			'name': self.form.values[0]
 		}

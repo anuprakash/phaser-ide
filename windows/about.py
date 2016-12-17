@@ -26,7 +26,7 @@ class AboutWindow(boring.dialog.DefaultDialog):
         box = boring.widgets.Frame(self)
         w = boring.widgets.Button(
             box,
-            text="OK",
+            text='OK',
             command=self.ok,
             default='active'
         )

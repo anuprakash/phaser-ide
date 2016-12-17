@@ -1,16 +1,16 @@
 class BaseDraw(object):
-	"""
+	'''
 	This class represents a basic draw.
 	I think that you will never use this class, but understand how it
 	works is good for understand lightk.
-	"""
+	'''
 	def __init__(self, canvas, *coords, **style):
 		self.canvas = canvas
 		self.coords = list(coords)
 		self.style = style
 		self.index = self.draw()
 	def draw(self):
-		""" Must return the the canvas draw's index """
+		''' Must return the the canvas draw's index '''
 		pass
 	def get_coords(self):
 		'''
@@ -18,7 +18,7 @@ class BaseDraw(object):
 		'''
 		raise NotImplementedError
 	def update(self, **kws):
-		"""
+		'''
 		This method updates the position and the attributes of an object.
 		If you pass the 'idle' arg with True, so lightk will force the draw
 		calling 'Tkinter.Canvas.update_idletasks' method.
@@ -27,7 +27,7 @@ class BaseDraw(object):
 			obj01.update()
 			obj02.update()
 			obj03.update(idle=True)
-		"""
+		'''
 		self.coords = self.get_coords()
 		if self.index:
 			self.canvas.coords(self.index, *self.coords)
@@ -35,28 +35,28 @@ class BaseDraw(object):
 			if kws.get("idle",False):
 				self.canvas.update_idletasks()
 	def to_raise(self):
-		"""
+		'''
 		This method puts the object in the top of all objects.
 		Use this function if you want have certain that your
 		object will be looked.
-		"""
+		'''
 		self.canvas.tag_raise(self.index)
 	def to_lower(self):
-		"""
+		'''
 		This method puts the object in the down of all objects.
-		"""
+		'''
 		self.canvas.lower(self.index)
 	def bind(self, *args, **kargs):
-		"""
+		'''
 		This method works like 'Tkinter.Widget.bind': binds a functions
 		to an event.
-		"""
+		'''
 		self.canvas.tag_bind(self.index, *args, **kargs)
 	def destroy(self):
-		"""
+		'''
 		This method will delete the object and clean the index to None.
 		To re-activate the object call 'obj.init()'
-		"""
+		'''
 		self.canvas.delete(self.index)
 		self.index = None
 

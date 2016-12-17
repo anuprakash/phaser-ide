@@ -19,7 +19,6 @@
 + edit asset name (update all sprites created)
 + criar um outro widget que embute um label e um entry. o label fica em baixo dizendo que erro de validacao ocorreu
 + adicionar opção nas imagens de editar o anchor
-+ adicionar o arquivo do ttk como parte do projeto
 + opção para fazer scroll com o mouse para ver a cena completa
     + adicionar opção para alterar o tamhno scroll do canvas
 + começar a usar o string templates do python com o phaser
@@ -28,10 +27,6 @@
 + adicionar propriedade 'tint' ao objeto
 + criar agrupamento de objetos
 + ao criar abrir um projeto json, depois d excluir um asset qlqr o double click do asset q sobra n funciona mais
-+ drag canvas items
-+ usar popup pra fazer widget combobox
-+ adicionar submenu para cada tipo de diferente de combobox
-+ retirar os atalhos do teclado dos menus e criar um componente nodejs/sublime command window pra psquisar e executar comandos
 + criar component entry dentro de frame com packpropagate pra controlar direito o tamanho e ajustar o form
 + migrar o scenemanager e o assetmanager para o scrollableextendedlistbox
 + ao navegar pelo listcommand o scroll deve se ajustar sozinho

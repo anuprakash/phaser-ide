@@ -30,12 +30,12 @@ class ShortcutsWindow(boring.dialog.DefaultDialog):
         box = boring.widgets.Frame(self)
         w = boring.widgets.Button(
             box,
-            text="OK",
+            text='OK',
             command=self.ok,
             default='active'
         )
         w.pack(side='left', padx=5, pady=5)
-        self.bind("<Return>", self.ok)
-        self.bind("<Escape>", self.ok)
+        self.bind('<Return>', self.ok)
+        self.bind('<Escape>', self.ok)
         box.pack()
         return w

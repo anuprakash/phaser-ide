@@ -44,7 +44,7 @@ def execute(ide):
         images = [Image.open(i) for i in images]
         width, height = images[0].size
         final_image = Image.new(
-            "RGBA",
+            'RGBA',
             (
                 width*len(images),
                 height

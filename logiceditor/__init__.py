@@ -11,6 +11,7 @@ import actuators
 
 class LogicEditor(boring.dialog.DefaultDialog):
     def body(self, master):
+        self.controllers = []
         self.canvas = boring.widgets.ExtendedCanvas(
             master,
             relief='flat',
@@ -84,11 +85,19 @@ class LogicEditor(boring.dialog.DefaultDialog):
                 ),
                 dict(
                     name='Add Code Actuator',
+                    subtitle='Run a script',
                     command=lambda *args : self.__add_actuator(actuators.ACTUATOR_CODE)
                 ),
                 dict(
                     name='Add Mouse Visibility Actuator',
+                    subtitle='Turns on/off the visibility of mouse',
                     command=lambda *args: self.__add_actuator(actuators.ACTUATOR_MOUSE_VISIBILITY)
+                ),
+
+                dict(
+                    name='Clear Canvas Scroll',
+                    subtitle='Restore the real position of objects before your scrolling',
+                    command=self.__clear_canvas_scroll
                 ),
             ]
         )
@@ -104,6 +113,9 @@ class LogicEditor(boring.dialog.DefaultDialog):
         self.attributes('-zoomed', 1)
         return self.canvas
 
+    def __clear_canvas_scroll(self, *args):
+        self.canvas.clear_scroll()
+
     def __add_sensor(self, sensor_type):
         if sensor_type == sensors.SENSOR_MESSAGE:
             sensors.MessageSensorDrawWindow(self.canvas).center()
@@ -113,10 +125,13 @@ class LogicEditor(boring.dialog.DefaultDialog):
             sensors.AlwaysSensorDrawWindow(self.canvas).center()
 
     def __add_controller(self, controller_type):
+        controller = None
         if controller_type == controllers.CONTROLLER_AND:
-            controllers.ANDControllerDrawWindow(self.canvas).center()
+            controller = controllers.ANDControllerDrawWindow(self.canvas)
         elif controller_type == controllers.CONTROLLER_OR:
-            controllers.ORControllerDrawWindow(self.canvas).center()
+            controller = controllers.ORControllerDrawWindow(self.canvas)
+        self.controllers.append(controller)
+        controller.center()
 
     def __add_actuator(self, actuator_type):
         if actuator_type == actuators.ACTUATOR_QUIT_GAME:
