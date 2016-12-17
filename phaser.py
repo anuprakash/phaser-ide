@@ -288,6 +288,10 @@ class PhaserEditor(boring.Window):
         )
 
         ############################
+        self.__logic_editor = logiceditor.LogicEditor(self)
+        self.__logic_editor.hide()
+
+        ############################
         self.center()
         self.bind('<Delete>', self.__delete_sprite, '+')
         self.bind('<Up>', self.__up_key, '+')
@@ -522,7 +526,8 @@ class PhaserEditor(boring.Window):
         '''
         called when the user clicks in View > Show logic editor
         '''
-        logiceditor.LogicEditor(self)
+        if self.current_project:
+            self.__logic_editor.show()
 
     ################ SCENES
     def __on_select_scene(self, event):
@@ -898,5 +903,4 @@ if __name__ == '__main__':
     top = PhaserEditor()
     top.focus_force()
     # AboutWindow(top)
-    import logiceditor; logiceditor.LogicEditor(top)
     top.mainloop()

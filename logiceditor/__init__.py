@@ -1,5 +1,5 @@
 # logic editor
-import boring.dialog
+
 import boring.widgets
 import boring.drawwidgets
 import boring.menus
@@ -9,11 +9,12 @@ import controllers
 import actuators
 
 
-class LogicEditor(boring.dialog.DefaultDialog):
-    def body(self, master):
+class LogicEditor(SubWindow):
+    def __init__(self, master):
+        SubWindow.__init__(self, master)
         self.controllers = []
         self.canvas = boring.widgets.ExtendedCanvas(
-            master,
+            self,
             relief='flat',
             bd=0,
             highlightthickness=0,
@@ -111,7 +112,8 @@ class LogicEditor(boring.dialog.DefaultDialog):
         self.resizable(1, 1)
         # TODO: maximize in Windows
         self.attributes('-zoomed', 1)
-        return self.canvas
+
+        self.protocol('WM_DELETE_WINDOW', self.hide)
 
     def __clear_canvas_scroll(self, *args):
         self.canvas.clear_scroll()
@@ -145,5 +147,13 @@ class LogicEditor(boring.dialog.DefaultDialog):
         elif actuator_type == actuators.ACTUATOR_MOUSE_VISIBILITY:
             actuators.MouseVisibilityActuatorDrawWindow(self.canvas).center()
 
-    def buttonbox(self):
-        pass
+    def show(self):
+        self.deiconify()
+        self.center()
+        # passing keyboardfocus to the window:
+        self.grab_set()
+
+    def hide(self):
+        self.grab_release()
+        self.withdraw()
+        self.master.focus_force()

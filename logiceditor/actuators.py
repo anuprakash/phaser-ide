@@ -76,7 +76,7 @@ class CodeActuatorDrawWindow(GenericActuatorDrawWindow):
             title='Code',
             widget=boring.form.FormFrame(
                 canvas,
-                'Code@text',
+                'Script@text',
                 font=('TkDefaultFont', 6)
             )
         )

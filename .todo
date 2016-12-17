@@ -10,10 +10,8 @@
 + makes the code python3 compatible
 + adicionar opção para clonar uma cena
 + adicionar valor minimo e maximo para o campo de entrada numerico
++ o campo de entrada de inteiro está permitindo colocar o ponto '.'
 + no entry modo texto permitir copiar e colar
-+ view scene manager
-+ view assets manager
-+ view logic editor
 + edit scene name
     mydict[new_key] = mydict.pop(old_key)
 + edit asset name (update all sprites created)
@@ -30,3 +28,6 @@
 + criar component entry dentro de frame com packpropagate pra controlar direito o tamanho e ajustar o form
 + migrar o scenemanager e o assetmanager para o scrollableextendedlistbox
 + ao navegar pelo listcommand o scroll deve se ajustar sozinho
++ salvar os logiceditors (lembrando de resetar tudo ao carregar um novo projeto)
++ migrar os menus da janela principal para commandwindow
++ salvar no logic editor os sensores e os atuadores
