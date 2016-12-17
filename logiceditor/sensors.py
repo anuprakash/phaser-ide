@@ -4,6 +4,7 @@ import boring.draw
 import boring.form
 import boring.widgets
 import core
+import widgets
 
 SENSOR_SIGNAL = 0
 SENSOR_ALWAYS = 1
@@ -64,4 +65,23 @@ class AlwaysSensorDrawWindow(GenericSensorDrawWindow):
             self,
             canvas,
             title='Always'
+        )
+
+class KeyboardSensorDrawWindow(GenericSensorDrawWindow):
+    def __init__(self, canvas):
+        widgets_list = dict(boring.form.DEFAULT_FORM_WIDGETS)
+        widgets_list.update(
+            keyboardkey=widgets.KeyboardSensorWidget
+        )
+
+        GenericSensorDrawWindow.__init__(
+            self,
+            canvas,
+            title='Keyboard',
+            widget=boring.form.FormFrame(
+                canvas,
+                'Tap@check\nkey@keyboardkey',
+                font=('TkDefaultFont', 6),
+                inputswidgets=widgets_list
+            ),
         )

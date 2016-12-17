@@ -13,12 +13,16 @@ class LogicEditor(SubWindow):
     def __init__(self, master):
         SubWindow.__init__(self, master)
         self.controllers = []
+        self.sensors = []
+        self.actuators = []
+
         self.canvas = boring.widgets.ExtendedCanvas(
             self,
             relief='flat',
             bd=0,
             highlightthickness=0,
-            bg='#ededed'
+            bg='#ededed',
+            draggable=True
         )
         self.canvas.pack(
             expand='yes',
@@ -119,12 +123,19 @@ class LogicEditor(SubWindow):
         self.canvas.clear_scroll()
 
     def __add_sensor(self, sensor_type):
+        sensor = None
         if sensor_type == sensors.SENSOR_MESSAGE:
-            sensors.MessageSensorDrawWindow(self.canvas).center()
+            sensor = sensors.MessageSensorDrawWindow(self.canvas)
         elif sensor_type == sensors.SENSOR_SIGNAL:
-            sensors.SignalSensorDrawWindow(self.canvas).center()
+            sensor = sensors.SignalSensorDrawWindow(self.canvas)
         elif sensor_type == sensors.SENSOR_ALWAYS:
-            sensors.AlwaysSensorDrawWindow(self.canvas).center()
+            sensor = sensors.AlwaysSensorDrawWindow(self.canvas)
+        elif sensor_type == sensors.SENSOR_KEYBOARD:
+            sensor = sensors.KeyboardSensorDrawWindow(self.canvas)
+
+        if sensor:
+            self.sensors.append(sensor)
+            sensor.center()
 
     def __add_controller(self, controller_type):
         controller = None
@@ -132,20 +143,27 @@ class LogicEditor(SubWindow):
             controller = controllers.ANDControllerDrawWindow(self.canvas)
         elif controller_type == controllers.CONTROLLER_OR:
             controller = controllers.ORControllerDrawWindow(self.canvas)
-        self.controllers.append(controller)
-        controller.center()
+
+        if controller:
+            self.controllers.append(controller)
+            controller.center()
 
     def __add_actuator(self, actuator_type):
+        actuator = None
         if actuator_type == actuators.ACTUATOR_QUIT_GAME:
-            actuators.QuitGameActuatorDrawWindow(self.canvas).center()
+            actuator = actuators.QuitGameActuatorDrawWindow(self.canvas)
         elif actuator_type == actuators.ACTUATOR_RESTART_GAME:
-            actuators.RestartGameActuatorDrawWindow(self.canvas).center()
+            actuator = actuators.RestartGameActuatorDrawWindow(self.canvas)
         elif actuator_type == actuators.ACTUATOR_RESTART_SCENE:
-            actuators.RestartSceneActuatorDrawWindow(self.canvas).center()
+            actuator = actuators.RestartSceneActuatorDrawWindow(self.canvas)
         elif actuator_type == actuators.ACTUATOR_CODE:
-            actuators.CodeActuatorDrawWindow(self.canvas).center()
+            actuator = actuators.CodeActuatorDrawWindow(self.canvas)
         elif actuator_type == actuators.ACTUATOR_MOUSE_VISIBILITY:
-            actuators.MouseVisibilityActuatorDrawWindow(self.canvas).center()
+            actuator = actuators.MouseVisibilityActuatorDrawWindow(self.canvas)
+
+        if actuator:
+            self.actuators.append(actuator)
+            actuator.center()
 
     def show(self):
         self.deiconify()

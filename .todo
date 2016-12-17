@@ -18,7 +18,6 @@
 + criar um outro widget que embute um label e um entry. o label fica em baixo dizendo que erro de validacao ocorreu
 + adicionar opção nas imagens de editar o anchor
 + opção para fazer scroll com o mouse para ver a cena completa
-    + adicionar opção para alterar o tamhno scroll do canvas
 + começar a usar o string templates do python com o phaser
 + criar componente abas, como no firefox/chrome
 + criar um botao "android" com wave effect no boring
@@ -28,6 +27,4 @@
 + criar component entry dentro de frame com packpropagate pra controlar direito o tamanho e ajustar o form
 + migrar o scenemanager e o assetmanager para o scrollableextendedlistbox
 + ao navegar pelo listcommand o scroll deve se ajustar sozinho
-+ salvar os logiceditors (lembrando de resetar tudo ao carregar um novo projeto)
 + migrar os menus da janela principal para commandwindow
-+ salvar no logic editor os sensores e os atuadores
