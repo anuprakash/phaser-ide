@@ -26,6 +26,7 @@ import windows.about
 import windows.scene
 import windows.assets
 import boring.ttk as ttk
+import boring.menus
 
 VErSIOn = 'alpha'
 
@@ -52,106 +53,12 @@ class PhaserEditor(boring.Window):
         self.bind('<Any-KeyPress>', self.__press_key, '+')
         self.bind('<Any-KeyRelease>', self.__release_key, '+')
 
-        # parent of all menus
-        self.menubar = Tkinter.Menu(
-            self,
-            relief=Tkinter.FLAT
-        )
-        ################################ file menu
-        self.projectmenu = Tkinter.Menu(
-            self.menubar,
-            tearoff=0,
-            relief=Tkinter.FLAT
-        )
-        self.menubar.add_cascade(
-            label='Project',
-            menu=self.projectmenu,
-            underline=0
-        )
-        self.projectmenu.add_command(
-            label='New project',
-            command=self.new_project,
-            underline=0,
-            accelerator='Control+N'
-        )
-
-        self.projectmenu.add_command(
-            label='Open project from JSON',
-            command=self.open_json_project,
-            underline=0,
-            accelerator='Control+O'
-        )
-        self.projectmenu.add_command(
-            label='Save project as JSON',
-            command=self.save_project_as_json,
-            underline=1,
-            accelerator='Control+S'
-        )
-        self.projectmenu.add_command(
-            label='Project properties',
-            command=self.show_project_properties,
-            underline=1
-        )
-        self.projectmenu.add_separator()
-        self.projectmenu.add_command(
-            label='Quit',
-            command=self.destroy,
-            underline=0
-        )
-
-        self.bind('<Control-n>', lambda e: self.new_project(), '+')
-        self.bind('<Control-m>', lambda e: self._add_scene_btn_handler(), '+')
-        self.bind('<Control-x>', lambda e: self._add_sprite_btn_handler(), '+')
-        self.bind('<Control-s>', lambda e: self.save_project_as_json(), '+')
-        self.bind('<Control-o>', lambda e: self.open_json_project(), '+')
-        self.bind('<Alt-p>', lambda e: self.show_project_properties(), '+')
-        ################################ view menu
-        self.viewmenu = Tkinter.Menu(
-            self.menubar,
-            tearoff=0,
-            relief=Tkinter.FLAT
-        )
-        self.menubar.add_cascade(
-            label='View',
-            menu=self.viewmenu,
-            underline=0
-        )
-        self.viewmenu.add_command(
-            label='Logic Editor',
-            command=self.show_logic_editor,
-            underline=0
-        )
-        ################################ plugins menu
-        self.pluginsmenu = Tkinter.Menu(
-            self.menubar,
-            tearoff=0
-        )
-        self.menubar.add_cascade(
-            label='Plugins',
-            menu=self.pluginsmenu,
-            underline=1
-        )
-        ################################ about menu
-        self.helpmenu = Tkinter.Menu(
-            self.menubar,
-            tearoff=0
-        )
-        self.menubar.add_cascade(
-            label='Help',
-            menu=self.helpmenu,
-            underline=0
-        )
-        self.helpmenu.add_command(
-            label='Shortcuts',
-            command=self.show_shortcuts_window
-        )
-        self.helpmenu.add_command(
-            label='About',
-            command=self.show_about_window
-        )
-
-        # add menu to window
-        self.config(menu=self.menubar)
+        self.bind('<Control-n>', self.new_project, '+')
+        self.bind('<Control-m>', self._add_scene_btn_handler, '+')
+        self.bind('<Control-x>', self._add_sprite_btn_handler, '+')
+        self.bind('<Control-s>', self.save_project_as_json, '+')
+        self.bind('<Control-o>', self.open_json_project, '+')
+        self.bind('<Alt-p>', self.show_project_properties, '+')
 
         self.left_panel = boring.widgets.Frame(self)
         self.left_panel.pack(
@@ -281,6 +188,59 @@ class PhaserEditor(boring.Window):
         self.bind('<Left>', self.__left_key, '+')
         self.focus_force()
 
+
+        ############################### Command windows
+        self.__menu = boring.menus.CommandChooserWindow(
+            self,
+            items=[
+                dict(
+                    name='Create/New Project',
+                    command=self.new_project,
+                    subtitle='Creates a new project'
+                ),
+                dict(
+                    name='Open project from JSON',
+                    command=self.open_json_project,
+                    subtitle='Open a json project'
+                ),
+                dict(
+                    name='Save project as JSON',
+                    command=self.save_project_as_json,
+                    subtitle='Save a json with project (using absolute paths)'
+                ),
+                dict(
+                    name='Show project properties',
+                    command=self.show_project_properties,
+                    subtitle='Shows a window with the project properties'
+                ),
+                dict(
+                    name='Quit application',
+                    command=lambda event : self.destroy(),
+                    subtitle='Closes the application'
+                ),
+                dict(
+                    name='Show Logic Editor',
+                    command=self.show_logic_editor,
+                    subtitle='The logic editor allows your edit the logic bricks'
+                ),
+                dict(
+                    name='Show Shortcuts',
+                    command=self.show_shortcuts_window,
+                    subtitle='Show all available shortcuts'
+                ),
+                dict(
+                    name='About',
+                    command=self.show_about_window,
+                    subtitle='Show about window'
+                ),
+            ]
+        )
+        self.bind(
+            '<Key-space>',
+            lambda evt: self.__menu.show(),
+            '+'
+        )
+        self.__menu.withdraw()
         self.__load_plugins()
         self.set_title()
 
@@ -308,7 +268,7 @@ class PhaserEditor(boring.Window):
     def set_title(self):
         self.title('Phaser - %s - version: %s' % ('No project loaded' if not self.current_project else self.current_project.name, VErSIOn))
 
-    def save_project_as_json(self):
+    def save_project_as_json(self, event=None):
         '''
         called when you press ctrl + s
         '''
@@ -343,7 +303,7 @@ class PhaserEditor(boring.Window):
         fs.close()
         return content
 
-    def open_json_project(self):
+    def open_json_project(self, event=None):
         '''
         called when you press ctrl + o
         '''
@@ -455,13 +415,18 @@ class PhaserEditor(boring.Window):
         a = open('./.plugins')
         modules = a.readlines()
         a.close()
+        def get_func(mod):
+            def _func(*args):
+                mod.execute(self)
+            return _func
         for i in modules:
             mod = importlib.import_module(i.replace('\n', ''))
             mod.init(self)
-            self.pluginsmenu.add_command(
-                label=mod.title,
-                command=lambda:mod.execute(self)
-            )
+            self.__menu.add_command(dict(
+                name=mod.title,
+                command=get_func(mod),
+                subtitle='Plugin'
+            ))
 
     def update_canvases(self):
         '''
@@ -503,7 +468,7 @@ class PhaserEditor(boring.Window):
         self.actual_canvas = None
 
     ################ VIEW MENU
-    def show_logic_editor(self):
+    def show_logic_editor(self, event=None):
         '''
         called when the user clicks in View > Show logic editor
         '''
@@ -837,19 +802,19 @@ class PhaserEditor(boring.Window):
         return None
 
     ################### Menu events
-    def show_shortcuts_window(self):
+    def show_shortcuts_window(self, event=None):
         '''
         called when you click Help > shortcuts
         '''
         ShortcutsWindow(self)
 
-    def show_about_window(self):
+    def show_about_window(self, event=None):
         '''
         called when you click Help > About
         '''
         windows.about.AboutWindow(self)
 
-    def new_project(self):
+    def new_project(self, event=None):
         if self.current_project and (not boring.dialog.OkCancel(self, 'A loaded project already exists. Do you wish to continue?').output):
             return
         npw = windows.newproject.NewProjectWindow(self)
@@ -866,12 +831,12 @@ class PhaserEditor(boring.Window):
         self.assets_manager.delete_all()
         self.__reset_all_canvas()
 
-    def show_project_properties(self):
-        '''
-        called in Project > Project Properties
-        '''
+    def show_project_properties(self, event=None):
         if self.current_project:
-            npw = windows.newproject.NewProjectWindow(self, _dict=self.current_project.get_dict())
+            npw = windows.newproject.NewProjectWindow(
+                self,
+                _dict=self.current_project.get_dict()
+            )
             if npw.output:
                 self.current_project = core.PhaserProject()
                 self.current_project.fill_from_dict(npw.output)
