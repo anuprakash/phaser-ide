@@ -27,3 +27,5 @@
 + criar component entry dentro de frame com packpropagate pra controlar direito o tamanho e ajustar o form
 + permitir multipla selecao de objetos
 + Control+space abre o menu propriedades do objeto selecionado
++ create "assets pack", a zip pack with many assets (to do letters for example)
++ o scroll é um preview (tipo sublime) da area de edicao, o scroll é a parte visivel de Y e o scroll completo é o scrollregion

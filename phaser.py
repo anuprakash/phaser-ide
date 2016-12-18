@@ -490,7 +490,7 @@ class PhaserEditor(boring.Window):
                 self.actual_canvas = scene_name
                 self.cur_canvas().pack()
 
-    def _add_scene_btn_handler(self):
+    def _add_scene_btn_handler(self, event=None):
         '''
         called when user clicks over add_scene_button
         '''
@@ -559,7 +559,7 @@ class PhaserEditor(boring.Window):
         file_opt = dict(filetypes=[('Image Files', image_ext), ('Sound Files', sound_ext)])
         return tkFileDialog.askopenfilename(parent=self, **file_opt)
 
-    def _add_sprite_btn_handler(self):
+    def _add_sprite_btn_handler(self, event=None):
         '''
         called when user clicks over add_sprite_btn
         '''
