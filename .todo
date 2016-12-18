@@ -25,5 +25,4 @@
 + criar agrupamento de objetos
 + ao criar abrir um projeto json, depois d excluir um asset qlqr o double click do asset q sobra n funciona mais
 + criar component entry dentro de frame com packpropagate pra controlar direito o tamanho e ajustar o form
-+ ao navegar pelo listcommand o scroll deve se ajustar sozinho
 + migrar os menus da janela principal para commandwindow
