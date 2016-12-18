@@ -162,7 +162,7 @@ class PhaserEditor(boring.Window):
         ################ LEFT PANEL
         self.left_frame = boring.widgets.Frame(self.left_panel)
         self.left_frame_top = boring.widgets.Frame(self.left_frame)
-        self.scene_manager = boring.widgets.ExtendedListbox(
+        self.scene_manager = boring.widgets.ScrollableExtendedListbox(
             self.left_frame,
             width=250,
             unique_titles=True
@@ -205,25 +205,17 @@ class PhaserEditor(boring.Window):
             expand='yes'
         )
 
-        self.scene_scroll = boring.widgets.Scrollbar(self.left_frame, orient='vertical')
-
         self.scene_manager.pack(
             side='left',
             expand='yes',
             fill='y',
             anchor='nw'
         )
-        self.scene_scroll.pack(
-            fill='y',
-            expand='yes'
-        )
-        self.scene_scroll.config(command=self.scene_manager.yview)
-        self.scene_manager.config(yscrollcommand=self.scene_scroll.set)
 
         ################ RIGHT PANEL
         self.right_frame = boring.widgets.Frame(self.left_panel)
         self.right_frame_top = boring.widgets.Frame(self.right_frame)
-        self.assets_manager = boring.widgets.ExtendedListbox(
+        self.assets_manager = boring.widgets.ScrollableExtendedListbox(
             self.right_frame,
             width=250,
             unique_titles=True
@@ -269,17 +261,6 @@ class PhaserEditor(boring.Window):
             fill='y',
             expand='yes'
         )
-
-        self.assets_scroll = boring.widgets.Scrollbar(
-            self.right_frame,
-            orient='vertical'
-        )
-        self.assets_scroll.pack(
-            fill='y',
-            expand='yes'
-        )
-        self.assets_scroll.config(command=self.assets_manager.yview)
-        self.assets_manager.config(yscrollcommand=self.assets_scroll.set)
 
         ################ RIGHT PANEL
         self.canvas_frame = boring.widgets.Frame(self)
