@@ -52,7 +52,7 @@ class SpriteImagePropertyWindow(boring.dialog.DefaultDialog):
 
 SPRITESHEET_FORMSTRING = '''
 Autoplay animation@check
-Frame rate@int
+Frame rate (fps)@int
 '''
 class SpriteSheetImagePropertyWindow(SpriteImagePropertyWindow):
     def body(self, master):

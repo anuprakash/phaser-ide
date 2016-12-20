@@ -12,7 +12,8 @@ SENSOR_KEYBOARD = 2
 SENSOR_JOYSTICK = 3
 SENSOR_MOUSE = 4 # TODO: permitir selecionar o objeto
 SENSOR_MESSAGE = 5
-SENSOR_PROPERTY = 6
+SENSOR_PROPERTY = 6 # TODO: permitir selecionar um objeto e a propriedade
+    # Se o usuario quiser adicionar uma propriedade global ele deve criar um objeto empty
 SENSOR_COLLISION = 7
 
 

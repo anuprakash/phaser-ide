@@ -17,7 +17,6 @@
 + edit asset name (update all sprites created)
 + criar um outro widget que embute um label e um entry. o label fica em baixo dizendo que erro de validacao ocorreu
 + adicionar opção nas imagens de editar o anchor
-+ opção para fazer scroll com o mouse para ver a cena completa
 + começar a usar o string templates do python com o phaser
 + criar componente abas, como no firefox/chrome
 + criar um botao "android" com wave effect no boring
@@ -29,3 +28,6 @@
 + Control+space abre o menu propriedades do objeto selecionado
 + create "assets pack", a zip pack with many assets (to do letters for example)
 + o scroll é um preview (tipo sublime) da area de edicao, o scroll é a parte visivel de Y e o scroll completo é o scrollregion
++ adicionar propriedades ao jogo (para poder usar propriedades globais)
++ como o logic editor é independente de cena, pode-se criar um rectangle-simples que delimita uma regiao pra dizer: essa região aqui é da cena um ...
++ o nome o sprite não pode conter espaços em branco nem hifens

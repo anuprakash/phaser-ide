@@ -190,59 +190,65 @@ class PhaserEditor(boring.Window):
 
 
         ############################### Command windows
-        self.__menu = boring.menus.CommandChooserWindow(
-            self,
-            items=[
-                dict(
-                    name='Create/New Project',
-                    command=self.new_project,
-                    subtitle='Creates a new project'
-                ),
-                dict(
-                    name='Open project from JSON',
-                    command=self.open_json_project,
-                    subtitle='Open a json project'
-                ),
-                dict(
-                    name='Save project as JSON',
-                    command=self.save_project_as_json,
-                    subtitle='Save a json with project (using absolute paths)'
-                ),
-                dict(
-                    name='Show project properties',
-                    command=self.show_project_properties,
-                    subtitle='Shows a window with the project properties'
-                ),
-                dict(
-                    name='Quit application',
-                    command=lambda event : self.destroy(),
-                    subtitle='Closes the application'
-                ),
-                dict(
-                    name='Show Logic Editor',
-                    command=self.show_logic_editor,
-                    subtitle='The logic editor allows your edit the logic bricks'
-                ),
-                dict(
-                    name='Show Shortcuts',
-                    command=self.show_shortcuts_window,
-                    subtitle='Show all available shortcuts'
-                ),
-                dict(
-                    name='About',
-                    command=self.show_about_window,
-                    subtitle='Show about window'
-                ),
-            ]
-        )
+        self.__menu_items = [
+            dict(
+                name='Create/New Project',
+                command=self.new_project,
+                subtitle='Creates a new project'
+            ),
+            dict(
+                name='Open project from JSON',
+                command=self.open_json_project,
+                subtitle='Open a json project'
+            ),
+            dict(
+                name='Save project as JSON',
+                command=self.save_project_as_json,
+                subtitle='Save a json with project (using absolute paths)'
+            ),
+            dict(
+                name='Show project properties',
+                command=self.show_project_properties,
+                subtitle='Shows a window with the project properties'
+            ),
+            dict(
+                name='Quit application',
+                command=lambda event : self.destroy(),
+                subtitle='Closes the application'
+            ),
+            dict(
+                name='Show Logic Editor',
+                command=self.show_logic_editor,
+                subtitle='The logic editor allows your edit the logic bricks'
+            ),
+            dict(
+                name='Show Shortcuts',
+                command=self.show_shortcuts_window,
+                subtitle='Show all available shortcuts'
+            ),
+            dict(
+                name='About',
+                command=self.show_about_window,
+                subtitle='Show about window'
+            ),
+            dict(
+                name='Clear canvas scroll',
+                command=self.clear_cur_canvas_scroll,
+                subtitle='Clears the canvas scroll'
+            ),
+        ]
+        self.__menu = boring.menus.CommandChooserWindow(self)
         self.bind(
             '<Key-space>',
-            lambda evt: self.__menu.show(),
+            lambda evt: self.__menu.popup(self.__menu_items),
             '+'
         )
         self.__menu.withdraw()
         self.__load_plugins()
         self.set_title()
+
+    def clear_cur_canvas_scroll(self, event=None):
+        self.cur_canvas().clear_scroll()
 
     def __release_key(self, event):
         '''
@@ -420,13 +426,21 @@ class PhaserEditor(boring.Window):
                 mod.execute(self)
             return _func
         for i in modules:
-            mod = importlib.import_module(i.replace('\n', ''))
-            mod.init(self)
-            self.__menu.add_command(dict(
-                name=mod.title,
-                command=get_func(mod),
-                subtitle='Plugin'
-            ))
+            try:
+                mod_name = i.replace('\n', '')
+                mod = importlib.import_module('plugins.' + mod_name)
+                mod.init(self)
+                self.__menu_items.append(dict(
+                    name=mod.title,
+                    command=get_func(mod),
+                    subtitle='Plugin'
+                ))
+            except ImportError:
+                boring.dialog.MessageBox.warning(
+                    parent=self,
+                    message='Was not possible load the module "*%s*"' % (mod_name),
+                    title='Plugin Error'
+                )
 
     def update_canvases(self):
         '''
@@ -467,11 +481,7 @@ class PhaserEditor(boring.Window):
         self.sprite_canvases = {}
         self.actual_canvas = None
 
-    ################ VIEW MENU
     def show_logic_editor(self, event=None):
-        '''
-        called when the user clicks in View > Show logic editor
-        '''
         if self.current_project:
             self.__logic_editor.show()
 
@@ -512,10 +522,13 @@ class PhaserEditor(boring.Window):
         add an icon in scene manager and fills the canvas
         '''
         self.scene_manager.add_item(name, 'scene', 'icons/folder.png')
-        ca = boring.widgets.ExtendedCanvas(self.canvas_frame,
+        ca = boring.widgets.ExtendedCanvas(
+            self.canvas_frame,
             width=self.current_project.width,
             height=self.current_project.height,
-            bg=self.current_project.bgcolor)
+            bg=self.current_project.bgcolor,
+            draggable=True
+        )
         ca.pack(anchor='sw', side='left')
         self.canvases[name] = ca
         # the list of sprites of this scene is a empty list
@@ -848,5 +861,5 @@ class PhaserEditor(boring.Window):
 if __name__ == '__main__':
     top = PhaserEditor()
     top.focus_force()
-    # AboutWindow(top)
+    windows.about.AboutWindow(top)
     top.mainloop()
