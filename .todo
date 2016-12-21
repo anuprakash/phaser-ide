@@ -33,3 +33,5 @@
 	criar um sensor chamado preload, create, update ... pq o load dos assets precisa ser feito no preload
 + no phaser exporter copiar todos os assets para uma pasta assets
 	o nome do arquivo pode ser o nome do asset
++ adicionar uma opção perguntando se deseja usar um cdn pra usar o phaser (pesquisar se existe um)
++ poder configurar se usa espaços ou não

@@ -50,11 +50,23 @@ class ExporterWindow(boring.dialog.DefaultDialog):
             '{loading_text}': self.form.values[1],
             '{bgcolor}': self.parent.current_project.bgcolor.replace('#', '0x'),
             '{game_height}': unicode(self.parent.current_project.height),
-            '{loadings}': 'TODO'
+            '{loadings}': self.get_loadings_strings()
         })
         print preload_js
 
-        print self.parent.get_assets_dict()
+    def get_loadings_strings(self, tab_width=2):
+        final = u''
+        tab = ' ' * tab_width * 4 # 4 spaces
+        image_template = u'this.game.load.image("{assetname}","assets/imgs/{assetname}.{fileextension}");'
+
+        assets = self.parent.get_assets_dict()
+        for i in assets:
+            if i['type'] == 'image':
+                final += replace_many(image_template, {
+                    '{assetname}': i['name'],
+                    '{fileextension}': i['path'].split('.')[-1].lower()
+                }) + '\n' + tab
+        return final
 
     def validate(self):
         if posixpath.isdir(self.form.values[0]):
