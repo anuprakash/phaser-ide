@@ -861,5 +861,5 @@ class PhaserEditor(boring.Window):
 if __name__ == '__main__':
     top = PhaserEditor()
     top.focus_force()
-    windows.about.AboutWindow(top)
+    # windows.about.AboutWindow(top)
     top.mainloop()

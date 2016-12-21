@@ -9,17 +9,12 @@
 + in image properties window show width and height (and scale)
 + makes the code python3 compatible
 + adicionar opção para clonar uma cena
-+ adicionar valor minimo e maximo para o campo de entrada numerico
-+ o campo de entrada de inteiro está permitindo colocar o ponto '.'
 + no entry modo texto permitir copiar e colar
 + edit scene name
     mydict[new_key] = mydict.pop(old_key)
 + edit asset name (update all sprites created)
-+ criar um outro widget que embute um label e um entry. o label fica em baixo dizendo que erro de validacao ocorreu
 + adicionar opção nas imagens de editar o anchor
 + começar a usar o string templates do python com o phaser
-+ criar componente abas, como no firefox/chrome
-+ criar um botao "android" com wave effect no boring
 + adicionar propriedade 'tint' ao objeto
 + criar agrupamento de objetos
 + ao criar abrir um projeto json, depois d excluir um asset qlqr o double click do asset q sobra n funciona mais
@@ -31,3 +26,10 @@
 + adicionar propriedades ao jogo (para poder usar propriedades globais)
 + como o logic editor é independente de cena, pode-se criar um rectangle-simples que delimita uma regiao pra dizer: essa região aqui é da cena um ...
 + o nome o sprite não pode conter espaços em branco nem hifens
++ internal web server
++ no phaserexporter usar um widget diferente para selecionar o caminho das pastas
++ criar cena de loading automaticamente com logic bricks e tudo
+	criar um actuaot r que é "load assets". e especificar quais os assets
+	criar um sensor chamado preload, create, update ... pq o load dos assets precisa ser feito no preload
++ no phaser exporter copiar todos os assets para uma pasta assets
+	o nome do arquivo pode ser o nome do asset
