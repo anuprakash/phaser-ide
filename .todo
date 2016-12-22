@@ -25,6 +25,7 @@
 + o scroll é um preview (tipo sublime) da area de edicao, o scroll é a parte visivel de Y e o scroll completo é o scrollregion
 + adicionar propriedades ao jogo (para poder usar propriedades globais)
 + como o logic editor é independente de cena, pode-se criar um rectangle-simples que delimita uma regiao pra dizer: essa região aqui é da cena um ...
+	+ no rectangle area que engloba os logic bricks, permitir um atalho para dar um scroll neles, para passar de um pro outro facilmente
 + o nome o sprite não pode conter espaços em branco nem hifens
 + internal web server
 + no phaserexporter usar um widget diferente para selecionar o caminho das pastas
@@ -32,8 +33,8 @@
 	criar um actuaot r que é "load assets". e especificar quais os assets
 	criar um sensor chamado preload, create, update ... pq o load dos assets precisa ser feito no preload
 + no phaser exporter copiar todos os assets para uma pasta assets
-	o nome do arquivo pode ser o nome do asset
-+ adicionar uma opção perguntando se deseja usar um cdn pra usar o phaser (pesquisar se existe um)
 + erro ao fechar o phaser-ide no command window "quit"
 + no form pesquinar pelo nome do label ao inves dos indices da ordem dos campos
 + html backround color
++ selecionar a licensa de software
++ DEIXAR AS PROPRIEDADES GLOBAIS MESMO

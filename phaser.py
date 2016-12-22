@@ -40,6 +40,8 @@ class PhaserEditor(boring.Window):
         # the key is the scene name
         self.sprite_canvases = {}
         self.actual_canvas = None
+        # stores all logic editors by scene
+        self.logic_editors = {}
 
         Tkinter.Tk.__init__(self)
         ttk.Style().theme_use('clam')
@@ -176,10 +178,6 @@ class PhaserEditor(boring.Window):
         )
 
         ############################
-        self.__logic_editor = logiceditor.LogicEditor(self)
-        self.__logic_editor.hide()
-
-        ############################
         self.center()
         self.bind('<Delete>', self.__delete_sprite, '+')
         self.bind('<Up>', self.__up_key, '+')
@@ -187,7 +185,6 @@ class PhaserEditor(boring.Window):
         self.bind('<Right>', self.__right_key, '+')
         self.bind('<Left>', self.__left_key, '+')
         self.focus_force()
-
 
         ############################### Command windows
         self.__menu_items = [
@@ -482,23 +479,21 @@ class PhaserEditor(boring.Window):
         self.actual_canvas = None
 
     def show_logic_editor(self, event=None):
-        if self.current_project:
-            self.__logic_editor.show()
+        if self.current_project and self.actual_canvas:
+            self.logic_editors[self.actual_canvas].show()
 
     ################ SCENES
-    def __on_select_scene(self, event):
+    def __on_select_scene(self, sceneitem):
         '''
         called when the user clicks in a scene
         in scene manager
         '''
-        selection = self.scene_manager.get_selected()
-        if selection:
-            scene_name = selection.title
-            if (scene_name != self.actual_canvas and self.actual_canvas != None) or self.actual_canvas == None:
-                if self.actual_canvas:
-                    self.canvases[self.actual_canvas].pack_forget()
-                self.actual_canvas = scene_name
-                self.cur_canvas().pack()
+        scene_name = sceneitem.title
+        if (scene_name != self.actual_canvas and self.actual_canvas != None) or self.actual_canvas == None:
+            if self.actual_canvas:
+                self.canvases[self.actual_canvas].pack_forget()
+            self.actual_canvas = scene_name
+            self.cur_canvas().pack()
 
     def _add_scene_btn_handler(self, event=None):
         '''
@@ -521,7 +516,10 @@ class PhaserEditor(boring.Window):
         '''
         add an icon in scene manager and fills the canvas
         '''
-        self.scene_manager.add_item(name, 'scene', 'icons/folder.png')
+        self.scene_manager.add_item(
+            name, 'scene', 'icons/folder.png',
+            before_click=self.__on_select_scene
+        )
         ca = boring.widgets.ExtendedCanvas(
             self.canvas_frame,
             width=self.current_project.width,
@@ -531,6 +529,9 @@ class PhaserEditor(boring.Window):
         )
         ca.pack(anchor='sw', side='left')
         self.canvases[name] = ca
+        # creating the logic editor for this scene
+        self.logic_editors[name] = logiceditor.LogicEditor(self)
+        self.logic_editors[name].hide()
         # the list of sprites of this scene is a empty list
         self.sprite_canvases[name] = []
         if self.actual_canvas:
@@ -828,12 +829,29 @@ class PhaserEditor(boring.Window):
         windows.about.AboutWindow(self)
 
     def new_project(self, event=None):
-        if self.current_project and (not boring.dialog.OkCancel(self, 'A loaded project already exists. Do you wish to continue?').output):
+        if self.current_project and \
+                (not boring.dialog.OkCancel(
+                    self, 'A loaded project already exists. Do you wish to continue?'
+                ).output):
             return
         npw = windows.newproject.NewProjectWindow(self)
         if npw.output:
             self.__reset_ide()
             self.current_project = core.PhaserProject(npw.output)
+            self.__initial_scenes_and_assets()
+
+    def __initial_scenes_and_assets(self):
+        '''
+        called in new_project
+        '''
+        self.add_asset({
+            'type': 'image',
+            'path': 'assets/default_loading.png',
+            'name': 'default_loading'
+        })
+        self.add_scene('boot')
+        self.add_scene('preload')
+        self.add_scene('mainscene')
 
     def __reset_ide(self):
         '''

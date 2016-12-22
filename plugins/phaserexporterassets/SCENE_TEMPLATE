@@ -1,0 +1,15 @@
+var phase01 = function(game){};
+phase01.prototype = {
+	preload: function()
+	{
+		{preload}
+	},
+	create: function()
+	{
+		{create}
+	},
+	update: function()
+	{
+		{update}
+	}
+};

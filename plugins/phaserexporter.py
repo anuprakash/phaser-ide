@@ -20,6 +20,7 @@ PRELOAD_JS_TEMPLATE = u''
 INDEX_HTML_TEMPLATE = u''
 PHASER_CDN = u'https://cdnjs.cloudflare.com/ajax/libs/phaser/2.4.6/phaser.min.js'
 PHASER_IMPORT_TAG = u'<script src="{url}"></script>'
+SCENE_TEMPLATE = u''
 
 def replace_many(string, _dict):
     for key, value in _dict.items():
@@ -66,6 +67,20 @@ class ExporterWindow(boring.dialog.DefaultDialog):
         self.create_main_js()
         self.copy_default_images()
         self.create_index_html()
+        # TODO: for each scene do ...
+        self.create_scene()
+
+    def create_scene(self):
+        scene_js = open(posixpath.join(self.form.values[0], 'js/game.js'), 'w')
+        scene_js.write(self.get_scene())
+        scene_js.close()
+
+    def get_scene(self):
+        return replace_many(SCENE_TEMPLATE, {
+            '{preload}': 'console.log("test");',
+            '{create}': '',
+            '{update}': ''
+        })
 
     def create_index_html(self):
         index_html = open(posixpath.join(self.form.values[0], 'index.html'), 'w')
@@ -74,13 +89,14 @@ class ExporterWindow(boring.dialog.DefaultDialog):
 
     def get_index_html(self):
         url = 'js/phaser.min.js'
-        if self.form.values[3]:
+        if self.form.values[4]:
             url = PHASER_CDN
         import_tag = replace_many(PHASER_IMPORT_TAG, {
             '{url}': url
         })
         return replace_many(INDEX_HTML_TEMPLATE, {
-            '{phaserscript}': import_tag
+            '{phaserscript}': import_tag,
+            '{gamename}': self.parent.current_project.name
         })
 
 
@@ -167,11 +183,13 @@ def init(ide):
     pass
 
 def execute(ide):
-    global MAIN_JS_TEMPLATE, BOOT_JS_TEMPLATE, PRELOAD_JS_TEMPLATE, INDEX_HTML_TEMPLATE
+    global MAIN_JS_TEMPLATE, BOOT_JS_TEMPLATE, PRELOAD_JS_TEMPLATE,\
+            INDEX_HTML_TEMPLATE, SCENE_TEMPLATE
     BOOT_JS_TEMPLATE = read_template('plugins/phaserexporterassets/BOOT_JS_TEMPLATE')
     MAIN_JS_TEMPLATE = read_template('plugins/phaserexporterassets/MAIN_JS_TEMPLATE')
     PRELOAD_JS_TEMPLATE = read_template('plugins/phaserexporterassets/PRELOAD_JS_TEMPLATE')
     INDEX_HTML_TEMPLATE = read_template('plugins/phaserexporterassets/INDEX_HTML_TEMPLATE')
+    SCENE_TEMPLATE = read_template('plugins/phaserexporterassets/SCENE_TEMPLATE')
 
     if ide.current_project:
         ExporterWindow(ide)
