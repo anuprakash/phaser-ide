@@ -34,7 +34,6 @@
 + no phaser exporter copiar todos os assets para uma pasta assets
 	o nome do arquivo pode ser o nome do asset
 + adicionar uma opção perguntando se deseja usar um cdn pra usar o phaser (pesquisar se existe um)
-+ definir author do projeto (com email etc)
 + erro ao fechar o phaser-ide no command window "quit"
 + no form pesquinar pelo nome do label ao inves dos indices da ordem dos campos
-+ extrair here documents para arquivos dentro da pasta de assets
++ html backround color

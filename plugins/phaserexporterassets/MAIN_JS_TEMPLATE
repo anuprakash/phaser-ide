@@ -1,0 +1,17 @@
+/*
+Author: {author}
+Email: {authoremail}
+*/
+
+function main()
+{
+    (function()
+    {
+        var game = new Phaser.Game({gamewidth}, {gameheight}, Phaser.AUTO, '{gamename}');
+        game.state.add("Boot", boot);
+        game.state.add("PortraitMode", boot);
+        game.state.add("Preload", preload);
+        game.state.add("Game", phase01);
+        game.state.start("Boot");
+    }());
+}

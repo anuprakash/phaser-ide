@@ -1,0 +1,17 @@
+var preload = function(game){}
+preload.prototype = {
+    preload: function()
+    {
+        this.game.debug.text("{loading_text}", this.game.world.centerX, this.game.world.centerY);
+        var loadingBar = this.add.sprite(0, {game_height}, "loading");
+        loadingBar.anchor.setTo(0.0, 1.0);
+        this.load.setPreloadSprite(loadingBar);
+        {loadings}
+    },
+    create: function()
+    {
+        this.game.state.start('Game');
+    },
+    update: function() {
+    }
+}

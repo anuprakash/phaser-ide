@@ -8,74 +8,18 @@ import os
 
 title = 'Export to Phaser'
 
-MAIN_JS_TEMPLATE = '''
-/*
-Author: {author}
-Email: {authoremail}
-*/
+def read_template(template):
+    a = open(template)
+    content = a.read()
+    a.close()
+    return content
 
-function main()
-{
-    (function()
-    {
-        var game = new Phaser.Game({gamewidth}, {gameheight}, Phaser.AUTO, '{gamename}');
-        game.state.add("Boot", boot);
-        game.state.add("PortraitMode", boot);
-        game.state.add("Preload", preload);
-        game.state.add("Game", phase01);
-        game.state.start("Boot");
-    }());
-}
-'''
-
-BOOT_JS_TEPLATE = '''
-var boot = function(game){};
-boot.prototype = {
-    preload: function()
-    {
-        this.game.load.image("loading","assets/images/loading.png");
-    },
-    create: function()
-    {
-        this.game.debug.text("BOOT",0,10);
-        this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-        this.game.stage.scale.forceLandscape = true;
-
-        this.scale.pageAlignHorizontally = true;
-        this.scale.pageAlignVertically = true;
-        this.game.stage.backgroundColor = {bgcolor};
-        this.game.scale.forceOrientation(true, false);
-
-        this.game.scale.enterIncorrectOrientation.add(this.handleIncorrect);
-
-        this.game.state.start("Preload");
-    },
-    handleIncorrect: function()
-    {
-        alert('para uma melhor experiência utilize seu dispositivo na orientação horizontal');
-    }
-}
-'''
-
-PRELOAD_JS_TEMPLATE = '''
-var preload = function(game){}
-preload.prototype = {
-    preload: function()
-    {
-        this.game.debug.text("{loading_text}", this.game.world.centerX, this.game.world.centerY);
-        var loadingBar = this.add.sprite(0, {game_height}, "loading");
-        loadingBar.anchor.setTo(0.0, 1.0);
-        this.load.setPreloadSprite(loadingBar);
-        {loadings}
-    },
-    create: function()
-    {
-        this.game.state.start('Game');
-    },
-    update: function() {
-    }
-}
-'''
+MAIN_JS_TEMPLATE = u''
+BOOT_JS_TEMPLATE = u''
+PRELOAD_JS_TEMPLATE = u''
+INDEX_HTML_TEMPLATE = u''
+PHASER_CDN = u'https://cdnjs.cloudflare.com/ajax/libs/phaser/2.4.6/phaser.min.js'
+PHASER_IMPORT_TAG = u'<script src="{url}"></script>'
 
 def replace_many(string, _dict):
     for key, value in _dict.items():
@@ -93,15 +37,23 @@ def mkdir(directory):
     except Exception, e:
         print e
 
+FORM_STRING = '''
+Export path@string
+Loading text@string
+Author@string
+Email@string
+Use Phaser CDN@check
+'''
+
 class ExporterWindow(boring.dialog.DefaultDialog):
     def body(self, master):
         self.ide = master
         self.form = boring.form.FormFrame(
             master,
-            'Export path@string\nLoading text@string\nAuthor@string\nEmail@string',
+            FORM_STRING,
             initial_values=[
                 '',
-                'Loading...', '', ''
+                'Loading...', '', '', False
             ]
         )
         self.form.pack()
@@ -109,6 +61,54 @@ class ExporterWindow(boring.dialog.DefaultDialog):
 
     def apply(self):
         self.create_project_structure()
+        self.create_boot_js()
+        self.create_preload_js()
+        self.create_main_js()
+        self.copy_default_images()
+        self.create_index_html()
+
+    def create_index_html(self):
+        index_html = open(posixpath.join(self.form.values[0], 'index.html'), 'w')
+        index_html.write(self.get_index_html())
+        index_html.close()
+
+    def get_index_html(self):
+        url = 'js/phaser.min.js'
+        if self.form.values[3]:
+            url = PHASER_CDN
+        import_tag = replace_many(PHASER_IMPORT_TAG, {
+            '{url}': url
+        })
+        return replace_many(INDEX_HTML_TEMPLATE, {
+            '{phaserscript}': import_tag
+        })
+
+
+    def create_main_js(self):
+        main_js = open(posixpath.join(self.form.values[0], 'js/main.js'), 'w')
+        main_js.write(self.get_main_js())
+        main_js.close()
+
+    def create_boot_js(self):
+        boot_file = open(posixpath.join(self.form.values[0], 'js/boot.js'), 'w')
+        boot_file.write(self.get_boot_js())
+        boot_file.close()
+
+    def create_preload_js(self):
+        preload_file = open(posixpath.join(self.form.values[0], 'js/preload.js'), 'w')
+        preload_file.write(self.get_preload_js())
+        preload_file.close()
+
+    def copy_default_images(self):
+        shutil.copy(
+            'plugins/phaserexporterassets/loading.png',
+            posixpath.join(self.form.values[0], 'assets/images')
+        )
+        if not self.form.values[3]: # use cdn
+            shutil.copy(
+                'plugins/phaserexporterassets/phaser.min.js',
+                posixpath.join(self.form.values[0], 'js')
+            )
 
     def get_preload_js(self):
         return replace_many(PRELOAD_JS_TEMPLATE, {
@@ -118,7 +118,7 @@ class ExporterWindow(boring.dialog.DefaultDialog):
         })
 
     def get_boot_js(self):
-        return replace_many(BOOT_JS_TEPLATE, {
+        return replace_many(BOOT_JS_TEMPLATE, {
             '{bgcolor}': self.parent.current_project.bgcolor.replace('#', '0x'),
         })
 
@@ -167,6 +167,12 @@ def init(ide):
     pass
 
 def execute(ide):
+    global MAIN_JS_TEMPLATE, BOOT_JS_TEMPLATE, PRELOAD_JS_TEMPLATE, INDEX_HTML_TEMPLATE
+    BOOT_JS_TEMPLATE = read_template('plugins/phaserexporterassets/BOOT_JS_TEMPLATE')
+    MAIN_JS_TEMPLATE = read_template('plugins/phaserexporterassets/MAIN_JS_TEMPLATE')
+    PRELOAD_JS_TEMPLATE = read_template('plugins/phaserexporterassets/PRELOAD_JS_TEMPLATE')
+    INDEX_HTML_TEMPLATE = read_template('plugins/phaserexporterassets/INDEX_HTML_TEMPLATE')
+
     if ide.current_project:
         ExporterWindow(ide)
     else:
