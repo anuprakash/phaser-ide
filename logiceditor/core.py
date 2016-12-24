@@ -104,6 +104,12 @@ class ConnectorEmissor(boring.draw.OvalDraw):
                         receptor.add_string_connector(self.__string)
                         break
 
+    def connect(self, receptor):
+        self.__string = ConnectorString(
+            self.canvas, obj1=self, obj2=receptor
+        )
+        receptor.add_string_connector(self.__string)
+        self.__string.update_coords()
 
     # dont override .update because infinity recursion
     # : updating x/y will call .update

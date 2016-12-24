@@ -33,8 +33,9 @@
 	criar um actuaot r que é "load assets". e especificar quais os assets
 	criar um sensor chamado preload, create, update ... pq o load dos assets precisa ser feito no preload
 + no phaser exporter copiar todos os assets para uma pasta assets
-+ erro ao fechar o phaser-ide no command window "quit"
 + no form pesquinar pelo nome do label ao inves dos indices da ordem dos campos
 + html backround color
 + selecionar a licensa de software
 + DEIXAR AS PROPRIEDADES GLOBAIS MESMO
++ adicionar um botao "+" no actuator para adicionar assets
++ adiconar nos draws a propriedade 'xy' que recebe uma tupla ou um list e atualizar todos os locais que fazem .x = x; .y = y

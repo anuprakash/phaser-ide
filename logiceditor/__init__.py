@@ -67,6 +67,10 @@ class LogicEditor(SubWindow):
                 command=lambda *args : self.__add_sensor(sensors.SENSOR_COLLISION)
             ),
             dict(
+                name='Add Preload sensor',
+                command=lambda *args : self.__add_sensor(sensors.SENSOR_PRELOAD)
+            ),
+            dict(
                 name='Add AND Controller',
                 command=lambda *args : self.__add_controller(controllers.CONTROLLER_AND)
             ),
@@ -95,6 +99,11 @@ class LogicEditor(SubWindow):
                 name='Add Mouse Visibility Actuator',
                 subtitle='Turns on/off the visibility of mouse',
                 command=lambda *args: self.__add_actuator(actuators.ACTUATOR_MOUSE_VISIBILITY)
+            ),
+            dict(
+                name='Add Load Scene Actuator',
+                subtitle='Loads a scene',
+                command=lambda *args: self.__add_actuator(actuators.ACTUATOR_LOAD_SCENE)
             ),
 
             dict(
@@ -128,6 +137,8 @@ class LogicEditor(SubWindow):
             sensor = sensors.AlwaysSensorDrawWindow(self.canvas)
         elif sensor_type == sensors.SENSOR_KEYBOARD:
             sensor = sensors.KeyboardSensorDrawWindow(self.canvas)
+        elif sensor_type == sensors.SENSOR_PRELOAD:
+            sensor = sensors.PreloadSensorDrawWindow(self.canvas)
 
         if sensor:
             self.sensors.append(sensor)
@@ -156,10 +167,22 @@ class LogicEditor(SubWindow):
             actuator = actuators.CodeActuatorDrawWindow(self.canvas)
         elif actuator_type == actuators.ACTUATOR_MOUSE_VISIBILITY:
             actuator = actuators.MouseVisibilityActuatorDrawWindow(self.canvas)
+        elif actuator_type == actuators.ACTUATOR_LOAD_SCENE:
+            actuator = actuators.LoadSceneActuatorDrawWindow(self.canvas)
 
         if actuator:
             self.actuators.append(actuator)
             actuator.center()
+
+    def add_connect_by_AND(self, sensor, actuator):
+        and_brick = controllers.ANDControllerDrawWindow(self.canvas)
+        and_brick.x = 270
+        and_brick.y = sensor.y
+        self.controllers.append(and_brick)
+        self.actuators.append(actuator)
+        self.sensors.append(sensor)
+        sensor.emissor.connect(and_brick.receptor)
+        and_brick.emissor.connect(actuator.receptor)
 
     def show(self):
         self.deiconify()

@@ -6,13 +6,11 @@ import boring.form
 
 ACTUATOR_QUIT_GAME = 0
 ACTUATOR_RESTART_GAME = 1
-
 ACTUATOR_RESTART_SCENE = 2
 ACTUATOR_LOAD_SCENE = 3 # TODO
-
 ACTUATOR_CODE = 4
-
 ACTUATOR_MOUSE_VISIBILITY = 5
+ACTUATOR_LOAD_ASSETS = 6 # TODO
 
 # ADD OBJECT: x, y, z
 # END OBJECT
@@ -24,13 +22,6 @@ ACTUATOR_MOUSE_VISIBILITY = 5
 
 class GenericActuatorDrawWindow(core.GenericLogicEditorDrawWindow):
     def __init__(self, canvas, title='Sensor', widget=None):
-        self.__connector = boring.draw.OvalDraw(
-            canvas,
-            -10,
-            -10,
-            5,
-            5
-        )
         core.GenericLogicEditorDrawWindow.__init__(
             self,
             canvas,
@@ -81,6 +72,9 @@ class CodeActuatorDrawWindow(GenericActuatorDrawWindow):
             )
         )
 
+    def set_code(self, code):
+        self.widget.inputs[0].text = code
+
 class MouseVisibilityActuatorDrawWindow(GenericActuatorDrawWindow):
     def __init__(self, canvas):
         GenericActuatorDrawWindow.__init__(
@@ -92,4 +86,20 @@ class MouseVisibilityActuatorDrawWindow(GenericActuatorDrawWindow):
                 'Visible@check',
                 font=('TkDefaultFont', 6)
             )
+        )
+
+class LoadAssetsActuatorDrawWindow(GenericActuatorDrawWindow):
+    def __init__(self, canvas):
+        GenericActuatorDrawWindow.__init__(
+            self,
+            canvas,
+            title='Load Assets'
+        )
+
+class LoadSceneActuatorDrawWindow(GenericActuatorDrawWindow):
+    def __init__(self, canvas):
+        GenericActuatorDrawWindow.__init__(
+            self,
+            canvas,
+            title='Load Scene'
         )

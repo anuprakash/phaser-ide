@@ -19,6 +19,9 @@ import json
 import random
 import string
 import logiceditor
+import logiceditor.sensors
+import logiceditor.controllers
+import logiceditor.actuators
 import boring
 import boring.widgets
 import windows.newproject
@@ -209,8 +212,8 @@ class PhaserEditor(boring.Window):
                 subtitle='Shows a window with the project properties'
             ),
             dict(
-                name='Quit application',
-                command=lambda event : self.destroy(),
+                name='Quit/Close application',
+                command=lambda event : self.quit(),
                 subtitle='Closes the application'
             ),
             dict(
@@ -823,9 +826,6 @@ class PhaserEditor(boring.Window):
         ShortcutsWindow(self)
 
     def show_about_window(self, event=None):
-        '''
-        called when you click Help > About
-        '''
         windows.about.AboutWindow(self)
 
     def new_project(self, event=None):
@@ -844,14 +844,67 @@ class PhaserEditor(boring.Window):
         '''
         called in new_project
         '''
+        self.__create_initial_assets()
+        self.__create_boot_scene()
+        self.add_scene('preload')
+        self.add_scene('mainscene')
+
+    def __create_initial_assets(self):
+        '''
+        called in __initial_scenes_and_assets
+        '''
         self.add_asset({
             'type': 'image',
             'path': 'assets/default_loading.png',
             'name': 'default_loading'
         })
+
+    def __create_boot_scene(self):
+        '''
+        called in __initial_scenes_and_assets
+        '''
         self.add_scene('boot')
-        self.add_scene('preload')
-        self.add_scene('mainscene')
+        canvas = self.logic_editors['boot'].canvas
+        preload = logiceditor.sensors.PreloadSensorDrawWindow(canvas)
+        preload.x = 20
+        preload.y = 100
+
+        load_assets = logiceditor.actuators.LoadAssetsActuatorDrawWindow(canvas)
+        load_assets.x = 550
+        load_assets.y = 100
+
+        self.logic_editors['boot'].add_connect_by_AND(preload, load_assets)
+
+        boot_create = logiceditor.sensors.SignalSensorDrawWindow(canvas)
+        boot_create.x = 20
+        boot_create.y = 200
+
+        code_actuator = logiceditor.actuators.CodeActuatorDrawWindow(canvas)
+        code_actuator.x = 550
+        code_actuator.y = 200
+        # TODO: colocar isso num arquivo externo
+        code_actuator.set_code('''
+this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+this.game.stage.scale.forceLandscape = true;
+
+this.scale.pageAlignHorizontally = true;
+this.scale.pageAlignVertically = true;
+this.game.stage.backgroundColor = {bgcolor};
+this.game.scale.forceOrientation(true, false);
+
+this.game.scale.enterIncorrectOrientation.add(this.handleIncorrect);
+''')
+        self.logic_editors['boot'].add_connect_by_AND(boot_create, code_actuator)
+
+        signal_load_scene = logiceditor.sensors.SignalSensorDrawWindow(canvas)
+        signal_load_scene.x = 20
+        signal_load_scene.y = 300
+
+        load_scene = logiceditor.actuators.LoadSceneActuatorDrawWindow(canvas)
+        load_scene.x = 550
+        load_scene.y = 500
+
+        self.logic_editors['boot'].add_connect_by_AND(signal_load_scene, load_scene)
 
     def __reset_ide(self):
         '''

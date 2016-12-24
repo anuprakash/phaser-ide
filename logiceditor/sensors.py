@@ -15,17 +15,11 @@ SENSOR_MESSAGE = 5
 SENSOR_PROPERTY = 6 # TODO: permitir selecionar um objeto e a propriedade
     # Se o usuario quiser adicionar uma propriedade global ele deve criar um objeto empty
 SENSOR_COLLISION = 7
+SENSOR_PRELOAD = 8
 
 
 class GenericSensorDrawWindow(core.GenericLogicEditorDrawWindow):
     def __init__(self, canvas, title='Sensor', widget=None):
-        self.__connector = boring.draw.OvalDraw(
-            canvas,
-            -10,
-            -10,
-            5,
-            5
-        )
         core.GenericLogicEditorDrawWindow.__init__(
             self,
             canvas,
@@ -85,4 +79,12 @@ class KeyboardSensorDrawWindow(GenericSensorDrawWindow):
                 font=('TkDefaultFont', 6),
                 inputswidgets=widgets_list
             ),
+        )
+
+class PreloadSensorDrawWindow(GenericSensorDrawWindow):
+    def __init__(self, canvas):
+        GenericSensorDrawWindow.__init__(
+            self,
+            canvas,
+            title='Preload'
         )
