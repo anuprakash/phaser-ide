@@ -3,14 +3,15 @@
 import core
 import boring.draw
 import boring.form
+import boring.menus
 
 ACTUATOR_QUIT_GAME = 0
 ACTUATOR_RESTART_GAME = 1
 ACTUATOR_RESTART_SCENE = 2
-ACTUATOR_LOAD_SCENE = 3 # TODO
+ACTUATOR_LOAD_SCENE = 3
 ACTUATOR_CODE = 4
 ACTUATOR_MOUSE_VISIBILITY = 5
-ACTUATOR_LOAD_ASSETS = 6 # TODO
+ACTUATOR_LOAD_ASSETS = 6
 
 # ADD OBJECT: x, y, z
 # END OBJECT
@@ -89,17 +90,80 @@ class MouseVisibilityActuatorDrawWindow(GenericActuatorDrawWindow):
         )
 
 class LoadAssetsActuatorDrawWindow(GenericActuatorDrawWindow):
-    def __init__(self, canvas):
+    def __init__(self, canvas, get_assets_func=None):
+        self.__get_assets_func = get_assets_func
+        self.__stack = boring.widgets.RemovalButtonsStack(canvas)
         GenericActuatorDrawWindow.__init__(
             self,
             canvas,
-            title='Load Assets'
+            title='Load Assets',
+            widget=self.__stack
         )
+        self.__add_button = boring.draw.TextDraw(
+            canvas, self.x+self.width - 5, self.y+(self.height/2), '+',
+            anchor='e', fill='white'
+        )
+        self.__add_button.bind('<1>', self.__add_button_click, '+')
+
+    def __add_button_click(self, event=None):
+        if not self.__get_assets_func:
+            return
+        items = []
+        for i in self.__get_assets_func():
+            items.append({
+                'name': i.get('name'),
+                'subtitle': i.get('type'),
+                'command': self.__gen_select_asset_function(i)
+            })
+        boring.menus.CommandChooserWindow.popup(items)
+
+    def __gen_select_asset_function(self, item):
+        def __final(*args):
+            self.add_asset(item.get('name'))
+        return __final
+
+    def update(self):
+        GenericActuatorDrawWindow.update(self)
+        self.__add_button.xy = [
+            self.x+self.width-5,
+            self.y+(self.height/2)
+        ]
+
+    def add_asset(self, asset_name):
+        try:
+            self.__stack.add(asset_name)
+        except boring.widgets.DuplicatedRemovalButtonException:
+            pass
 
 class LoadSceneActuatorDrawWindow(GenericActuatorDrawWindow):
-    def __init__(self, canvas):
+    def __init__(self, canvas, get_scene_func=None):
+        self.__get_scene_func = get_scene_func
+        self.__scenes_options = boring.menus.OptionMenu(
+            canvas,
+            get_items_func=self.__get_scenes
+        )
         GenericActuatorDrawWindow.__init__(
             self,
             canvas,
-            title='Load Scene'
+            title='Load Scene',
+            widget=self.__scenes_options
         )
+
+    def __get_scenes(self, event=None):
+        options = []
+        if self.__get_scene_func:
+            for i in self.__get_scene_func():
+                options.append({
+                    'name': i,
+                    'subtitle': 'scene',
+                    'icon': 'icons/folder.png'
+                })
+        return options
+
+    @property
+    def value(self):
+        return self.__scenes_options.value
+
+    @value.setter
+    def value(self, value):
+        self.__scenes_options.value = value

@@ -37,5 +37,8 @@
 + html backround color
 + selecionar a licensa de software
 + DEIXAR AS PROPRIEDADES GLOBAIS MESMO
-+ adicionar um botao "+" no actuator para adicionar assets
 + adiconar nos draws a propriedade 'xy' que recebe uma tupla ou um list e atualizar todos os locais que fazem .x = x; .y = y
++ adicionar propriedade 'allowexpressions' no widget entry que permite que ao clicar no enter a expressao matematica escrita seja verificada, se essa propriedade for true ao dicionario deve ser adicionado as quatro operacoes matematicas mais exponenciacao (sem sqrt)
++ nos bricks fazer os wigets se ajustarem ao tamanho do window
++ remover classe widgets.PopUpMenu e migrar tudo para command window
++ adicionar pesquisa por cena no menu. digitar scenes: e depois digitar a cena

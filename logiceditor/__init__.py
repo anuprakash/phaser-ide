@@ -105,6 +105,11 @@ class LogicEditor(SubWindow):
                 subtitle='Loads a scene',
                 command=lambda *args: self.__add_actuator(actuators.ACTUATOR_LOAD_SCENE)
             ),
+            dict(
+                name='Add Load Assets Actuator',
+                subtitle='Loads many assets',
+                command=lambda *args: self.__add_actuator(actuators.ACTUATOR_LOAD_ASSETS)
+            ),
 
             dict(
                 name='Clear Canvas Scroll',
@@ -168,11 +173,26 @@ class LogicEditor(SubWindow):
         elif actuator_type == actuators.ACTUATOR_MOUSE_VISIBILITY:
             actuator = actuators.MouseVisibilityActuatorDrawWindow(self.canvas)
         elif actuator_type == actuators.ACTUATOR_LOAD_SCENE:
-            actuator = actuators.LoadSceneActuatorDrawWindow(self.canvas)
+            actuator = actuators.LoadSceneActuatorDrawWindow(
+                self.canvas, get_scene_func=self.__get_scene_list
+            )
+        elif actuator_type == actuators.ACTUATOR_LOAD_ASSETS:
+            actuator = actuators.LoadAssetsActuatorDrawWindow(
+                self.canvas, get_assets_func=self.__get_assets_list
+            )
 
         if actuator:
             self.actuators.append(actuator)
             actuator.center()
+
+    def __get_assets_list(self):
+        return self.master.get_assets_dict()
+
+    def __get_scene_list(self):
+        '''
+        this function returns a list with all scenes
+        '''
+        return self.master.get_scene_list()
 
     def add_connect_by_AND(self, sensor, actuator):
         and_brick = controllers.ANDControllerDrawWindow(self.canvas)

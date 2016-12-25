@@ -380,6 +380,12 @@ class PhaserEditor(boring.Window):
             })
         return result
 
+    def get_scene_list(self):
+        '''
+        returns a list with the name of all scenes
+        '''
+        return self.canvases.keys()
+
     def get_sprites_dict(self, sprites):
         '''
         sprites: a list of sprites
@@ -869,7 +875,9 @@ class PhaserEditor(boring.Window):
         preload.x = 20
         preload.y = 100
 
-        load_assets = logiceditor.actuators.LoadAssetsActuatorDrawWindow(canvas)
+        load_assets = logiceditor.actuators.LoadAssetsActuatorDrawWindow(
+            canvas, get_assets_func=self.get_assets_dict
+        )
         load_assets.x = 550
         load_assets.y = 100
 
@@ -900,7 +908,10 @@ this.game.scale.enterIncorrectOrientation.add(this.handleIncorrect);
         signal_load_scene.x = 20
         signal_load_scene.y = 300
 
-        load_scene = logiceditor.actuators.LoadSceneActuatorDrawWindow(canvas)
+        load_scene = logiceditor.actuators.LoadSceneActuatorDrawWindow(
+            canvas, get_scene_func=self.get_scene_list
+        )
+        load_scene.value = 'preload'
         load_scene.x = 550
         load_scene.y = 500
 

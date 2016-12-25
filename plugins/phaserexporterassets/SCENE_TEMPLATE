@@ -1,5 +1,5 @@
-var phase01 = function(game){};
-phase01.prototype = {
+var {scenename} = function(game){};
+{scenename}.prototype = {
 	preload: function()
 	{
 		{preload}
