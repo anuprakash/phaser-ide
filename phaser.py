@@ -926,6 +926,12 @@ this.game.scale.enterIncorrectOrientation.add(this.handleIncorrect);
         self.scene_manager.delete_all()
         self.assets_manager.delete_all()
         self.__reset_all_canvas()
+        self.__destroy_all_logiceditors()
+
+    def __destroy_all_logiceditors(self):
+        for scenename in self.logic_editors.keys():
+            self.logic_editors[scenename].destroy()
+        self.logic_editors = dict()
 
     def show_project_properties(self, event=None):
         if self.current_project:
