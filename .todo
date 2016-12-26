@@ -42,3 +42,5 @@
 + nos bricks fazer os wigets se ajustarem ao tamanho do window
 + remover classe widgets.PopUpMenu e migrar tudo para command window
 + adicionar pesquisa por cena no menu. digitar scenes: e depois digitar a cena
++ add reflect effect to make water and other things
++ implementar os outros actuators no exporter js. hj so tem code e load assets (de imagens)

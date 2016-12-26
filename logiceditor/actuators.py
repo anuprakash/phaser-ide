@@ -76,6 +76,10 @@ class CodeActuatorDrawWindow(GenericActuatorDrawWindow):
     def set_code(self, code):
         self.widget.inputs[0].text = code
 
+    @property
+    def value(self):
+        return self.widget.inputs[0].text
+
 class MouseVisibilityActuatorDrawWindow(GenericActuatorDrawWindow):
     def __init__(self, canvas):
         GenericActuatorDrawWindow.__init__(
@@ -134,6 +138,10 @@ class LoadAssetsActuatorDrawWindow(GenericActuatorDrawWindow):
             self.__stack.add(asset_name)
         except boring.widgets.DuplicatedRemovalButtonException:
             pass
+
+    @property
+    def value(self):
+        return self.__stack.value
 
 class LoadSceneActuatorDrawWindow(GenericActuatorDrawWindow):
     def __init__(self, canvas, get_scene_func=None):

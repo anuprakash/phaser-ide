@@ -5,6 +5,8 @@ import boring.form
 import posixpath
 import shutil
 import os
+import logiceditor.sensors
+import logiceditor.actuators
 
 title = 'Export to Phaser'
 
@@ -47,13 +49,78 @@ Use Phaser CDN@check
 '''
 
 class ExporterWindow(boring.dialog.DefaultDialog):
+    def get_asset_path(self, asset_detail):
+        '''
+        returns the new path in the exported folder
+        '''
+        if asset_detail['type'] == 'image':
+            ext = asset_detail['path'].split('.')[-1].lower()
+            return 'assets/images/%s.%s' % (asset_detail['name'], ext)
+
+    def get_loading_js_of_asset(self, assetname):
+        '''
+        returns the javascript code to load a asset
+        '''
+        asset_detail = self.ide.get_asset_details_by_name(assetname)
+        if asset_detail and asset_detail['type'] == 'image':
+            return replace_many('this.game.load.image("{assetname}", "{assetpath}");', {
+                '{assetname}': assetname,
+                '{assetpath}': self.get_asset_path(asset_detail)
+            })
+        return None
+
+    def get_load_scene_js_code(self, scenename):
+        return replace_many('this.game.state.start("{scenename}");\n', {
+            '{scenename}': scenename
+        })
+
+    def get_js_code_of_actuator(self, jscode):
+        return replace_many(
+            jscode,
+            self.get_project_properties()
+        )
+
+    def get_project_properties(self):
+        return {
+            '{bgcolor}': self.get_project_bgcolor(),
+            '{gamewidth}': self.get_project_width(),
+            '{gameheight}': self.get_project_height(),
+            '{gamename}': self.get_project_name(),
+            '{author}': self.form.values[2],
+            '{authoremail}': self.form.values[3]
+        }
+
+    def get_project_name(self):
+        return unicode(self.ide.current_project.name)
+
+    def get_project_width(self):
+        return unicode(self.ide.current_project.width)
+
+    def get_project_height(self):
+        return unicode(self.ide.current_project.height)
+
+    def get_actuator_js_code(self, actuator):
+        '''
+        returns the javascript code of actuator
+        '''
+        final_js = u''
+        actuator_type = type(actuator)
+        if actuator_type == logiceditor.actuators.LoadAssetsActuatorDrawWindow:
+            for i in actuator.value:
+                final_js += self.get_loading_js_of_asset(i) + '\n'
+        elif actuator_type == logiceditor.actuators.CodeActuatorDrawWindow:
+            return self.get_js_code_of_actuator(actuator.value)
+        elif actuator_type == logiceditor.actuators.LoadSceneActuatorDrawWindow:
+            return self.get_load_scene_js_code(actuator.value)
+        return final_js
+
     def body(self, master):
-        self.ide = master
+        self.ide = master.master.master
         self.form = boring.form.FormFrame(
             master,
             FORM_STRING,
             initial_values=[
-                '',
+                '/home/cptx032/Desktop/john',
                 'Loading...', '', '', False
             ]
         )
@@ -62,25 +129,47 @@ class ExporterWindow(boring.dialog.DefaultDialog):
 
     def apply(self):
         self.create_project_structure()
-        self.create_boot_js()
-        self.create_preload_js()
-        self.create_main_js()
+        self.create_main_js() # TODO: remove
         self.copy_default_images()
         self.create_index_html()
         # TODO: for each scene do ...
-        self.create_scene()
+        self.create_scene('boot')
 
-    def create_scene(self):
-        scene_js = open(posixpath.join(self.form.values[0], 'js/game.js'), 'w')
-        scene_js.write(self.get_scene())
+    def create_scene(self, scenename):
+        scene_js = open(posixpath.join(self.form.values[0], 'js/%s.js' % (scenename)), 'w')
+        scene_js.write(self.get_scene_html(scenename))
         scene_js.close()
 
-    def get_scene(self):
+    def get_scene_html(self, scenename):
         return replace_many(SCENE_TEMPLATE, {
-            '{preload}': 'console.log("test");',
-            '{create}': '',
-            '{update}': ''
+            '{preload}': self.get_scene_preload_js(scenename),
+            '{create}': self.get_scene_create_js(scenename),
+            '{update}': '',
+            '{scenename}': scenename
         })
+
+    def get_js_code_of_a_sensor(self, scenename, sensortype):
+        final_js = ''
+        for sensor in self.ide.logic_editors[scenename].sensors:
+            if type(sensor) == sensortype:
+                controller = sensor.receptor_brick_connected
+                if controller:
+                    actuator = controller.receptor_brick_connected
+                    if actuator:
+                        final_js += self.get_actuator_js_code(actuator) + '\n'
+        return final_js
+
+    def get_scene_create_js(self, scenename):
+        return self.get_js_code_of_a_sensor(
+            scenename,
+            logiceditor.sensors.SignalSensorDrawWindow
+        )
+
+    def get_scene_preload_js(self, scenename):
+        return self.get_js_code_of_a_sensor(
+            scenename,
+            logiceditor.sensors.PreloadSensorDrawWindow
+        )
 
     def create_index_html(self):
         index_html = open(posixpath.join(self.form.values[0], 'index.html'), 'w')
@@ -105,16 +194,6 @@ class ExporterWindow(boring.dialog.DefaultDialog):
         main_js.write(self.get_main_js())
         main_js.close()
 
-    def create_boot_js(self):
-        boot_file = open(posixpath.join(self.form.values[0], 'js/boot.js'), 'w')
-        boot_file.write(self.get_boot_js())
-        boot_file.close()
-
-    def create_preload_js(self):
-        preload_file = open(posixpath.join(self.form.values[0], 'js/preload.js'), 'w')
-        preload_file.write(self.get_preload_js())
-        preload_file.close()
-
     def copy_default_images(self):
         shutil.copy(
             'plugins/phaserexporterassets/loading.png',
@@ -126,17 +205,8 @@ class ExporterWindow(boring.dialog.DefaultDialog):
                 posixpath.join(self.form.values[0], 'js')
             )
 
-    def get_preload_js(self):
-        return replace_many(PRELOAD_JS_TEMPLATE, {
-            '{loading_text}': self.form.values[1],
-            '{game_height}': unicode(self.parent.current_project.height),
-            '{loadings}': self.get_loadings_strings()
-        })
-
-    def get_boot_js(self):
-        return replace_many(BOOT_JS_TEMPLATE, {
-            '{bgcolor}': self.parent.current_project.bgcolor.replace('#', '0x'),
-        })
+    def get_project_bgcolor(self):
+        return self.ide.current_project.bgcolor.replace('#', '0x')
 
     def get_main_js(self):
         return replace_many(MAIN_JS_TEMPLATE, {
@@ -147,7 +217,7 @@ class ExporterWindow(boring.dialog.DefaultDialog):
             '{authoremail}': self.form.values[3]
         })
 
-    def get_loadings_strings(self, tab_width=2):
+    def get_loadings_strings(self, tab_width=2): # TODO: remove
         final = u''
         tab = ' ' * tab_width * 4 # 4 spaces
         image_template = u'this.game.load.image("{assetname}","assets/images/{assetname}.{fileextension}");'

@@ -878,6 +878,7 @@ class PhaserEditor(boring.Window):
         load_assets = logiceditor.actuators.LoadAssetsActuatorDrawWindow(
             canvas, get_assets_func=self.get_assets_dict
         )
+        load_assets.add_asset('default_loading')
         load_assets.x = 550
         load_assets.y = 100
 

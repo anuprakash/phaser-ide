@@ -119,6 +119,13 @@ class ConnectorEmissor(boring.draw.OvalDraw):
         if self.__string:
             self.__string.update_coords()
 
+    @property
+    def receptor_connected(self):
+        '''
+        returns the receptor connected with this emissor
+        '''
+        return self.__string.obj2
+
 class GenericLogicEditorDrawWindow(boring.drawwidgets.DrawWindow):
     def __init__(self,
             canvas, title='Controller',
@@ -162,3 +169,7 @@ class GenericLogicEditorDrawWindow(boring.drawwidgets.DrawWindow):
             self.receptor.delete()
         if self.emissor:
             self.emissor.delete()
+
+    @property
+    def receptor_brick_connected(self):
+        return self.emissor.receptor_connected.draw_window
