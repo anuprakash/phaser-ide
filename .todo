@@ -29,13 +29,9 @@
 + o nome o sprite não pode conter espaços em branco nem hifens
 + internal web server
 + no phaserexporter usar um widget diferente para selecionar o caminho das pastas
-+ criar cena de loading automaticamente com logic bricks e tudo
-	criar um actuaot r que é "load assets". e especificar quais os assets
-	criar um sensor chamado preload, create, update ... pq o load dos assets precisa ser feito no preload
 + no phaser exporter copiar todos os assets para uma pasta assets
 + no form pesquinar pelo nome do label ao inves dos indices da ordem dos campos
 + html backround color
-+ selecionar a licensa de software
 + DEIXAR AS PROPRIEDADES GLOBAIS MESMO
 + adiconar nos draws a propriedade 'xy' que recebe uma tupla ou um list e atualizar todos os locais que fazem .x = x; .y = y
 + adicionar propriedade 'allowexpressions' no widget entry que permite que ao clicar no enter a expressao matematica escrita seja verificada, se essa propriedade for true ao dicionario deve ser adicionado as quatro operacoes matematicas mais exponenciacao (sem sqrt)
@@ -44,3 +40,5 @@
 + adicionar pesquisa por cena no menu. digitar scenes: e depois digitar a cena
 + add reflect effect to make water and other things
 + implementar os outros actuators no exporter js. hj so tem code e load assets (de imagens)
++ ao excluir uma cena não é possível mais selecionar a cena
++ criar objeto 'phasermessages' no index do phaser exporter

@@ -135,15 +135,15 @@ class LogicEditor(SubWindow):
     def __add_sensor(self, sensor_type):
         sensor = None
         if sensor_type == sensors.SENSOR_MESSAGE:
-            sensor = sensors.MessageSensorDrawWindow(self.canvas)
+            sensor = sensors.MessageSensorDrawWindow(self)
         elif sensor_type == sensors.SENSOR_SIGNAL:
-            sensor = sensors.SignalSensorDrawWindow(self.canvas)
+            sensor = sensors.SignalSensorDrawWindow(self)
         elif sensor_type == sensors.SENSOR_ALWAYS:
-            sensor = sensors.AlwaysSensorDrawWindow(self.canvas)
+            sensor = sensors.AlwaysSensorDrawWindow(self)
         elif sensor_type == sensors.SENSOR_KEYBOARD:
-            sensor = sensors.KeyboardSensorDrawWindow(self.canvas)
+            sensor = sensors.KeyboardSensorDrawWindow(self)
         elif sensor_type == sensors.SENSOR_PRELOAD:
-            sensor = sensors.PreloadSensorDrawWindow(self.canvas)
+            sensor = sensors.PreloadSensorDrawWindow(self)
 
         if sensor:
             self.sensors.append(sensor)
@@ -152,9 +152,9 @@ class LogicEditor(SubWindow):
     def __add_controller(self, controller_type):
         controller = None
         if controller_type == controllers.CONTROLLER_AND:
-            controller = controllers.ANDControllerDrawWindow(self.canvas)
+            controller = controllers.ANDControllerDrawWindow(self)
         elif controller_type == controllers.CONTROLLER_OR:
-            controller = controllers.ORControllerDrawWindow(self.canvas)
+            controller = controllers.ORControllerDrawWindow(self)
 
         if controller:
             self.controllers.append(controller)
@@ -163,22 +163,22 @@ class LogicEditor(SubWindow):
     def __add_actuator(self, actuator_type):
         actuator = None
         if actuator_type == actuators.ACTUATOR_QUIT_GAME:
-            actuator = actuators.QuitGameActuatorDrawWindow(self.canvas)
+            actuator = actuators.QuitGameActuatorDrawWindow(self)
         elif actuator_type == actuators.ACTUATOR_RESTART_GAME:
-            actuator = actuators.RestartGameActuatorDrawWindow(self.canvas)
+            actuator = actuators.RestartGameActuatorDrawWindow(self)
         elif actuator_type == actuators.ACTUATOR_RESTART_SCENE:
-            actuator = actuators.RestartSceneActuatorDrawWindow(self.canvas)
+            actuator = actuators.RestartSceneActuatorDrawWindow(self)
         elif actuator_type == actuators.ACTUATOR_CODE:
             actuator = actuators.CodeActuatorDrawWindow(self.canvas)
         elif actuator_type == actuators.ACTUATOR_MOUSE_VISIBILITY:
-            actuator = actuators.MouseVisibilityActuatorDrawWindow(self.canvas)
+            actuator = actuators.MouseVisibilityActuatorDrawWindow(self)
         elif actuator_type == actuators.ACTUATOR_LOAD_SCENE:
             actuator = actuators.LoadSceneActuatorDrawWindow(
-                self.canvas, get_scene_func=self.__get_scene_list
+                self, get_scene_func=self.__get_scene_list
             )
         elif actuator_type == actuators.ACTUATOR_LOAD_ASSETS:
             actuator = actuators.LoadAssetsActuatorDrawWindow(
-                self.canvas, get_assets_func=self.__get_assets_list
+                self, get_assets_func=self.__get_assets_list
             )
 
         if actuator:
@@ -195,7 +195,7 @@ class LogicEditor(SubWindow):
         return self.master.get_scene_list()
 
     def add_connect_by_AND(self, sensor, actuator):
-        and_brick = controllers.ANDControllerDrawWindow(self.canvas)
+        and_brick = controllers.ANDControllerDrawWindow(self)
         and_brick.x = 270
         and_brick.y = sensor.y
         self.controllers.append(and_brick)

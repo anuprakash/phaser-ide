@@ -870,13 +870,13 @@ class PhaserEditor(boring.Window):
         called in __initial_scenes_and_assets
         '''
         self.add_scene('boot')
-        canvas = self.logic_editors['boot'].canvas
-        preload = logiceditor.sensors.PreloadSensorDrawWindow(canvas)
+        boot_logic_editor = self.logic_editors['boot']
+        preload = logiceditor.sensors.PreloadSensorDrawWindow(boot_logic_editor)
         preload.x = 20
         preload.y = 100
 
         load_assets = logiceditor.actuators.LoadAssetsActuatorDrawWindow(
-            canvas, get_assets_func=self.get_assets_dict
+            boot_logic_editor, get_assets_func=self.get_assets_dict
         )
         load_assets.add_asset('default_loading')
         load_assets.x = 550
@@ -884,11 +884,11 @@ class PhaserEditor(boring.Window):
 
         self.logic_editors['boot'].add_connect_by_AND(preload, load_assets)
 
-        boot_create = logiceditor.sensors.SignalSensorDrawWindow(canvas)
+        boot_create = logiceditor.sensors.SignalSensorDrawWindow(boot_logic_editor)
         boot_create.x = 20
         boot_create.y = 200
 
-        code_actuator = logiceditor.actuators.CodeActuatorDrawWindow(canvas)
+        code_actuator = logiceditor.actuators.CodeActuatorDrawWindow(boot_logic_editor)
         code_actuator.x = 550
         code_actuator.y = 200
         # TODO: colocar isso num arquivo externo
@@ -905,12 +905,12 @@ this.game.scale.enterIncorrectOrientation.add(this.handleIncorrect);
 ''')
         self.logic_editors['boot'].add_connect_by_AND(boot_create, code_actuator)
 
-        signal_load_scene = logiceditor.sensors.SignalSensorDrawWindow(canvas)
+        signal_load_scene = logiceditor.sensors.SignalSensorDrawWindow(boot_logic_editor)
         signal_load_scene.x = 20
         signal_load_scene.y = 300
 
         load_scene = logiceditor.actuators.LoadSceneActuatorDrawWindow(
-            canvas, get_scene_func=self.get_scene_list
+            boot_logic_editor, get_scene_func=self.get_scene_list
         )
         load_scene.value = 'preload'
         load_scene.x = 550

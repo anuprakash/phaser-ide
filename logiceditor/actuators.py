@@ -22,52 +22,56 @@ ACTUATOR_LOAD_ASSETS = 6
 # SOUND
 
 class GenericActuatorDrawWindow(core.GenericLogicEditorDrawWindow):
-    def __init__(self, canvas, title='Sensor', widget=None):
+    def __init__(self, logiceditor, title='Sensor', widget=None):
         core.GenericLogicEditorDrawWindow.__init__(
             self,
-            canvas,
+            logiceditor,
             fill='#333',
-            radius=[3]*4,
+            radius=[5,0,0,5],
             title=title,
             widget=widget,
             emissor=False,
             receptor_type='actuator',
-            receptor=True
+            receptor=True,
+            close_function=self.__remove_actuator
         )
+
+    def __remove_actuator(self, event=None):
+        self.logiceditor.actuators.remove(self)
 
 #### GAME
 class QuitGameActuatorDrawWindow(GenericActuatorDrawWindow):
-    def __init__(self, canvas):
+    def __init__(self, logiceditor):
         GenericActuatorDrawWindow.__init__(
             self,
-            canvas,
+            logiceditor,
             title='Quit Game'
         )
 
 class RestartGameActuatorDrawWindow(GenericActuatorDrawWindow):
-    def __init__(self, canvas):
+    def __init__(self, logiceditor):
         GenericActuatorDrawWindow.__init__(
             self,
-            canvas,
+            logiceditor,
             title='Restart Game'
         )
 
 class RestartSceneActuatorDrawWindow(GenericActuatorDrawWindow):
-    def __init__(self, canvas):
+    def __init__(self, logiceditor):
         GenericActuatorDrawWindow.__init__(
             self,
-            canvas,
+            logiceditor,
             title='Restart Scene'
         )
 
 class CodeActuatorDrawWindow(GenericActuatorDrawWindow):
-    def __init__(self, canvas):
+    def __init__(self, logiceditor):
         GenericActuatorDrawWindow.__init__(
             self,
-            canvas,
+            logiceditor,
             title='Code',
             widget=boring.form.FormFrame(
-                canvas,
+                logiceditor,
                 'Script@text',
                 font=('TkDefaultFont', 6)
             )
@@ -81,30 +85,30 @@ class CodeActuatorDrawWindow(GenericActuatorDrawWindow):
         return self.widget.inputs[0].text
 
 class MouseVisibilityActuatorDrawWindow(GenericActuatorDrawWindow):
-    def __init__(self, canvas):
+    def __init__(self, logiceditor):
         GenericActuatorDrawWindow.__init__(
             self,
-            canvas,
+            logiceditor,
             title='Mouse',
             widget=boring.form.FormFrame(
-                canvas,
+                logiceditor.canvas,
                 'Visible@check',
                 font=('TkDefaultFont', 6)
             )
         )
 
 class LoadAssetsActuatorDrawWindow(GenericActuatorDrawWindow):
-    def __init__(self, canvas, get_assets_func=None):
+    def __init__(self, logiceditor, get_assets_func=None):
         self.__get_assets_func = get_assets_func
-        self.__stack = boring.widgets.RemovalButtonsStack(canvas)
+        self.__stack = boring.widgets.RemovalButtonsStack(logiceditor.canvas)
         GenericActuatorDrawWindow.__init__(
             self,
-            canvas,
+            logiceditor,
             title='Load Assets',
             widget=self.__stack
         )
         self.__add_button = boring.draw.TextDraw(
-            canvas, self.x+self.width - 5, self.y+(self.height/2), '+',
+            logiceditor.canvas, self.x+self.width - 5, self.y+(self.height/2), '+',
             anchor='e', fill='white'
         )
         self.__add_button.bind('<1>', self.__add_button_click, '+')
@@ -144,15 +148,15 @@ class LoadAssetsActuatorDrawWindow(GenericActuatorDrawWindow):
         return self.__stack.value
 
 class LoadSceneActuatorDrawWindow(GenericActuatorDrawWindow):
-    def __init__(self, canvas, get_scene_func=None):
+    def __init__(self, logiceditor, get_scene_func=None):
         self.__get_scene_func = get_scene_func
         self.__scenes_options = boring.menus.OptionMenu(
-            canvas,
+            logiceditor.canvas,
             get_items_func=self.__get_scenes
         )
         GenericActuatorDrawWindow.__init__(
             self,
-            canvas,
+            logiceditor,
             title='Load Scene',
             widget=self.__scenes_options
         )

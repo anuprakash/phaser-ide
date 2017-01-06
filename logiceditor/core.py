@@ -27,6 +27,16 @@ class ConnectorString(boring.draw.LineDraw):
         if self.obj2:
             self.p2 = [self.obj2.center_x, self.obj2.center_y]
 
+    # override
+    def delete(self):
+        boring.draw.LineDraw.delete(self)
+        # obj1 is a emissor
+        if self.obj1:
+            self.obj1.remove_string()
+        # obj2 is a receptor
+        if self.obj2:
+            self.obj2.remove_string(self)
+
 class ConnectorReceptor(boring.draw.OvalDraw):
     RECEPTORS = []
     def __init__(self, draw_window, receptor_type):
@@ -57,6 +67,22 @@ class ConnectorReceptor(boring.draw.OvalDraw):
         if self.__strings:
             for i in self.__strings:
                 i.update_coords()
+
+    @property
+    def strings(self):
+        return self.__strings
+
+    def remove_strings(self):
+        self.__strings = []
+
+    def remove_string(self, string):
+        self.__strings.remove(string)
+
+    # override
+    def delete(self):
+        boring.draw.OvalDraw.delete(self)
+        for i in self.__strings:
+            i.delete()
 
 class ConnectorEmissor(boring.draw.OvalDraw):
     def __init__(self, draw_window, emissor_type):
@@ -126,25 +152,38 @@ class ConnectorEmissor(boring.draw.OvalDraw):
         '''
         return self.__string.obj2
 
+    def remove_string(self):
+        self.__string = None
+
+    # override
+    def delete(self):
+        boring.draw.OvalDraw.delete(self)
+        if self.__string:
+            self.__string.delete()
+
 class GenericLogicEditorDrawWindow(boring.drawwidgets.DrawWindow):
     def __init__(self,
-            canvas, title='Controller',
+            logiceditor,
+            title='Controller',
             widget=None,
             emissor=True,
             receptor=True,
             fill='#ccc',
             emissor_type=None,
             receptor_type=None,
-            radius=[3]*4):
+            radius=[3,0,0,3],
+            close_function=None):
+        self.logiceditor = logiceditor
         self.receptor = None
         self.emissor = None
         boring.drawwidgets.DrawWindow.__init__(
             self,
-            canvas,
+            logiceditor.canvas,
             radius=radius,
             title=title,
             widget=widget,
-            fill=fill
+            fill=fill,
+            close_function=close_function
         )
         if receptor:
             self.receptor = ConnectorReceptor(

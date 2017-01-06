@@ -144,9 +144,49 @@ class ExporterWindow(boring.dialog.DefaultDialog):
         return replace_many(SCENE_TEMPLATE, {
             '{preload}': self.get_scene_preload_js(scenename),
             '{create}': self.get_scene_create_js(scenename),
-            '{update}': '',
+            '{update}': self.get_scene_update_js(scenename),
             '{scenename}': scenename
         })
+
+    def get_scene_update_js(self, scenename):
+        final_js = u''
+        for controller in self.ide.logic_editors[scenename].controllers:
+            if type(controller) == logiceditor.controllers.ANDControllerDrawWindow:
+                # print controller.actuator
+                # getting sensors
+                conditions = []
+                for sensor in controller.sensors:
+                    js_condition = self.get_sensor_js_condition(sensor)
+                    if js_condition:
+                        conditions.append(js_condition)
+                if conditions:
+                    conditions_in_js = 'if (%s)' % (self.get_js_of_conditions(conditions))
+                    print conditions_in_js
+            elif type(controller) == logiceditor.controllers.ORControllerDrawWindow:
+                pass
+        return final_js
+
+    def get_js_of_conditions(self, conditions):
+        to_join = []
+        for i in conditions:
+            if type(i) == str:
+                to_join.append('(%s)' % (i))
+        return ' && '.join(to_join)
+
+    def get_sensor_js_condition(self, sensor):
+        """
+        Can return True if is always, string, width js condition
+        or False to not be considered
+        """
+        if type(sensor) == logiceditor.sensors.PreloadSensorDrawWindow:
+            return False
+        elif type(sensor) == logiceditor.sensors.SignalSensorDrawWindow:
+            return False
+        elif type(sensor) == logiceditor.sensors.AlwaysSensorDrawWindow:
+            return True
+        elif type(sensor) == logiceditor.sensors.MessageSensorDrawWindow:
+            return 'window.phasermessages.indexOf("%s") != -1' % (sensor.subject)
+        return None
 
     def get_js_code_of_a_sensor(self, scenename, sensortype):
         final_js = ''
